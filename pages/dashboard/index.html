@@ -69,13 +69,20 @@
     /* Body */
     .dash-body { padding: 4px 20px 0; }
 
-    /* Upcoming Consultation Card */
+    /* Upcoming Consultation */
+    .upcoming-strip {
+      display: flex; gap: 10px;
+      overflow-x: auto; scrollbar-width: none;
+      margin-bottom: 24px; padding-bottom: 4px;
+    }
+    .upcoming-strip::-webkit-scrollbar { display: none; }
     .upcoming-card {
       background: linear-gradient(135deg, var(--green-700), var(--green-500));
       border-radius: var(--r-xl);
       padding: 18px;
       color: white;
-      margin-bottom: 24px;
+      min-width: calc(100% - 8px);
+      flex-shrink: 0;
       box-shadow: 0 6px 20px rgba(45,106,79,.30);
       cursor: pointer; transition: all .15s;
     }
@@ -98,21 +105,25 @@
     .uc-btn:active { transform: scale(.96); }
     .uc-btn.solid { background: white; color: var(--primary); }
 
-    /* Quick Actions Grid */
-    .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    /* Quick Actions */
+    .qa-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
     .qa-item {
+      display: flex; align-items: center; gap: 12px;
       background: var(--bg-card); border-radius: var(--r-lg);
       border: 1px solid var(--border); box-shadow: var(--shadow-xs);
-      padding: 16px; cursor: pointer; transition: all .15s;
+      padding: 12px 14px; cursor: pointer; transition: all .15s;
     }
     .qa-item:active { transform: scale(.96); box-shadow: none; }
     .qa-icon {
-      width: 44px; height: 44px; border-radius: var(--r-sm);
+      width: 36px; height: 36px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; margin-bottom: 10px;
+      color: var(--primary);
     }
-    .qa-title { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 3px; }
-    .qa-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .qa-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .qa-body { flex: 1; min-width: 0; }
+    .qa-title { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 1px; }
+    .qa-desc { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
+    .qa-arrow { font-size: 16px; color: var(--text-placeholder); }
 
     /* Expert cards horizontal */
     .expert-h-card {
@@ -187,50 +198,56 @@
     <div class="dash-body">
 
       <!-- Upcoming Consultation -->
-      <div class="upcoming-card anim-fade-up" onclick="go('chat-room')">
-        <div class="uc-label">Konsultasi Berikutnya</div>
-        <div class="uc-expert">
-          <div class="avatar av-md" style="background:rgba(255,255,255,.2); color:white; font-size:16px; font-weight:800;">AW</div>
-          <div>
-            <div class="uc-expert-name">Dr. Amara Wijaya</div>
-            <div class="uc-expert-sub">Psikolog Klinis · Chat Online</div>
-          </div>
-        </div>
-        <div class="uc-meta">
-          <div class="uc-meta-item"><span class="uc-meta-val">Besok</span><span class="uc-meta-label">Hari</span></div>
-          <div class="uc-meta-item"><span class="uc-meta-val">14:00</span><span class="uc-meta-label">Waktu</span></div>
-          <div class="uc-meta-item"><span class="uc-meta-val">60 mnt</span><span class="uc-meta-label">Durasi</span></div>
-        </div>
-        <div class="uc-actions">
-          <div class="uc-btn" onclick="event.stopPropagation(); toast('Sesi dibatalkan')">Batalkan</div>
-          <div class="uc-btn solid" onclick="event.stopPropagation(); go('chat-room')">Masuk Sesi →</div>
-        </div>
+      <div class="sec-header anim-fade-up">
+        <span class="sec-title">Upcoming Consultation</span>
+        <span class="sec-link" onclick="go('consultation')">Lihat semua</span>
       </div>
+      <div class="upcoming-strip anim-fade-up" id="upcomingRow"></div>
 
       <!-- Quick Actions -->
       <div class="sec-header anim-fade-up d1">
         <span class="sec-title">Mulai Sekarang</span>
       </div>
-      <div class="qa-grid anim-fade-up d2">
+      <div class="qa-list anim-fade-up d2">
         <div class="qa-item" onclick="go('expert-list')">
-          <div class="qa-icon" style="background: var(--primary-pale);">💬</div>
-          <div class="qa-title">Konsultasi Online</div>
-          <div class="qa-desc">Chat atau call dengan psikolog</div>
+          <div class="qa-icon" style="background: var(--primary-pale);">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16v10H8l-4 4V5z"/></svg>
+          </div>
+          <div class="qa-body">
+            <div class="qa-title">Konsultasi Online</div>
+            <div class="qa-desc">Chat atau video call dengan psikolog</div>
+          </div>
+          <div class="qa-arrow">›</div>
         </div>
         <div class="qa-item" onclick="go('self-talk-new')">
-          <div class="qa-icon" style="background: #EDE9FE;">📓</div>
-          <div class="qa-title">Self Talk</div>
-          <div class="qa-desc">Tulis diary emosi harianmu</div>
+          <div class="qa-icon" style="background: #EDE9FE;">
+            <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/><path d="M7 7h10"/></svg>
+          </div>
+          <div class="qa-body">
+            <div class="qa-title">Self Talk</div>
+            <div class="qa-desc">Tulis jurnal emosi harian</div>
+          </div>
+          <div class="qa-arrow">›</div>
         </div>
         <div class="qa-item" onclick="go('expert-list')">
-          <div class="qa-icon" style="background: #FEF3C7;">🏢</div>
-          <div class="qa-title">Sesi Offline</div>
-          <div class="qa-desc">Booking tatap muka klinik</div>
+          <div class="qa-icon" style="background: #FEF3C7;">
+            <svg viewBox="0 0 24 24"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
+          </div>
+          <div class="qa-body">
+            <div class="qa-title">Sesi Offline</div>
+            <div class="qa-desc">Booking tatap muka di klinik</div>
+          </div>
+          <div class="qa-arrow">›</div>
         </div>
         <div class="qa-item" onclick="go('chat-bot')">
-          <div class="qa-icon" style="background: #DCFCE7;">🤖</div>
-          <div class="qa-title">Chat Bot</div>
-          <div class="qa-desc">Curhat gratis, tanpa jadwal</div>
+          <div class="qa-icon" style="background: #DCFCE7;">
+            <svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="3"/><path d="M9 12h.01M15 12h.01"/><path d="M12 7V4"/></svg>
+          </div>
+          <div class="qa-body">
+            <div class="qa-title">Chat Bot</div>
+            <div class="qa-desc">Curhat gratis kapan saja</div>
+          </div>
+          <div class="qa-arrow">›</div>
         </div>
       </div>
 
@@ -310,6 +327,38 @@
     document.getElementById('greetName').textContent = user.name || 'Pengguna';
     const pBtn = document.getElementById('profileAvatarBtn');
     pBtn.textContent = user.initials || 'P';
+
+    const upcoming = [
+      { expertId: 1, day: 'Besok', time: '14:00', duration: '60 mnt', type: 'Chat Online' },
+      { expertId: 2, day: 'Jumat', time: '10:30', duration: '45 mnt', type: 'Video Call' },
+      { expertId: 4, day: 'Sabtu', time: '16:00', duration: '90 mnt', type: 'Tatap Muka' },
+    ];
+
+    const upcomingRow = document.getElementById('upcomingRow');
+    upcomingRow.innerHTML = upcoming.map(s => {
+      const e = DATA.experts.find(x => x.id === s.expertId) || DATA.experts[0];
+      return `
+        <div class="upcoming-card" onclick="go('chat-room')">
+          <div class="uc-label">Konsultasi Berikutnya</div>
+          <div class="uc-expert">
+            <div class="avatar av-md" style="background:rgba(255,255,255,.2); color:white; font-size:16px; font-weight:800;">${e.init}</div>
+            <div>
+              <div class="uc-expert-name">${e.name}</div>
+              <div class="uc-expert-sub">${e.role} · ${s.type}</div>
+            </div>
+          </div>
+          <div class="uc-meta">
+            <div class="uc-meta-item"><span class="uc-meta-val">${s.day}</span><span class="uc-meta-label">Hari</span></div>
+            <div class="uc-meta-item"><span class="uc-meta-val">${s.time}</span><span class="uc-meta-label">Waktu</span></div>
+            <div class="uc-meta-item"><span class="uc-meta-val">${s.duration}</span><span class="uc-meta-label">Durasi</span></div>
+          </div>
+          <div class="uc-actions">
+            <div class="uc-btn" onclick="event.stopPropagation(); toast('Sesi dibatalkan')">Batalkan</div>
+            <div class="uc-btn solid" onclick="event.stopPropagation(); go('chat-room')">Masuk Sesi →</div>
+          </div>
+        </div>
+      `;
+    }).join('');
 
     // Render expert cards
     const row = document.getElementById('expertRow');

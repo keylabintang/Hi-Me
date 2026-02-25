@@ -50,42 +50,60 @@ Fokus: Semua halaman inti untuk role **User** — autentikasi, beranda, bot chat
 
 ---
 
-### 🔜 Phase 1.2 — Konsultasi, Pembayaran & Self Talk (PLANNED)
+### ✅ Phase 2.1 — Expert & Booking Sesi (SELESAI)
 
-Fokus: Alur konsultasi lengkap dan fitur diary Self Talk untuk role **User**.
+Fokus: Pencarian expert, detail profil, konsultasi home, dan booking sesi untuk role **User**.
+
+**Halaman yang sudah dibuat:**
+
+| Halaman | Path | Status |
+|---|---|---|
+| Daftar Expert | `pages/expert/list.html` | ✅ Done |
+| Detail Expert | `pages/expert/detail.html` | ✅ Done |
+| Konsultasi Home | `pages/consultation/index.html` | ✅ Done |
+| Booking Sesi (3 step) | `pages/consultation/booking.html` | ✅ Done |
+
+**Fitur Phase 2.1:**
+- Daftar expert dengan search real-time, filter chip (Semua/Online/Psikolog/Konsultan/Anxiety/Depresi/Stres)
+- Sort by: Rating Tertinggi / Harga Terendah / Harga Tertinggi / Banyak Sesi / Banyak Ulasan
+- Filter sheet lanjutan: ketersediaan, jenis expert, spesialisasi, rating minimum
+- Expert card lengkap: avatar inisial, online dot, spesialisasi, harga, jumlah sesi
+- Detail expert: stats row (rating/ulasan/sesi/pengalaman), 3 tabs (Tentang / Jadwal / Ulasan)
+- Tab Jadwal: pilih tanggal 7 hari ke depan + pilih slot waktu (ada unavailable) → tombol booking
+- Tab Ulasan: summary dengan rating bar, 3 mock review
+- Sticky CTA bawah dengan harga, tombol chat, dan tombol booking
+- Konsultasi Home: type selector (Chat/Call/Offline), statistik sesi, sesi mendatang dengan aksi, mini scroll expert
+- Booking 3 langkah dengan progress bar: pilih tipe & durasi & catatan → pilih jadwal → ringkasan + kode promo (HIME20)
+
+---
+
+### 🔜 Phase 2.2 — Self Talk & Chat (PLANNED)
+
+Fokus: Fitur diary Self Talk dan chat room konsultasi aktif.
 
 **Halaman yang akan dibuat:**
 
 | Halaman | Path | Status |
 |---|---|---|
-| Chat List | `pages/chat/index.html` | 🔜 Placeholder |
-| Chat Room (sesi aktif) | `pages/chat/room.html` | 🔜 Placeholder |
-| Daftar Expert | `pages/expert/list.html` | 🔜 Placeholder |
-| Detail Expert | `pages/expert/detail.html` | 🔜 Placeholder |
-| Konsultasi Home | `pages/consultation/index.html` | 🔜 Placeholder |
-| Booking Sesi | `pages/consultation/booking.html` | 🔜 Placeholder |
-| Session Summary + Rating | `pages/consultation/summary.html` | 🔜 Placeholder |
-| Pembayaran | `pages/payment/index.html` | 🔜 Placeholder |
-| Pembayaran Berhasil | `pages/payment/success.html` | 🔜 Placeholder |
-| Self Talk Home | `pages/self-talk/index.html` | 🔜 Placeholder |
-| Tulis Diary (questionnaire) | `pages/self-talk/new.html` | 🔜 Placeholder |
-| Detail Diary | `pages/self-talk/detail.html` | 🔜 Placeholder |
+| Chat List | `pages/chat/index.html` | 🔜 Planned |
+| Chat Room (sesi aktif) | `pages/chat/room.html` | 🔜 Planned |
+| Session Summary + Rating | `pages/consultation/summary.html` | 🔜 Planned |
+| Self Talk Home | `pages/self-talk/index.html` | 🔜 Planned |
+| Tulis Diary (questionnaire) | `pages/self-talk/new.html` | 🔜 Planned |
+| Detail Diary | `pages/self-talk/detail.html` | 🔜 Planned |
 
-**Rencana fitur Phase 1.2:**
-- Daftar expert dengan filter (spesialisasi, harga, ketersediaan), search, sort
-- Detail expert (profil, spesialisasi, ulasan, jadwal)
-- Booking sesi: pilih jenis (chat/call/offline), expert, tanggal, waktu, durasi
-- Sistem pembayaran: VA, e-wallet, debit/kredit card, kode promo
-- Invoice dan payment confirmation
-- Chat room aktif dengan timer sesi, typing indicator
-- Session summary dengan catatan expert, rekomendasi, form rating
+**Rencana fitur Phase 2.2:**
+- Chat room aktif dengan timer sesi, typing indicator, attachments
+- Session summary dengan catatan expert, rekomendasi, form rating bintang
+- Chat list: daftar sesi aktif & riwayat chat
 - Self Talk: questionnaire perasaan → pilih penyebab → pilih emosi → tulis diary
-- Riwayat diary dengan mood tracker
+- Detail diary dengan visualisasi emosi
+- Riwayat diary dengan mood tracker kalender
 
 ---
 
-### 🔮 Phase 2 — Expert Role (PLANNED)
-### 🔮 Phase 3 — Admin Role (PLANNED)
+### 🔮 Phase 3 — Expert Role (PLANNED)
+### 🔮 Phase 4 — Admin Role (PLANNED)
 
 ---
 

@@ -2,23 +2,422 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Expert — Hi-Me</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Temukan Expert — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .expert-header {
+      background: linear-gradient(155deg, var(--green-900), var(--green-700));
+      padding: 0 20px 28px;
+      position: relative; overflow: hidden;
+    }
+    .expert-header::before {
+      content: ''; position: absolute;
+      top: -60px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(149,213,178,.18) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .expert-header::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 32px; background: var(--bg); border-radius: 32px 32px 0 0;
+    }
+    .eh-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; position: relative; z-index: 1; }
+    .eh-title { font-size: 20px; font-weight: 800; color: white; }
+    .eh-sub { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 2px; }
+    .eh-filter-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; color: white; transition: all .15s;
+      position: relative;
+    }
+    .eh-filter-btn:active { transform: scale(.9); }
+
+    .search-wrap { position: relative; z-index: 1; }
+    .search-input-wrap {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: var(--r-xl);
+      padding: 11px 16px;
+      backdrop-filter: blur(8px);
+    }
+    .search-input-wrap input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: white; font-size: 14px; font-weight: 500;
+    }
+    .search-input-wrap input::placeholder { color: rgba(255,255,255,.55); }
+    .search-icon { font-size: 16px; color: rgba(255,255,255,.7); }
+    .search-clear { font-size: 14px; color: rgba(255,255,255,.6); cursor: pointer; }
+
+    .filter-section { padding: 16px 20px 12px; }
+    .filter-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0; padding: 6px 14px;
+      border-radius: 44px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card); color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .chip:active { transform: scale(.94); }
+    .chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+    .sort-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px 14px;
+    }
+    .sort-count { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .sort-count span { font-weight: 700; color: var(--text-primary); }
+    .sort-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: 44px; padding: 6px 12px;
+      font-size: 12px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; transition: all .15s;
+    }
+    .sort-btn:active { background: var(--bg); }
+
+    .expert-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    .expert-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 16px;
+      cursor: pointer;
+      transition: all .15s;
+      box-shadow: var(--shadow-xs);
+    }
+    .expert-card:active { transform: scale(.98); box-shadow: var(--shadow-md); }
+
+    .ec-top { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+    .ec-avatar {
+      width: 56px; height: 56px; border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; flex-shrink: 0;
+      position: relative;
+    }
+    .ec-online-dot {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 12px; height: 12px; background: #22C55E;
+      border-radius: 50%; border: 2px solid var(--bg-card);
+    }
+    .ec-info { flex: 1; min-width: 0; }
+    .ec-name { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .ec-role { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .ec-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .ec-rating .star { color: #F59E0B; }
+    .ec-rating .rev { font-weight: 500; color: var(--text-muted); }
+    .ec-price-tag { text-align: right; flex-shrink: 0; }
+    .ec-price { font-size: 15px; font-weight: 800; color: var(--primary); }
+    .ec-per { font-size: 10px; color: var(--text-muted); }
+
+    .ec-specs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .ec-spec-tag {
+      padding: 3px 10px; border-radius: 44px;
+      background: var(--primary-xpale); border: 1px solid var(--primary-pale);
+      font-size: 11px; font-weight: 700; color: var(--primary);
+    }
+
+    .ec-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .ec-meta { font-size: 11px; color: var(--text-muted); }
+    .ec-meta span { font-weight: 700; color: var(--text-secondary); }
+    .ec-book-btn {
+      padding: 8px 18px; background: var(--primary);
+      border-radius: var(--r-md); color: white;
+      font-size: 12px; font-weight: 700; transition: all .15s;
+    }
+    .ec-book-btn:active { transform: scale(.94); background: var(--primary-hover); }
+
+    .featured-banner {
+      margin: 0 20px 20px;
+      background: linear-gradient(135deg, #2D6A4F, #40916C);
+      border-radius: var(--r-xl); padding: 16px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all .15s;
+      box-shadow: 0 6px 20px rgba(45,106,79,.25);
+    }
+    .featured-banner:active { transform: scale(.98); }
+    .fb-icon { font-size: 40px; flex-shrink: 0; }
+    .fb-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,.7); margin-bottom: 3px; }
+    .fb-title { font-size: 15px; font-weight: 800; color: white; margin-bottom: 3px; }
+    .fb-sub { font-size: 11px; color: rgba(255,255,255,.7); }
+
+    .sort-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: all .15s;
+    }
+    .sort-option:last-child { border-bottom: none; }
+    .sort-option:active { opacity: .7; }
+    .sort-option-label { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .sort-check { font-size: 18px; color: var(--primary); opacity: 0; }
+    .sort-option.selected .sort-check { opacity: 1; }
+    .sort-option.selected .sort-option-label { color: var(--primary); font-weight: 700; }
+
+    .filter-group { margin-bottom: 24px; }
+    .filter-group-title { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .fchip {
+      padding: 7px 14px; border-radius: 44px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      cursor: pointer; transition: all .15s;
+    }
+    .fchip:active { transform: scale(.94); }
+    .fchip.selected { background: var(--primary-xpale); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+    .empty-expert {
+      padding: 60px 32px; text-align: center;
+      display: none; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .empty-expert.show { display: flex; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">👨‍⚕️</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Daftar Expert</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Temukan psikolog & konsultan.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+
+  <div class="expert-header">
+    <div class="eh-top">
+      <div>
+        <div class="eh-title">Temukan Expert</div>
+        <div class="eh-sub">Psikolog & konsultan terpercaya</div>
+      </div>
+      <div class="eh-filter-btn" onclick="openSheet('filterSheet')">🎛️</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+    <div class="search-wrap">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Cari nama atau spesialisasi..." oninput="handleSearch(this.value)">
+        <span class="search-clear" id="searchClear" style="display:none" onclick="clearSearch()">✕</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-area has-nav">
+    <div class="filter-section">
+      <div class="filter-scroll">
+        <div class="chip active" data-filter="semua" onclick="setFilter('semua',this)">Semua</div>
+        <div class="chip" data-filter="online" onclick="setFilter('online',this)">🟢 Online</div>
+        <div class="chip" data-filter="psikolog" onclick="setFilter('psikolog',this)">Psikolog</div>
+        <div class="chip" data-filter="konsultan" onclick="setFilter('konsultan',this)">Konsultan</div>
+        <div class="chip" data-filter="anxiety" onclick="setFilter('anxiety',this)">Anxiety</div>
+        <div class="chip" data-filter="depresi" onclick="setFilter('depresi',this)">Depresi</div>
+        <div class="chip" data-filter="stres" onclick="setFilter('stres',this)">Stres Kerja</div>
+      </div>
+    </div>
+
+    <div class="sort-row">
+      <div class="sort-count"><span id="expertCount">4</span> expert ditemukan</div>
+      <div class="sort-btn" onclick="openSheet('sortSheet')">⬍ <span id="sortLabel">Rating Tertinggi</span></div>
+    </div>
+
+    <div class="featured-banner">
+      <div class="fb-icon">⭐</div>
+      <div>
+        <div class="fb-label">Expert Pilihan Minggu Ini</div>
+        <div class="fb-title">Sesi Pertama Lebih Hemat</div>
+        <div class="fb-sub">Diskon 20% untuk konsultasi perdana</div>
+      </div>
+    </div>
+
+    <div class="expert-list" id="expertList"></div>
+    <div class="empty-expert" id="emptyState">
+      <div style="font-size:56px;">🔍</div>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.6;">Tidak ada expert yang sesuai. Coba ubah filter atau kata kunci.</p>
+    </div>
+    <div style="height:16px;"></div>
+  </div>
+
+  <nav class="bottomnav">
+    <div class="nav-item" onclick="go('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="go('chat-list')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></div>
+    <div class="nav-item active" onclick="go('consultation')"><span class="nav-icon">🩺</span><span class="nav-label">Konsultasi</span></div>
+    <div class="nav-item" onclick="go('self-talk')"><span class="nav-icon">📓</span><span class="nav-label">Self Talk</span></div>
+    <div class="nav-item" onclick="go('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+  </nav>
+
+  <!-- Sort Sheet -->
+  <div class="overlay" id="sortSheet" onclick="overlayClick(event,'sortSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Urutkan</div>
+        <div class="sheet-close" onclick="closeSheet('sortSheet')">✕</div>
+      </div>
+      <div style="padding:0 24px 24px;">
+        <div class="sort-option selected" onclick="setSort('rating',this)"><span class="sort-option-label">⭐ Rating Tertinggi</span><span class="sort-check">✓</span></div>
+        <div class="sort-option" onclick="setSort('price-asc',this)"><span class="sort-option-label">💰 Harga Terendah</span><span class="sort-check">✓</span></div>
+        <div class="sort-option" onclick="setSort('price-desc',this)"><span class="sort-option-label">💎 Harga Tertinggi</span><span class="sort-check">✓</span></div>
+        <div class="sort-option" onclick="setSort('sessions',this)"><span class="sort-option-label">🔥 Paling Banyak Sesi</span><span class="sort-check">✓</span></div>
+        <div class="sort-option" onclick="setSort('reviews',this)"><span class="sort-option-label">💬 Paling Banyak Ulasan</span><span class="sort-check">✓</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Sheet -->
+  <div class="overlay" id="filterSheet" onclick="overlayClick(event,'filterSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Filter Expert</div>
+        <div class="sheet-close" onclick="closeSheet('filterSheet');toast('Filter diterapkan')">Terapkan</div>
+      </div>
+      <div style="padding:0 24px 32px;overflow-y:auto;max-height:480px;">
+        <div class="filter-group">
+          <div class="filter-group-title">Ketersediaan</div>
+          <div class="filter-chips">
+            <div class="fchip selected" onclick="toggleFChip(this)">Semua</div>
+            <div class="fchip" onclick="toggleFChip(this)">🟢 Online Sekarang</div>
+            <div class="fchip" onclick="toggleFChip(this)">Tersedia Hari Ini</div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-group-title">Jenis Expert</div>
+          <div class="filter-chips">
+            <div class="fchip selected" onclick="toggleFChip(this)">Semua</div>
+            <div class="fchip" onclick="toggleFChip(this)">Psikolog Klinis</div>
+            <div class="fchip" onclick="toggleFChip(this)">Konsultan</div>
+            <div class="fchip" onclick="toggleFChip(this)">Analyst</div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-group-title">Spesialisasi</div>
+          <div class="filter-chips">
+            <div class="fchip selected" onclick="toggleFChip(this)">Semua</div>
+            <div class="fchip" onclick="toggleFChip(this)">Anxiety</div>
+            <div class="fchip" onclick="toggleFChip(this)">Depresi</div>
+            <div class="fchip" onclick="toggleFChip(this)">Trauma</div>
+            <div class="fchip" onclick="toggleFChip(this)">Stres Kerja</div>
+            <div class="fchip" onclick="toggleFChip(this)">Relationship</div>
+            <div class="fchip" onclick="toggleFChip(this)">Self-esteem</div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-group-title">Rating Minimum</div>
+          <div class="filter-chips">
+            <div class="fchip selected" onclick="toggleFChip(this)">Semua</div>
+            <div class="fchip" onclick="toggleFChip(this)">⭐ 4.5+</div>
+            <div class="fchip" onclick="toggleFChip(this)">⭐ 4.0+</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    dashboard: '../dashboard/index.html',
+    'chat-list': '../chat/index.html',
+    consultation: '../consultation/index.html',
+    'self-talk': '../self-talk/index.html',
+    profile: '../profile/index.html',
+    'expert-list': 'list.html',
+    'expert-detail': 'detail.html',
+    booking: '../consultation/booking.html',
+  });
+
+  let currentFilter = 'semua';
+  let currentSort = 'rating';
+  let searchQuery = '';
+
+  function renderExperts() {
+    let filtered = [...DATA.experts];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        e.role.toLowerCase().includes(q) ||
+        e.spec.some(s => s.toLowerCase().includes(q))
+      );
+    }
+    if (currentFilter === 'online') filtered = filtered.filter(e => e.online);
+    else if (currentFilter === 'psikolog') filtered = filtered.filter(e => e.role.toLowerCase().includes('psikolog'));
+    else if (currentFilter === 'konsultan') filtered = filtered.filter(e => e.role.toLowerCase().includes('consult'));
+    else if (currentFilter === 'anxiety') filtered = filtered.filter(e => e.spec.some(s => s.toLowerCase().includes('anxiety') || s.toLowerCase().includes('cemas')));
+    else if (currentFilter === 'depresi') filtered = filtered.filter(e => e.spec.some(s => s.toLowerCase().includes('depresi')));
+    else if (currentFilter === 'stres') filtered = filtered.filter(e => e.spec.some(s => s.toLowerCase().includes('stres') || s.toLowerCase().includes('burnout')));
+
+    if (currentSort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
+    else if (currentSort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
+    else if (currentSort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+    else if (currentSort === 'sessions') filtered.sort((a,b) => b.sessions - a.sessions);
+    else if (currentSort === 'reviews') filtered.sort((a,b) => b.reviews - a.reviews);
+
+    document.getElementById('expertCount').textContent = filtered.length;
+    const list = document.getElementById('expertList');
+    const empty = document.getElementById('emptyState');
+
+    if (!filtered.length) { list.innerHTML=''; empty.classList.add('show'); return; }
+    empty.classList.remove('show');
+
+    list.innerHTML = filtered.map(e => `
+      <div class="expert-card" onclick="viewExpert(${e.id})">
+        <div class="ec-top">
+          <div class="ec-avatar" style="background:${e.color};color:${e.textColor};">
+            ${e.init}${e.online ? '<span class="ec-online-dot"></span>' : ''}
+          </div>
+          <div class="ec-info">
+            <div class="ec-name">${e.name}</div>
+            <div class="ec-role">${e.role} · ${e.exp} pengalaman</div>
+            <div class="ec-rating"><span class="star">★</span> ${e.rating} <span class="rev">(${e.reviews} ulasan)</span></div>
+          </div>
+          <div class="ec-price-tag">
+            <div class="ec-price">${formatRupiah(e.price)}</div>
+            <div class="ec-per">per sesi</div>
+          </div>
+        </div>
+        <div class="ec-specs">${e.spec.map(s=>`<span class="ec-spec-tag">${s}</span>`).join('')}</div>
+        <div class="ec-bottom">
+          <div class="ec-meta"><span>${e.sessions}</span> sesi selesai</div>
+          <div class="ec-book-btn" onclick="event.stopPropagation();bookExpert(${e.id})">Booking Sesi</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function viewExpert(id) {
+    sessionStorage.setItem('hime_params', JSON.stringify({ expertId: id }));
+    window.location.href = 'detail.html';
+  }
+  function bookExpert(id) {
+    sessionStorage.setItem('hime_params', JSON.stringify({ expertId: id }));
+    window.location.href = '../consultation/booking.html';
+  }
+  function setFilter(val, el) {
+    currentFilter = val;
+    document.querySelectorAll('[data-filter]').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderExperts();
+  }
+  function setSort(val, el) {
+    currentSort = val;
+    document.querySelectorAll('.sort-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const lbl = { rating:'Rating Tertinggi','price-asc':'Harga Terendah','price-desc':'Harga Tertinggi',sessions:'Banyak Sesi',reviews:'Banyak Ulasan' };
+    document.getElementById('sortLabel').textContent = lbl[val];
+    closeSheet('sortSheet');
+    renderExperts();
+  }
+  function handleSearch(val) {
+    searchQuery = val;
+    document.getElementById('searchClear').style.display = val ? 'block' : 'none';
+    renderExperts();
+  }
+  function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    searchQuery = '';
+    document.getElementById('searchClear').style.display = 'none';
+    renderExperts();
+  }
+  function toggleFChip(el) { el.classList.toggle('selected'); }
+
+  renderExperts();
+</script>
 </body>
 </html>

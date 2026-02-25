@@ -2,23 +2,478 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Booking Sesi — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .booking-progress {
+      display: flex; gap: 0; align-items: center;
+      padding: 16px 24px 12px;
+    }
+    .bp-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bp-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; transition: all .3s;
+    }
+    .bp-dot.done { background: var(--primary); color: white; }
+    .bp-dot.active { background: var(--primary); color: white; box-shadow: 0 0 0 4px var(--primary-pale); }
+    .bp-dot.pending { background: var(--border); color: var(--text-muted); }
+    .bp-label { font-size: 10px; font-weight: 700; color: var(--text-muted); }
+    .bp-label.active { color: var(--primary); }
+    .bp-line { height: 2px; flex: 1; margin-bottom: 18px; }
+    .bp-line.done { background: var(--primary); }
+    .bp-line.pending { background: var(--border); }
+
+    /* Step panels */
+    .step-panel { display: none; padding: 0 20px; animation: fadeUp .3s ease; }
+    .step-panel.active { display: block; }
+
+    /* Expert summary card */
+    .expert-summary-card {
+      display: flex; gap: 14px; align-items: center;
+      padding: 16px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--r-xl);
+      margin-bottom: 20px; box-shadow: var(--shadow-xs);
+    }
+    .esc-avatar {
+      width: 54px; height: 54px; border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; font-weight: 800; flex-shrink: 0;
+    }
+    .esc-name { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .esc-role { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .esc-rating { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .esc-rating span { color: #F59E0B; }
+    .esc-change { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--primary); cursor: pointer; }
+
+    /* Session type */
+    .type-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+    .type-opt {
+      padding: 14px 8px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .type-opt:active { transform: scale(.95); }
+    .type-opt.selected { background: var(--primary-xpale); border-color: var(--primary); }
+    .to-icon { font-size: 26px; margin-bottom: 6px; }
+    .to-name { font-size: 12px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .to-sub { font-size: 10px; color: var(--text-muted); }
+    .type-opt.selected .to-name { color: var(--primary); }
+
+    /* Duration */
+    .duration-row { display: flex; gap: 8px; margin-bottom: 20px; }
+    .duration-opt {
+      flex: 1; padding: 12px 8px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .duration-opt:active { transform: scale(.96); }
+    .duration-opt.selected { background: var(--primary-xpale); border-color: var(--primary); }
+    .do-time { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .do-price { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .duration-opt.selected .do-time { color: var(--primary); }
+    .duration-opt.selected .do-price { color: var(--primary); }
+
+    /* Date select */
+    .date-row-book { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 2px; }
+    .date-row-book::-webkit-scrollbar { display: none; }
+    .date-chip-book {
+      flex-shrink: 0; padding: 10px 14px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      text-align: center; cursor: pointer; transition: all .15s;
+      min-width: 58px;
+    }
+    .date-chip-book:active { transform: scale(.94); }
+    .date-chip-book.selected { background: var(--primary); border-color: var(--primary); }
+    .dcb-day { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 2px; }
+    .dcb-num { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+    .date-chip-book.selected .dcb-day, .date-chip-book.selected .dcb-num { color: white; }
+
+    /* Time grid */
+    .time-grid-book { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 20px; }
+    .tgb-slot {
+      padding: 11px 6px; text-align: center;
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-size: 13px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; transition: all .15s; background: var(--bg-card);
+    }
+    .tgb-slot:active { transform: scale(.94); }
+    .tgb-slot.selected { background: var(--primary-xpale); border-color: var(--primary); color: var(--primary); }
+    .tgb-slot.unavail { background: var(--bg); color: var(--text-placeholder); cursor: default; text-decoration: line-through; }
+
+    /* Notes */
+    .notes-field {
+      width: 100%; min-height: 100px; padding: 14px;
+      border: 1.5px solid var(--border); border-radius: var(--r-lg);
+      font-size: 14px; color: var(--text-primary); background: var(--bg-card);
+      resize: none; outline: none; font-family: inherit; line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .notes-field:focus { border-color: var(--primary); }
+
+    /* Summary step */
+    .summary-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); overflow: hidden; margin-bottom: 16px;
+    }
+    .sc-header {
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      padding: 16px; display: flex; gap: 14px; align-items: center;
+    }
+    .sc-avatar {
+      width: 52px; height: 52px; border-radius: var(--r-lg);
+      background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .sc-name { font-size: 15px; font-weight: 800; color: white; }
+    .sc-role { font-size: 12px; color: rgba(255,255,255,.75); }
+    .sc-body { padding: 16px; }
+    .sc-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .sc-row:last-child { border-bottom: none; }
+    .sc-label { font-size: 13px; color: var(--text-muted); }
+    .sc-val { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .sc-val.price { color: var(--primary); font-size: 15px; font-weight: 900; }
+
+    .promo-row {
+      display: flex; gap: 8px; align-items: center; margin-bottom: 16px;
+    }
+    .promo-input {
+      flex: 1; padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-size: 14px; color: var(--text-primary); background: var(--bg-card);
+      outline: none; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .promo-input:focus { border-color: var(--primary); }
+    .promo-apply {
+      padding: 12px 18px; background: var(--primary); border-radius: var(--r-md);
+      font-size: 13px; font-weight: 800; color: white;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .promo-apply:active { transform: scale(.95); }
+
+    /* Sticky bottom */
+    .booking-footer {
+      position: sticky; bottom: 0;
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex; gap: 10px; align-items: center;
+    }
+    .bf-price-block { flex: 1; }
+    .bf-label { font-size: 11px; color: var(--text-muted); }
+    .bf-price { font-size: 18px; font-weight: 900; color: var(--primary); }
+    .bf-btn {
+      padding: 14px 28px; background: var(--primary); border-radius: var(--r-lg);
+      color: white; font-size: 15px; font-weight: 800;
+      cursor: pointer; transition: all .15s;
+    }
+    .bf-btn:active { transform: scale(.97); background: var(--primary-hover); }
+    .bf-btn:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
+
+    .form-label { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; display: block; }
+    .section-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">📅</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Booking Sesi</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Pilih jadwal sesi konsultasimu.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+
+  <!-- Top Nav -->
+  <div class="topnav">
+    <div class="back-btn" onclick="history.back()">←</div>
+    <div class="topnav-title">Booking Sesi</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="booking-progress">
+    <div class="bp-step">
+      <div class="bp-dot active" id="dot1">1</div>
+      <div class="bp-label active" id="lbl1">Pilih Sesi</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+    <div class="bp-line pending" id="line1"></div>
+    <div class="bp-step">
+      <div class="bp-dot pending" id="dot2">2</div>
+      <div class="bp-label" id="lbl2">Jadwal</div>
+    </div>
+    <div class="bp-line pending" id="line2"></div>
+    <div class="bp-step">
+      <div class="bp-dot pending" id="dot3">3</div>
+      <div class="bp-label" id="lbl3">Ringkasan</div>
+    </div>
+  </div>
+
+  <!-- Scroll -->
+  <div class="scroll-area" style="padding-bottom:90px;">
+    <!-- Step 1: Expert + session type -->
+    <div class="step-panel active" id="step1">
+      <div class="expert-summary-card" id="expertCard">Loading...</div>
+
+      <label class="form-label">Jenis Konsultasi</label>
+      <div class="type-grid">
+        <div class="type-opt selected" onclick="selectTypeBook('chat',this)">
+          <div class="to-icon">💬</div>
+          <div class="to-name">Chat</div>
+          <div class="to-sub">Pesan teks</div>
+        </div>
+        <div class="type-opt" onclick="selectTypeBook('call',this)">
+          <div class="to-icon">📞</div>
+          <div class="to-name">Video Call</div>
+          <div class="to-sub">Tatap muka</div>
+        </div>
+        <div class="type-opt" onclick="selectTypeBook('offline',this)">
+          <div class="to-icon">🏥</div>
+          <div class="to-name">Offline</div>
+          <div class="to-sub">Langsung</div>
+        </div>
+      </div>
+
+      <label class="form-label">Durasi Sesi</label>
+      <div class="duration-row" id="durationRow"></div>
+
+      <label class="form-label">Catatan untuk Expert (opsional)</label>
+      <textarea class="notes-field" id="notesField" placeholder="Ceritakan secara singkat apa yang ingin kamu bahas dalam sesi ini..."></textarea>
+    </div>
+
+    <!-- Step 2: Schedule -->
+    <div class="step-panel" id="step2">
+      <label class="form-label">Pilih Tanggal</label>
+      <div class="date-row-book" id="dateRowBook"></div>
+      <label class="form-label">Pilih Waktu</label>
+      <div class="time-grid-book" id="timeGridBook"></div>
+      <div style="padding:12px;background:var(--primary-xpale);border:1px solid var(--primary-pale);border-radius:var(--r-md);margin-bottom:20px;">
+        <p style="font-size:12px;color:var(--primary);font-weight:600;">💡 Sesi akan dimulai tepat waktu. Pastikan kamu sudah siap 5 menit sebelumnya.</p>
+      </div>
+    </div>
+
+    <!-- Step 3: Summary -->
+    <div class="step-panel" id="step3">
+      <div class="summary-card">
+        <div class="sc-header" id="scHeader">...</div>
+        <div class="sc-body" id="scBody">...</div>
+      </div>
+
+      <label class="form-label">Kode Promo</label>
+      <div class="promo-row">
+        <input type="text" class="promo-input" id="promoInput" placeholder="Masukkan kode promo">
+        <div class="promo-apply" onclick="applyPromo()">Pakai</div>
+      </div>
+      <div id="promoMsg" style="font-size:12px;margin-bottom:16px;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="booking-footer">
+    <div class="bf-price-block">
+      <div class="bf-label">Total harga</div>
+      <div class="bf-price" id="footerPrice">Rp —</div>
+    </div>
+    <div class="bf-btn" id="mainBtn" onclick="nextStep()">Lanjutkan →</div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const params = getParams();
+  const isChatbotPrepayFlow = params.flow === 'chatbot_prepay';
+  const expertId = params.expertId || 1;
+  const expert = DATA.experts.find(e => e.id == expertId) || DATA.experts[0];
+
+  let currentStep = 1;
+  let selectedType = 'chat';
+  let selectedDuration = 60;
+  let selectedDate = null;
+  let selectedTime = null;
+  let promoDiscount = 0;
+
+  const durations = [
+    { mins:30, mult:.5 },
+    { mins:60, mult:1 },
+    { mins:90, mult:1.5 },
+  ];
+
+  function getPrice() {
+    return Math.round(expert.price * durations.find(d=>d.mins===selectedDuration).mult);
+  }
+
+  // Init expert card
+  if (isChatbotPrepayFlow) {
+    document.getElementById('expertCard').innerHTML = `
+      <div class="esc-avatar" style="background:var(--primary-pale);color:var(--primary);">🧠</div>
+      <div>
+        <div class="esc-name">Paket Konsultasi</div>
+        <div class="esc-role">Pilih jenis sesi & jadwal terlebih dahulu</div>
+        <div class="esc-rating"><span>✓</span> Expert dipilih setelah pembayaran</div>
+      </div>
+    `;
+  } else {
+    document.getElementById('expertCard').innerHTML = `
+      <div class="esc-avatar" style="background:${expert.color};color:${expert.textColor};">${expert.init}</div>
+      <div>
+        <div class="esc-name">${expert.name}</div>
+        <div class="esc-role">${expert.role}</div>
+        <div class="esc-rating"><span>★</span> ${expert.rating} · ${expert.exp} pengalaman</div>
+      </div>
+      <div class="esc-change" onclick="history.back()">Ganti</div>
+    `;
+  }
+
+  // Duration row
+  document.getElementById('durationRow').innerHTML = durations.map(d => `
+    <div class="duration-opt${d.mins===60?' selected':''}" onclick="selectDuration(${d.mins},this)">
+      <div class="do-time">${d.mins} mnt</div>
+      <div class="do-price">${formatRupiah(Math.round(expert.price*d.mult))}</div>
+    </div>
+  `).join('');
+
+  // Date row
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const today = new Date();
+  let dateHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(today.getDate() + i);
+    const lbl = i===0?'Hari ini':i===1?'Besok':days[d.getDay()];
+    const iso = d.toISOString().split('T')[0];
+    dateHTML += `<div class="date-chip-book${i===0?' selected':''}" onclick="selectDateBook(this,'${iso}')">
+      <div class="dcb-day">${lbl}</div>
+      <div class="dcb-num">${d.getDate()}</div>
+    </div>`;
+  }
+  document.getElementById('dateRowBook').innerHTML = dateHTML;
+  selectedDate = today.toISOString().split('T')[0];
+
+  // Time grid
+  const times = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','19:00'];
+  const unavail = ['10:00','15:00'];
+  document.getElementById('timeGridBook').innerHTML = times.map(t => `
+    <div class="tgb-slot${unavail.includes(t)?' unavail':''}" onclick="${unavail.includes(t)?'':'selectTimeBook(this,\''+t+'\')'}">
+      ${t}
+    </div>
+  `).join('');
+
+  function selectTypeBook(type, el) {
+    selectedType = type;
+    document.querySelectorAll('.type-opt').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    updateFooter();
+  }
+
+  function selectDuration(mins, el) {
+    selectedDuration = mins;
+    document.querySelectorAll('.duration-opt').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    updateFooter();
+  }
+
+  function selectDateBook(el, val) {
+    selectedDate = val;
+    document.querySelectorAll('.date-chip-book').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectTimeBook(el, val) {
+    selectedTime = val;
+    document.querySelectorAll('.tgb-slot').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('mainBtn').removeAttribute('disabled');
+  }
+
+  function updateFooter() {
+    document.getElementById('footerPrice').textContent = formatRupiah(getPrice());
+  }
+
+  function updateProgress(step) {
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('dot'+i);
+      const lbl = document.getElementById('lbl'+i);
+      if (i < step) { dot.className='bp-dot done'; dot.textContent='✓'; lbl.className='bp-label'; }
+      else if (i === step) { dot.className='bp-dot active'; dot.textContent=i; lbl.className='bp-label active'; }
+      else { dot.className='bp-dot pending'; dot.textContent=i; lbl.className='bp-label'; }
+      if (i < 3) {
+        document.getElementById('line'+i).className = 'bp-line ' + (i < step ? 'done' : 'pending');
+      }
+    }
+  }
+
+  function buildSummary() {
+    const typeLabels = { chat:'💬 Chat', call:'📞 Video Call', offline:'🏥 Offline' };
+    const price = getPrice();
+    const final = price - promoDiscount;
+    document.getElementById('scHeader').innerHTML = `
+      <div class="sc-avatar" style="background:rgba(255,255,255,.2);">${expert.init}</div>
+      <div><div class="sc-name">${expert.name}</div><div class="sc-role">${expert.role}</div></div>
+    `;
+    document.getElementById('scBody').innerHTML = `
+      <div class="sc-row"><span class="sc-label">Jenis Sesi</span><span class="sc-val">${typeLabels[selectedType]}</span></div>
+      <div class="sc-row"><span class="sc-label">Tanggal</span><span class="sc-val">${selectedDate || '-'}</span></div>
+      <div class="sc-row"><span class="sc-label">Waktu</span><span class="sc-val">${selectedTime || '-'}</span></div>
+      <div class="sc-row"><span class="sc-label">Durasi</span><span class="sc-val">${selectedDuration} menit</span></div>
+      <div class="sc-row"><span class="sc-label">Harga Sesi</span><span class="sc-val">${formatRupiah(price)}</span></div>
+      ${promoDiscount>0?`<div class="sc-row"><span class="sc-label">Diskon Promo</span><span class="sc-val" style="color:var(--success);">-${formatRupiah(promoDiscount)}</span></div>`:''}
+      <div class="sc-row"><span class="sc-label" style="font-weight:800;color:var(--text-primary);">Total Bayar</span><span class="sc-val price">${formatRupiah(final)}</span></div>
+    `;
+    document.getElementById('footerPrice').textContent = formatRupiah(final);
+    document.getElementById('mainBtn').textContent = 'Bayar Sekarang →';
+  }
+
+  function nextStep() {
+    if (currentStep === 1) {
+      currentStep = 2;
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      document.getElementById('mainBtn').textContent = 'Pilih Jadwal →';
+      updateProgress(2);
+    } else if (currentStep === 2) {
+      if (!selectedTime) { toast('Pilih waktu dulu ya!'); return; }
+      currentStep = 3;
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step3').classList.add('active');
+      buildSummary();
+      document.getElementById('mainBtn').textContent = 'Bayar Sekarang →';
+      updateProgress(3);
+    } else if (currentStep === 3) {
+      const payload = {
+        flow: isChatbotPrepayFlow ? 'chatbot_prepay' : 'standard_booking',
+        expertId: isChatbotPrepayFlow ? null : expert.id,
+        type: selectedType,
+        date: selectedDate,
+        time: selectedTime,
+        duration: selectedDuration,
+        price: getPrice() - promoDiscount,
+      };
+
+      // Keep compatibility and support payment page source.
+      sessionStorage.setItem('hime_payment', JSON.stringify(payload));
+      sessionStorage.setItem('hime_params', JSON.stringify(payload));
+
+      if (!App.isLoggedIn()) {
+        sessionStorage.setItem('hime_post_login_redirect', '../payment/index.html');
+        window.location.href = '../auth/login.html';
+        return;
+      }
+
+      window.location.href = '../payment/index.html';
+    }
+  }
+
+  function applyPromo() {
+    const code = document.getElementById('promoInput').value.toUpperCase().trim();
+    const msg = document.getElementById('promoMsg');
+    if (code === 'HIME20') {
+      promoDiscount = Math.round(getPrice() * 0.2);
+      msg.textContent = '✅ Promo HIME20 berhasil! Diskon ' + formatRupiah(promoDiscount);
+      msg.style.color = 'var(--success)';
+      msg.style.display = 'block';
+      buildSummary();
+    } else {
+      promoDiscount = 0;
+      msg.textContent = '❌ Kode promo tidak valid.';
+      msg.style.color = 'var(--danger)';
+      msg.style.display = 'block';
+    }
+  }
+
+  updateFooter();
+  updateProgress(1);
+</script>
 </body>
 </html>

@@ -2,23 +2,306 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Konsultasi — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .cons-header {
+      background: linear-gradient(155deg, var(--green-900), var(--green-700));
+      padding: 0 20px 36px;
+      position: relative; overflow: hidden;
+    }
+    .cons-header::before {
+      content: ''; position: absolute; top: -50px; right: -30px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(149,213,178,.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .cons-header::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 36px; background: var(--bg); border-radius: 36px 36px 0 0;
+    }
+    .ch-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+    .ch-title { font-size: 20px; font-weight: 800; color: white; }
+    .ch-sub { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 2px; }
+    .ch-history-btn {
+      padding: 7px 14px; border-radius: 44px;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      font-size: 12px; font-weight: 700; color: white; cursor: pointer;
+    }
+    .ch-history-btn:active { opacity: .8; }
+
+    /* Type cards */
+    .type-cards { display: flex; gap: 10px; position: relative; z-index: 1; }
+    .type-card {
+      flex: 1; padding: 14px 12px;
+      background: rgba(255,255,255,.12);
+      border: 1.5px solid rgba(255,255,255,.2);
+      border-radius: var(--r-lg);
+      cursor: pointer; transition: all .15s;
+      text-align: center; backdrop-filter: blur(6px);
+    }
+    .type-card:active { transform: scale(.95); }
+    .type-card.selected { background: rgba(255,255,255,.25); border-color: rgba(255,255,255,.5); }
+    .type-icon { font-size: 24px; margin-bottom: 6px; }
+    .type-name { font-size: 12px; font-weight: 800; color: white; }
+    .type-sub { font-size: 10px; color: rgba(255,255,255,.65); margin-top: 2px; }
+
+    /* Upcoming */
+    .upcoming-section { padding: 0 20px 20px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .sec-link { font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; }
+
+    .upcoming-cons-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-xs);
+      cursor: pointer; transition: all .15s;
+    }
+    .upcoming-cons-card:active { transform: scale(.98); }
+    .ucc-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .ucc-avatar {
+      width: 48px; height: 48px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 800; flex-shrink: 0;
+    }
+    .ucc-name { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .ucc-role { font-size: 12px; color: var(--text-muted); }
+    .ucc-badge {
+      margin-left: auto; padding: 4px 10px;
+      border-radius: 44px; font-size: 11px; font-weight: 700;
+    }
+    .ucc-badge.chat { background: #EFF6FF; color: #1E40AF; }
+    .ucc-badge.call { background: #F0FDF4; color: #15803D; }
+    .ucc-badge.offline { background: #FEF3C7; color: #92400E; }
+    .ucc-meta { display: flex; gap: 16px; }
+    .ucc-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .ucc-meta-item span { font-weight: 700; color: var(--text-primary); }
+    .ucc-actions { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .ucc-action-btn {
+      flex: 1; padding: 9px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 12px; font-weight: 700; color: var(--text-primary);
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .ucc-action-btn:active { transform: scale(.95); }
+    .ucc-action-btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+
+    /* Stats cards */
+    .stats-mini { display: flex; gap: 10px; margin: 0 20px 20px; }
+    .stat-mini-card {
+      flex: 1; padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      text-align: center;
+    }
+    .smc-icon { font-size: 24px; margin-bottom: 6px; }
+    .smc-val { font-size: 20px; font-weight: 900; color: var(--text-primary); }
+    .smc-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+    /* Popular experts */
+    .experts-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding: 0 20px 4px; }
+    .experts-scroll::-webkit-scrollbar { display: none; }
+    .expert-mini {
+      flex-shrink: 0; width: 130px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 14px;
+      cursor: pointer; transition: all .15s;
+    }
+    .expert-mini:active { transform: scale(.96); }
+    .em-avatar {
+      width: 52px; height: 52px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; font-weight: 800; margin: 0 auto 8px;
+      position: relative;
+    }
+    .em-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 11px; height: 11px; background: #22C55E;
+      border-radius: 50%; border: 2px solid var(--bg-card);
+    }
+    .em-name { font-size: 12px; font-weight: 800; color: var(--text-primary); text-align: center; margin-bottom: 2px; }
+    .em-role { font-size: 10px; color: var(--text-muted); text-align: center; margin-bottom: 6px; }
+    .em-rating { font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center; }
+    .em-rating span { color: #F59E0B; }
+
+    /* CTA Banner */
+    .cta-banner {
+      margin: 0 20px 20px;
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      border-radius: var(--r-xl); padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+      cursor: pointer; transition: all .15s;
+    }
+    .cta-banner:active { transform: scale(.98); }
+    .cta-banner h3 { font-size: 16px; font-weight: 900; color: white; }
+    .cta-banner p { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.5; }
+    .cta-banner-btn {
+      align-self: flex-start; padding: 9px 20px;
+      background: white; border-radius: var(--r-md);
+      font-size: 13px; font-weight: 800; color: var(--primary);
+    }
+
+    /* Empty upcoming */
+    .empty-upcoming {
+      text-align: center; padding: 28px 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); margin-bottom: 12px;
+    }
+    .empty-upcoming .eu-icon { font-size: 40px; margin-bottom: 8px; }
+    .empty-upcoming p { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">🩺</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Konsultasi</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Konsultasi online dan offline dengan psikolog.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+
+  <!-- Header -->
+  <div class="cons-header">
+    <div class="ch-top">
+      <div>
+        <div class="ch-title">Konsultasi</div>
+        <div class="ch-sub">Booking sesi dengan expert</div>
+      </div>
+      <div class="ch-history-btn" onclick="toast('Riwayat konsultasi')">Riwayat</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+    <!-- Type selector -->
+    <div class="type-cards">
+      <div class="type-card selected" id="typeChat" onclick="selectType('chat',this)">
+        <div class="type-icon">💬</div>
+        <div class="type-name">Chat</div>
+        <div class="type-sub">Teks & pesan</div>
+      </div>
+      <div class="type-card" id="typeCall" onclick="selectType('call',this)">
+        <div class="type-icon">📞</div>
+        <div class="type-name">Video Call</div>
+        <div class="type-sub">Tatap muka online</div>
+      </div>
+      <div class="type-card" id="typeOffline" onclick="selectType('offline',this)">
+        <div class="type-icon">🏥</div>
+        <div class="type-name">Offline</div>
+        <div class="type-sub">Kunjungan langsung</div>
+      </div>
+    </div>
   </div>
+
+  <!-- Scroll area -->
+  <div class="scroll-area has-nav">
+
+    <!-- My stats -->
+    <div style="padding:20px 20px 0;">
+      <div class="section-header">
+        <div class="sec-title">Statistik Sesi</div>
+      </div>
+    </div>
+    <div class="stats-mini">
+      <div class="stat-mini-card"><div class="smc-icon">🩺</div><div class="smc-val">8</div><div class="smc-label">Total Sesi</div></div>
+      <div class="stat-mini-card"><div class="smc-icon">⏱️</div><div class="smc-val">16 jam</div><div class="smc-label">Waktu Total</div></div>
+      <div class="stat-mini-card"><div class="smc-icon">⭐</div><div class="smc-val">4.8</div><div class="smc-label">Rata Skor</div></div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="upcoming-section">
+      <div class="section-header">
+        <div class="sec-title">Sesi Mendatang</div>
+        <div class="sec-link">Lihat semua</div>
+      </div>
+
+      <!-- Has upcoming session -->
+      <div class="upcoming-cons-card">
+        <div class="ucc-top">
+          <div class="ucc-avatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
+          <div>
+            <div class="ucc-name">Dr. Amara Wijaya</div>
+            <div class="ucc-role">Psikolog Klinis</div>
+          </div>
+          <div class="ucc-badge chat">Chat</div>
+        </div>
+        <div class="ucc-meta">
+          <div class="ucc-meta-item">📅 <span>Hari ini</span>, 14:00</div>
+          <div class="ucc-meta-item">⏱️ <span>60 menit</span></div>
+        </div>
+        <div class="ucc-actions">
+          <div class="ucc-action-btn" onclick="toast('Sesi dibatalkan')">Batalkan</div>
+          <div class="ucc-action-btn" onclick="toast('Reschedule dibuka')">Reschedule</div>
+          <div class="ucc-action-btn primary" onclick="go('chat-room')">Masuk Sesi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book new consultation CTA -->
+    <div class="cta-banner" onclick="go('expert-list')">
+      <h3>🔍 Temukan Expert yang Tepat</h3>
+      <p>Pilih dari 50+ psikolog dan konsultan berpengalaman yang siap membantu perjalananmu.</p>
+      <div class="cta-banner-btn">Cari Expert</div>
+    </div>
+
+    <!-- Popular experts -->
+    <div style="padding:0 20px; margin-bottom:14px;">
+      <div class="section-header">
+        <div class="sec-title">Expert Populer</div>
+        <div class="sec-link" onclick="go('expert-list')">Lihat semua</div>
+      </div>
+    </div>
+    <div class="experts-scroll" id="expertsMini"></div>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottomnav">
+    <div class="nav-item" onclick="go('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="go('chat-list')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></div>
+    <div class="nav-item active"><span class="nav-icon">🩺</span><span class="nav-label">Konsultasi</span></div>
+    <div class="nav-item" onclick="go('self-talk')"><span class="nav-icon">📓</span><span class="nav-label">Self Talk</span></div>
+    <div class="nav-item" onclick="go('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+  </nav>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    dashboard: '../dashboard/index.html',
+    'chat-list': '../chat/index.html',
+    consultation: 'index.html',
+    'self-talk': '../self-talk/index.html',
+    profile: '../profile/index.html',
+    'expert-list': '../expert/list.html',
+    'expert-detail': '../expert/detail.html',
+    'chat-room': '../chat/room.html',
+  });
+
+  let selectedType = 'chat';
+
+  function selectType(type, el) {
+    selectedType = type;
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const labels = { chat:'Chat Teks & Pesan', call:'Video Call Online', offline:'Kunjungan Langsung' };
+    toast(labels[type] + ' dipilih');
+  }
+
+  // Render expert mini cards
+  const mini = document.getElementById('expertsMini');
+  mini.innerHTML = DATA.experts.map(e => `
+    <div class="expert-mini" onclick="viewExpert(${e.id})">
+      <div class="em-avatar" style="background:${e.color};color:${e.textColor};">
+        ${e.init}${e.online?'<span class="em-dot"></span>':''}
+      </div>
+      <div class="em-name">${e.name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="em-role">${e.role.split(' ').slice(0,2).join(' ')}</div>
+      <div class="em-rating"><span>★</span> ${e.rating}</div>
+    </div>
+  `).join('');
+
+  function viewExpert(id) {
+    sessionStorage.setItem('hime_params', JSON.stringify({ expertId: id }));
+    window.location.href = '../expert/detail.html';
+  }
+</script>
 </body>
 </html>

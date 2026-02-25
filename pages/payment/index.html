@@ -2,23 +2,271 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Pembayaran — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .phone { height: min(844px, 100dvh); }
+    @media (max-width: 430px) {
+      .phone { height: 100dvh; }
+    }
+
+    .top-bar { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: white; border-bottom: 1px solid var(--border); }
+    .back-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; flex-shrink: 0; transition: all .15s; }
+    .back-btn:active { transform: scale(.9); }
+    .top-title { font-size: 16px; font-weight: 800; }
+
+    .body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 16px 20px 20px;
+    }
+    .body::-webkit-scrollbar { display: none; }
+
+    /* Order Summary */
+    .order-card { background: linear-gradient(135deg, var(--green-700), var(--green-500)); border-radius: var(--r-xl); padding: 16px; color: white; margin-bottom: 20px; }
+    .oc-label { font-size: 11px; font-weight: 700; opacity: .8; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+    .oc-expert { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .oc-av { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+    .oc-name { font-size: 14px; font-weight: 700; }
+    .oc-sub { font-size: 12px; opacity: .8; }
+    .oc-detail { display: flex; gap: 8px; flex-wrap: wrap; }
+    .oc-pill { background: rgba(255,255,255,.2); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 600; }
+    .oc-total { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.2); display: flex; justify-content: space-between; align-items: center; }
+    .oc-total-val { font-size: 22px; font-weight: 800; }
+    .oc-total-label { font-size: 12px; opacity: .8; }
+
+    /* Section */
+    .section-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; margin-top: 20px; }
+
+    /* Payment Methods */
+    .pay-method { background: white; border-radius: var(--r-xl); border: 1.5px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+    .method-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; transition: all .15s; }
+    .method-header:active { background: var(--bg); }
+    .method-icon { font-size: 24px; flex-shrink: 0; }
+    .method-name { font-size: 14px; font-weight: 700; flex: 1; }
+    .method-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+    .method-radio.checked { border-color: var(--primary); background: var(--primary); }
+    .method-radio.checked::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+    .pay-method.active { border-color: var(--primary); }
+
+    .method-detail { padding: 0 16px 14px; border-top: 1px solid var(--border); display: none; }
+    .pay-method.active .method-detail { display: block; }
+    .method-sub-option { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); cursor: pointer; transition: all .15s; }
+    .method-sub-option:last-child { border-bottom: none; }
+    .method-sub-option:active { opacity: .7; }
+    .sub-icon { font-size: 20px; flex-shrink: 0; }
+    .sub-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .sub-note { font-size: 11px; color: var(--text-muted); }
+    .sub-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all .15s; }
+    .sub-radio.checked { border-color: var(--primary); background: var(--primary); }
+
+    /* Promo */
+    .promo-input-wrap { display: flex; gap: 8px; }
+    .promo-input { flex: 1; height: 44px; border-radius: var(--r-md); border: 1.5px solid var(--border); outline: none; padding: 0 14px; font-size: 13px; font-family: inherit; color: var(--text-primary); transition: all .15s; }
+    .promo-input:focus { border-color: var(--primary); }
+    .btn-apply { height: 44px; border-radius: var(--r-md); background: var(--primary); color: white; border: none; padding: 0 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-apply:active { transform: scale(.95); background: var(--primary-hover); }
+
+    /* CTA */
+    .cta-bar {
+      position: relative;
+      flex-shrink: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 12px 20px max(28px, env(safe-area-inset-bottom));
+    }
+    .pay-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .pay-total-label { font-size: 13px; color: var(--text-muted); }
+    .pay-total-val { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .btn-pay { width: 100%; height: 52px; border-radius: var(--r-2xl); background: var(--primary); color: white; border: none; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-pay:active { transform: scale(.98); background: var(--primary-hover); }
+    .secure-note { text-align: center; margin-top: 10px; font-size: 11px; color: var(--text-muted); }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">💳</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Pembayaran</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Selesaikan pembayaran sesimu.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+  <div class="top-bar">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="top-title">Pembayaran</div>
+    <div style="margin-left:auto; font-size:20px;">🔒</div>
+  </div>
+
+  <div class="body">
+    <!-- Order Summary -->
+    <div class="order-card">
+      <div class="oc-label">📋 Ringkasan Pesanan</div>
+      <div class="oc-expert">
+        <div class="oc-av" id="ocAv">AW</div>
+        <div><div class="oc-name" id="ocName">Dr. Amara Wijaya</div><div class="oc-sub" id="ocSub">Psikolog Klinis</div></div>
+      </div>
+      <div class="oc-detail" id="ocDetail">
+        <div class="oc-pill">💬 Chat Online</div>
+        <div class="oc-pill">60 menit</div>
+      </div>
+      <div class="oc-total">
+        <div><div class="oc-total-label">Total Pembayaran</div><div class="oc-total-val" id="ocTotal">Rp 150.000</div></div>
+      </div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+
+    <!-- Promo -->
+    <div class="section-label" style="margin-top:0;">Kode Promo</div>
+    <div class="promo-input-wrap">
+      <input class="promo-input" id="promoInput" placeholder="Masukkan kode promo..." oninput="this.value = this.value.toUpperCase()">
+      <button class="btn-apply" onclick="applyPromo()">Pakai</button>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="section-label">Metode Pembayaran</div>
+
+    <div class="pay-method active" id="pm-va" onclick="selectMethod('va')">
+      <div class="method-header">
+        <div class="method-icon">🏦</div>
+        <div class="method-name">Transfer Bank / VA</div>
+        <div class="method-radio checked" id="mr-va"></div>
+      </div>
+      <div class="method-detail">
+        <div class="method-sub-option" onclick="selectSub(event,'bca')"><span class="sub-icon">🟦</span><div><div class="sub-name">BCA Virtual Account</div><div class="sub-note">Langsung dikonfirmasi otomatis</div></div><div class="sub-radio checked" id="sr-bca"></div></div>
+        <div class="method-sub-option" onclick="selectSub(event,'bni')"><span class="sub-icon">🟧</span><div><div class="sub-name">BNI Virtual Account</div><div class="sub-note">Langsung dikonfirmasi otomatis</div></div><div class="sub-radio" id="sr-bni"></div></div>
+        <div class="method-sub-option" onclick="selectSub(event,'mandiri')"><span class="sub-icon">🟨</span><div><div class="sub-name">Mandiri Virtual Account</div><div class="sub-note">Langsung dikonfirmasi otomatis</div></div><div class="sub-radio" id="sr-mandiri"></div></div>
+      </div>
+    </div>
+
+    <div class="pay-method" id="pm-ewallet" onclick="selectMethod('ewallet')">
+      <div class="method-header">
+        <div class="method-icon">📱</div>
+        <div class="method-name">E-Wallet</div>
+        <div class="method-radio" id="mr-ewallet"></div>
+      </div>
+      <div class="method-detail">
+        <div class="method-sub-option" onclick="selectSub(event,'gopay')"><span class="sub-icon">💚</span><div><div class="sub-name">GoPay</div><div class="sub-note">Bayar langsung dari app</div></div><div class="sub-radio" id="sr-gopay"></div></div>
+        <div class="method-sub-option" onclick="selectSub(event,'ovo')"><span class="sub-icon">💜</span><div><div class="sub-name">OVO</div><div class="sub-note">Bayar langsung dari app</div></div><div class="sub-radio" id="sr-ovo"></div></div>
+        <div class="method-sub-option" onclick="selectSub(event,'dana')"><span class="sub-icon">💙</span><div><div class="sub-name">DANA</div><div class="sub-note">Bayar langsung dari app</div></div><div class="sub-radio" id="sr-dana"></div></div>
+      </div>
+    </div>
+
+    <div class="pay-method" id="pm-card" onclick="selectMethod('card')">
+      <div class="method-header">
+        <div class="method-icon">💳</div>
+        <div class="method-name">Kartu Debit / Kredit</div>
+        <div class="method-radio" id="mr-card"></div>
+      </div>
+      <div class="method-detail">
+        <div style="padding:4px 0;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Visa, Mastercard, JCB diterima</div>
+          <div style="display:flex;gap:8px;font-size:22px;">💳 🏧</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Bar -->
+  <div class="cta-bar">
+    <div class="pay-total-row">
+      <span class="pay-total-label">Total Bayar</span>
+      <span class="pay-total-val" id="finalTotal">Rp 150.000</span>
+    </div>
+    <button class="btn-pay" onclick="doPay()">Bayar Sekarang 🔒</button>
+    <div class="secure-note">🔐 Transaksi dienkripsi & 100% aman</div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    'pay-success': 'success.html',
+    booking: '../consultation/booking.html',
+    login: '../auth/login.html',
+    'expert-list': '../expert/list.html',
+  });
+
+  let activeMethod = 'va';
+  let activeSub = 'bca';
+  let baseTotal = 150000;
+  let discount = 0;
+
+  function selectMethod(m) {
+    document.querySelectorAll('.pay-method').forEach(el => { el.classList.remove('active'); });
+    document.querySelectorAll('.method-radio').forEach(el => { el.classList.remove('checked'); });
+    document.getElementById('pm-'+m).classList.add('active');
+    document.getElementById('mr-'+m).classList.add('checked');
+    activeMethod = m;
+  }
+
+  function selectSub(e, s) {
+    e.stopPropagation();
+    document.querySelectorAll('.sub-radio').forEach(el => el.classList.remove('checked'));
+    const el = document.getElementById('sr-'+s);
+    if (el) el.classList.add('checked');
+    activeSub = s;
+  }
+
+  function applyPromo() {
+    const code = document.getElementById('promoInput').value.trim();
+    if (code === 'HIME20') {
+      discount = Math.round(baseTotal * 0.2);
+      document.getElementById('finalTotal').textContent = formatRupiah(baseTotal - discount);
+      toast('✅ Promo HIME20 — Diskon 20% diterapkan!');
+    } else if (code === 'FIRSTIME') {
+      discount = 50000;
+      document.getElementById('finalTotal').textContent = formatRupiah(Math.max(0, baseTotal - discount));
+      toast('✅ Promo FIRSTIME — Diskon Rp 50.000!');
+    } else if (code) {
+      toast('❌ Kode promo tidak valid');
+    }
+  }
+
+  function doPay() {
+    toast('Memproses pembayaran...');
+    setTimeout(() => {
+      sessionStorage.setItem('hime_pay_done', '1');
+      const raw = sessionStorage.getItem('hime_payment');
+      const data = raw ? JSON.parse(raw) : null;
+      if (data && data.flow === 'chatbot_prepay') {
+        toast('Pembayaran berhasil. Sekarang pilih expert yang cocok ya.');
+        setTimeout(() => go('expert-list'), 500);
+        return;
+      }
+      go('pay-success');
+    }, 1800);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!App.user) {
+      sessionStorage.setItem('hime_post_login_redirect', '../payment/index.html');
+      go('login');
+      return;
+    }
+
+    const raw = sessionStorage.getItem('hime_payment') || sessionStorage.getItem('hime_params');
+    if (!raw) return;
+
+    const data = JSON.parse(raw);
+    const expert = data.expertId ? DATA.experts.find(e => e.id === data.expertId) : null;
+    if (expert) {
+      document.getElementById('ocAv').textContent = expert.init;
+      document.getElementById('ocAv').style.background = 'rgba(255,255,255,.2)';
+      document.getElementById('ocName').textContent = expert.name;
+      document.getElementById('ocSub').textContent = expert.role;
+    } else {
+      document.getElementById('ocAv').textContent = '🧠';
+      document.getElementById('ocName').textContent = 'Paket Konsultasi';
+      document.getElementById('ocSub').textContent = 'Expert dipilih setelah pembayaran';
+    }
+
+    const typeMap = { chat: '💬 Chat', call: '📞 Video Call', offline: '🏢 Offline' };
+    document.getElementById('ocDetail').innerHTML = `
+      <div class="oc-pill">${typeMap[data.type] || data.type || 'Konsultasi'}</div>
+      <div class="oc-pill">${data.duration || 60} menit</div>`;
+
+    baseTotal = data.price || data.total || baseTotal;
+    document.getElementById('ocTotal').textContent = formatRupiah(baseTotal);
+    document.getElementById('finalTotal').textContent = formatRupiah(baseTotal);
+  });
+</script>
 </body>
 </html>

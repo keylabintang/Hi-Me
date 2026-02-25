@@ -2,23 +2,382 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Detail Expert — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .expert-hero {
+      background: linear-gradient(160deg, var(--green-900), var(--green-700));
+      padding: 0 20px 40px;
+      position: relative; overflow: hidden;
+    }
+    .expert-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 40px; background: var(--bg); border-radius: 40px 40px 0 0;
+    }
+    .hero-circle {
+      position: absolute; top: -40px; right: -30px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(149,213,178,.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-top {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+      position: relative; z-index: 1;
+    }
+    .hero-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: white; cursor: pointer; transition: all .15s;
+    }
+    .hero-back:active { transform: scale(.9); }
+    .hero-share {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s; margin-left: auto;
+    }
+    .hero-share:active { transform: scale(.9); }
+
+    .hero-profile { display: flex; gap: 16px; align-items: center; position: relative; z-index: 1; }
+    .hero-avatar {
+      width: 80px; height: 80px; border-radius: var(--r-xl);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; flex-shrink: 0;
+      border: 3px solid rgba(255,255,255,.3);
+    }
+    .hero-name { font-size: 20px; font-weight: 900; color: white; margin-bottom: 3px; }
+    .hero-role { font-size: 13px; color: rgba(255,255,255,.75); margin-bottom: 8px; }
+    .hero-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .hero-badge {
+      padding: 3px 10px; border-radius: 44px;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,.9);
+    }
+    .hero-badge.online { background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.4); }
+
+    /* Stats row */
+    .stats-row {
+      display: flex; margin: 0 20px 20px;
+      background: var(--bg-card);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-item {
+      flex: 1; padding: 16px 8px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-size: 20px; font-weight: 900; color: var(--text-primary); }
+    .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+    .stat-star { color: #F59E0B; }
+
+    /* Tabs */
+    .tabs { display: flex; padding: 0 20px; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+    .tab {
+      flex: 1; padding: 12px 8px; text-align: center;
+      font-size: 13px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all .15s;
+    }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .tab-content { display: none; padding: 0 20px; }
+    .tab-content.active { display: block; }
+
+    /* About */
+    .section-title { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; }
+    .about-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+    .spec-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .spec-tag {
+      padding: 6px 14px; border-radius: 44px;
+      background: var(--primary-xpale); border: 1px solid var(--primary-pale);
+      font-size: 12px; font-weight: 700; color: var(--primary);
+    }
+    .info-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .info-item { display: flex; gap: 12px; align-items: center; }
+    .info-icon { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--primary-xpale); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .info-text {}
+    .info-label { font-size: 11px; color: var(--text-muted); }
+    .info-val { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+
+    /* Schedule tab */
+    .date-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 2px; }
+    .date-row::-webkit-scrollbar { display: none; }
+    .date-chip {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 10px 14px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      cursor: pointer; transition: all .15s;
+    }
+    .date-chip:active { transform: scale(.94); }
+    .date-chip.selected { background: var(--primary); border-color: var(--primary); }
+    .date-day { font-size: 10px; font-weight: 700; color: var(--text-muted); }
+    .date-num { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+    .date-chip.selected .date-day, .date-chip.selected .date-num { color: white; }
+
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+    .time-slot {
+      padding: 10px 6px; text-align: center;
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-size: 13px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; transition: all .15s; background: var(--bg-card);
+    }
+    .time-slot:active { transform: scale(.94); }
+    .time-slot.selected { background: var(--primary-xpale); border-color: var(--primary); color: var(--primary); }
+    .time-slot.unavail { background: var(--bg); color: var(--text-placeholder); cursor: default; text-decoration: line-through; }
+
+    /* Reviews */
+    .review-summary {
+      display: flex; gap: 16px; align-items: center; margin-bottom: 20px;
+      padding: 16px; background: var(--bg-card); border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+    }
+    .review-big { font-size: 48px; font-weight: 900; color: var(--text-primary); line-height: 1; }
+    .stars-row { display: flex; gap: 3px; font-size: 18px; color: #F59E0B; margin-bottom: 4px; }
+    .review-total { font-size: 12px; color: var(--text-muted); }
+    .review-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .rbar { display: flex; align-items: center; gap: 6px; }
+    .rbar-label { font-size: 11px; font-weight: 600; color: var(--text-muted); width: 10px; text-align: right; }
+    .rbar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .rbar-fill { height: 100%; background: #F59E0B; border-radius: 3px; }
+
+    .review-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 14px; margin-bottom: 10px;
+    }
+    .rc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .rc-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary-pale); color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+    }
+    .rc-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .rc-date { font-size: 11px; color: var(--text-muted); }
+    .rc-stars { font-size: 12px; color: #F59E0B; margin-left: auto; }
+    .rc-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Sticky bottom */
+    .sticky-cta {
+      position: sticky; bottom: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex; gap: 10px; align-items: center;
+    }
+    .cta-price-block {}
+    .cta-price { font-size: 18px; font-weight: 900; color: var(--primary); }
+    .cta-per { font-size: 11px; color: var(--text-muted); }
+    .cta-book-btn {
+      flex: 1; padding: 14px;
+      background: var(--primary); border-radius: var(--r-lg);
+      color: white; font-size: 15px; font-weight: 800;
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .cta-book-btn:active { transform: scale(.97); background: var(--primary-hover); }
+    .cta-chat-btn {
+      width: 48px; height: 48px; border-radius: var(--r-md);
+      background: var(--primary-xpale); border: 1.5px solid var(--primary-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; cursor: pointer; transition: all .15s;
+    }
+    .cta-chat-btn:active { transform: scale(.94); }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">⭐</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Detail Expert</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Profil dan spesialisasi expert.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+
+  <div id="expertHero"></div>
+
+  <div class="scroll-area" style="padding-bottom:80px;">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('about',this)">Tentang</div>
+      <div class="tab" onclick="switchTab('schedule',this)">Jadwal</div>
+      <div class="tab" onclick="switchTab('reviews',this)">Ulasan</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+
+    <!-- About Tab -->
+    <div class="tab-content active" id="tab-about">
+      <div class="about-text" id="aboutText"></div>
+      <div class="section-title">Spesialisasi</div>
+      <div class="spec-tags" id="specTags"></div>
+      <div class="section-title">Informasi</div>
+      <div class="info-list" id="infoList"></div>
+    </div>
+
+    <!-- Schedule Tab -->
+    <div class="tab-content" id="tab-schedule">
+      <div class="section-title" style="margin-bottom:14px;">Pilih Tanggal</div>
+      <div class="date-row" id="dateRow"></div>
+      <div class="section-title" style="margin-bottom:14px;">Pilih Waktu</div>
+      <div class="time-grid" id="timeGrid"></div>
+      <button class="btn btn-primary" id="scheduleBtn" style="display:none;" onclick="proceedBooking()">Lanjutkan Booking</button>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div class="tab-content" id="tab-reviews">
+      <div class="review-summary" id="reviewSummary"></div>
+      <div id="reviewList"></div>
+    </div>
   </div>
+
+  <div class="sticky-cta" id="stickyCta"></div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const params = getParams();
+  const expertId = params.expertId || 1;
+  const expert = DATA.experts.find(e => e.id == expertId) || DATA.experts[0];
+
+  let selectedDate = null;
+  let selectedTime = null;
+
+  // Build hero
+  document.getElementById('expertHero').innerHTML = `
+    <div class="expert-hero">
+      <div class="hero-circle"></div>
+      <div class="hero-top">
+        <div class="hero-back" onclick="history.back()">←</div>
+        <div class="hero-share" onclick="toast('Link disalin!')">🔗</div>
+      </div>
+      <div class="hero-profile">
+        <div class="hero-avatar" style="background:${expert.color};color:${expert.textColor};">${expert.init}</div>
+        <div>
+          <div class="hero-name">${expert.name}</div>
+          <div class="hero-role">${expert.role}</div>
+          <div class="hero-badges">
+            ${expert.online ? '<span class="hero-badge online">🟢 Online</span>' : '<span class="hero-badge">⭕ Offline</span>'}
+            <span class="hero-badge">✅ Terverifikasi</span>
+            <span class="hero-badge">${expert.exp} pengalaman</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Stats
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-item"><div class="stat-val stat-star">★ ${expert.rating}</div><div class="stat-label">Rating</div></div>
+    <div class="stat-item"><div class="stat-val">${expert.reviews}</div><div class="stat-label">Ulasan</div></div>
+    <div class="stat-item"><div class="stat-val">${expert.sessions}</div><div class="stat-label">Sesi</div></div>
+    <div class="stat-item"><div class="stat-val">${expert.exp}</div><div class="stat-label">Pengalaman</div></div>
+  `;
+
+  // About
+  document.getElementById('aboutText').textContent = expert.bio;
+  document.getElementById('specTags').innerHTML = expert.spec.map(s => `<span class="spec-tag">${s}</span>`).join('');
+  document.getElementById('infoList').innerHTML = `
+    <div class="info-item"><div class="info-icon">📋</div><div><div class="info-label">Lisensi</div><div class="info-val">STR No. ${1000000 + expert.id * 12345}</div></div></div>
+    <div class="info-item"><div class="info-icon">🎓</div><div><div class="info-label">Pendidikan</div><div class="info-val">S2 Psikologi Klinis, UI</div></div></div>
+    <div class="info-item"><div class="info-icon">💬</div><div><div class="info-label">Bahasa</div><div class="info-val">Bahasa Indonesia, English</div></div></div>
+    <div class="info-item"><div class="info-icon">📅</div><div><div class="info-label">Bergabung</div><div class="info-val">${2024 - expert.id} · ${expert.sessions} sesi selesai</div></div></div>
+  `;
+
+  // Schedule - generate 7 days
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const today = new Date();
+  let dateHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(today.getDate() + i);
+    const label = i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : days[d.getDay()];
+    dateHTML += `<div class="date-chip${i===0?' selected':''}" onclick="selectDate(this,'${d.toISOString().split('T')[0]}')">
+      <span class="date-day">${label}</span>
+      <span class="date-num">${d.getDate()}</span>
+    </div>`;
+  }
+  document.getElementById('dateRow').innerHTML = dateHTML;
+
+  const times = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','19:00'];
+  const unavail = ['10:00','15:00'];
+  document.getElementById('timeGrid').innerHTML = times.map(t =>
+    `<div class="time-slot${unavail.includes(t)?' unavail':''}" onclick="${unavail.includes(t)?'':'selectTime(this,\''+t+'\')'}">${t}</div>`
+  ).join('');
+  selectedDate = today.toISOString().split('T')[0];
+
+  // Reviews
+  const mockRatings = [0.65, 0.25, 0.07, 0.02, 0.01];
+  document.getElementById('reviewSummary').innerHTML = `
+    <div>
+      <div class="review-big">${expert.rating}</div>
+      <div class="stars-row">${'★'.repeat(Math.round(expert.rating))}${'☆'.repeat(5-Math.round(expert.rating))}</div>
+      <div class="review-total">${expert.reviews} ulasan</div>
+    </div>
+    <div class="review-bars">
+      ${[5,4,3,2,1].map((s,i) => `
+        <div class="rbar">
+          <span class="rbar-label">${s}</span>
+          <div class="rbar-track"><div class="rbar-fill" style="width:${mockRatings[i]*100}%"></div></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const mockReviews = [
+    { init:'RA', name:'Risa A.', date:'2 hari lalu', stars:5, text:'Sangat membantu! Penjelasannya mudah dipahami dan saya merasa lebih tenang setelah sesi.' },
+    { init:'DW', name:'Deni W.', date:'1 minggu lalu', stars:5, text:'Profesional dan empati. Saya merasa didengar dan mendapat strategi nyata untuk mengatasi stres.' },
+    { init:'MP', name:'Maya P.', date:'2 minggu lalu', stars:4, text:'Sesi sangat bermanfaat. Semoga bisa lanjut bulan depan.' },
+  ];
+  document.getElementById('reviewList').innerHTML = mockReviews.map(r => `
+    <div class="review-card">
+      <div class="rc-top">
+        <div class="rc-avatar">${r.init}</div>
+        <div><div class="rc-name">${r.name}</div><div class="rc-date">${r.date}</div></div>
+        <div class="rc-stars">${'★'.repeat(r.stars)}</div>
+      </div>
+      <div class="rc-text">${r.text}</div>
+    </div>
+  `).join('');
+
+  // CTA
+  document.getElementById('stickyCta').innerHTML = `
+    <div class="cta-price-block">
+      <div class="cta-price">${formatRupiah(expert.price)}</div>
+      <div class="cta-per">per sesi</div>
+    </div>
+    <div class="cta-chat-btn" onclick="toast('Membuka chat...')">💬</div>
+    <div class="cta-book-btn" onclick="proceedBooking()">Booking Sekarang</div>
+  `;
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+  }
+
+  function selectDate(el, val) {
+    document.querySelectorAll('.date-chip').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedDate = val;
+    selectedTime = null;
+    document.querySelectorAll('.time-slot:not(.unavail)').forEach(t => t.classList.remove('selected'));
+    document.getElementById('scheduleBtn').style.display = 'none';
+  }
+
+  function selectTime(el, val) {
+    document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTime = val;
+    document.getElementById('scheduleBtn').style.display = 'block';
+  }
+
+  function proceedBooking() {
+    sessionStorage.setItem('hime_params', JSON.stringify({
+      expertId: expert.id,
+      date: selectedDate,
+      time: selectedTime
+    }));
+    window.location.href = '../consultation/booking.html';
+  }
+</script>
 </body>
 </html>

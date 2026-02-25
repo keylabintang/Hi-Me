@@ -145,7 +145,13 @@
       const name = email.split('@')[0];
       const initials = name.slice(0, 2).toUpperCase();
       App.login({ name, email, initials, avatar: '' });
-      go('dashboard');
+      const redirect = sessionStorage.getItem('hime_post_login_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('hime_post_login_redirect');
+        window.location.href = redirect;
+      } else {
+        go('dashboard');
+      }
     }, 1300);
   }
 
@@ -153,7 +159,13 @@
     toast(`Menghubungkan ke ${provider}...`);
     setTimeout(() => {
       App.login({ name: `Pengguna ${provider}`, email: `user@${provider.toLowerCase()}.com`, initials: provider.slice(0,2).toUpperCase(), avatar: '' });
-      go('dashboard');
+      const redirect = sessionStorage.getItem('hime_post_login_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('hime_post_login_redirect');
+        window.location.href = redirect;
+      } else {
+        go('dashboard');
+      }
     }, 1000);
   }
 

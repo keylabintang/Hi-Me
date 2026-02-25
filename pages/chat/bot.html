@@ -190,7 +190,7 @@
   </div>
 
   <!-- Upgrade banner -->
-  <div class="upgrade-banner" id="upgradeBanner" onclick="go('expert-list')">
+  <div class="upgrade-banner" id="upgradeBanner" onclick="startAdvancedHelpFlow()">
     <span style="font-size:22px;">✨</span>
     <div style="flex:1;">
       <div style="font-size:13px; font-weight:800; color:var(--primary);">Butuh bantuan lebih lanjut?</div>
@@ -211,11 +211,16 @@
 <script>
   Object.assign(ROUTES, {
     'expert-list': '../expert/list.html',
+    booking:       '../consultation/booking.html',
     register:      '../auth/register.html',
     login:         '../auth/login.html',
     dashboard:     '../dashboard/index.html',
     landing:       '../../index.html',
   });
+
+  function startAdvancedHelpFlow() {
+    go('booking', { flow: 'chatbot_prepay' });
+  }
 
   // Init time
   document.addEventListener('DOMContentLoaded', () => {
