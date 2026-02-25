@@ -217,8 +217,8 @@
         </div>
         <div class="type-opt" onclick="selectTypeBook('call',this)">
           <div class="to-icon">📞</div>
-          <div class="to-name">Video Call</div>
-          <div class="to-sub">Tatap muka</div>
+          <div class="to-name">Call</div>
+          <div class="to-sub">Panggilan suara</div>
         </div>
         <div class="type-opt" onclick="selectTypeBook('offline',this)">
           <div class="to-icon">🏥</div>
@@ -395,7 +395,7 @@
   }
 
   function buildSummary() {
-    const typeLabels = { chat:'💬 Chat', call:'📞 Video Call', offline:'🏥 Offline' };
+    const typeLabels = { chat:'💬 Chat', call:'📞 Call', offline:'🏥 Offline' };
     const price = getPrice();
     const final = price - promoDiscount;
     document.getElementById('scHeader').innerHTML = `

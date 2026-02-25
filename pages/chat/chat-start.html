@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Konfirmasi Sesi Chat — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .wrap { padding: 24px 20px; }
+    .start-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 20px;
+      box-shadow: var(--shadow-xs);
+      margin-top: 14px;
+    }
+    .ok-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 999px;
+      background: #DCFCE7; color: #166534; font-size: 11px; font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .expert-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .av {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800;
+    }
+    .name { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+    .sub { font-size: 12px; color: var(--text-muted); }
+    .meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin: 14px 0 18px;
+    }
+    .meta-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px;
+    }
+    .mi-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; text-transform: uppercase; }
+    .mi-val { font-size: 13px; color: var(--text-primary); font-weight: 800; }
+    .invoice {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 12px;
+      margin: 10px 0 16px;
+    }
+    .inv-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .inv-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .inv-row:last-child { margin-bottom: 0; }
+    .inv-lbl { font-size: 12px; color: var(--text-muted); }
+    .inv-val { font-size: 12px; font-weight: 700; color: var(--text-primary); text-align: right; }
+    .inv-val.total { color: var(--primary); font-size: 14px; font-weight: 900; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="topnav">
+    <div class="back-btn" onclick="go('chat-list')">←</div>
+    <div class="topnav-title">Konfirmasi Sesi Chat</div>
+  </div>
+  <div class="scroll-area">
+    <div class="wrap">
+      <div class="start-card">
+        <div class="ok-badge">✅ Pembayaran Berhasil</div>
+        <div class="expert-row">
+          <div class="av" id="av">AW</div>
+          <div>
+            <div class="name" id="name">Dr. Amara Wijaya</div>
+            <div class="sub" id="role">Psikolog Klinis</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+          Pembayaran kamu sudah terkonfirmasi. Cek invoice di bawah, lalu lanjutkan untuk memulai sesi chat.
+        </p>
+        <div class="invoice">
+          <div class="inv-title">Invoice Pembayaran</div>
+          <div class="inv-row"><span class="inv-lbl">ID Invoice</span><span class="inv-val" id="invoiceId">-</span></div>
+          <div class="inv-row"><span class="inv-lbl">Jenis Sesi</span><span class="inv-val">Chat Online</span></div>
+          <div class="inv-row"><span class="inv-lbl">Total Bayar</span><span class="inv-val total" id="totalVal">-</span></div>
+        </div>
+        <div class="meta">
+          <div class="meta-item"><div class="mi-lbl">Tanggal</div><div class="mi-val" id="dateVal">-</div></div>
+          <div class="meta-item"><div class="mi-lbl">Waktu</div><div class="mi-val" id="timeVal">-</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="startChatSession()">Lanjutkan ke Sesi Chat</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../../js/app.js"></script>
+<script>
+  const CHAT_SESSIONS_KEY = 'hime_chat_sessions';
+  const params = getParams();
+  const payment = JSON.parse(sessionStorage.getItem('hime_payment') || '{}');
+  let currentSession = null;
+  let currentExpert = null;
+
+  function loadSessions() {
+    const raw = localStorage.getItem(CHAT_SESSIONS_KEY);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch (e) { return []; }
+  }
+
+  function saveSessions(items) {
+    localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(items));
+  }
+
+  function init() {
+    const sessions = loadSessions();
+    currentSession = sessions.find(s => String(s.id) === String(params.sessionId))
+      || sessions.find(s => s.type === 'chat' && s.expertId == (params.expertId || 1))
+      || null;
+
+    currentExpert = DATA.experts.find(e => e.id == (currentSession?.expertId || params.expertId || 1)) || DATA.experts[0];
+    document.getElementById('av').textContent = currentExpert.init;
+    document.getElementById('av').style.background = currentExpert.color;
+    document.getElementById('av').style.color = currentExpert.textColor;
+    document.getElementById('name').textContent = currentExpert.name;
+    document.getElementById('role').textContent = currentExpert.role;
+    document.getElementById('dateVal').textContent = currentSession?.date || '-';
+    document.getElementById('timeVal').textContent = currentSession?.time || '-';
+    document.getElementById('totalVal').textContent = formatRupiah(payment.price || payment.total || 0);
+    const stamp = currentSession?.id || `${Date.now()}`;
+    document.getElementById('invoiceId').textContent = `INV-CHAT-${String(stamp).slice(-8)}`;
+  }
+
+  function startChatSession() {
+    if (currentSession) {
+      const sessions = loadSessions().map(s => String(s.id) === String(currentSession.id)
+        ? { ...s, status: 'active', timeLabel: 'Baru saja', lastMessage: 'Sesi chat dimulai. Silakan kirim pesan pertamamu.' }
+        : s);
+      saveSessions(sessions);
+    }
+    go('chat-room', { expertId: currentExpert.id, mode: 'chat', sessionId: currentSession?.id });
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -177,11 +177,14 @@
 
 <script src="../../js/app.js"></script>
 <script>
+  const CHAT_SESSIONS_KEY = 'hime_chat_sessions';
   Object.assign(ROUTES, {
     'pay-success': 'success.html',
     booking: '../consultation/booking.html',
     login: '../auth/login.html',
     'expert-list': '../expert/list.html',
+    'chat-start': '../chat/chat-start.html',
+    'chat-call-start': '../chat/call-start.html',
   });
 
   let activeMethod = 'va';
@@ -226,6 +229,15 @@
       sessionStorage.setItem('hime_pay_done', '1');
       const raw = sessionStorage.getItem('hime_payment');
       const data = raw ? JSON.parse(raw) : null;
+      if (data && data.flow !== 'chatbot_prepay' && (data.type === 'chat' || data.type === 'call')) {
+        const saved = saveOnlineSession(data);
+        if (data.type === 'chat') {
+          go('chat-start', { expertId: data.expertId, sessionId: saved?.id });
+        } else {
+          go('chat-call-start', { expertId: data.expertId, sessionId: saved?.id });
+        }
+        return;
+      }
       if (data && data.flow === 'chatbot_prepay') {
         toast('Pembayaran berhasil. Sekarang pilih expert yang cocok ya.');
         setTimeout(() => go('expert-list'), 500);
@@ -233,6 +245,40 @@
       }
       go('pay-success');
     }, 1800);
+  }
+
+  function saveOnlineSession(data) {
+    if (!data.expertId) return;
+    const expert = DATA.experts.find(e => e.id === data.expertId);
+    if (!expert) return;
+    let sessions = [];
+    const raw = localStorage.getItem(CHAT_SESSIONS_KEY);
+    if (raw) {
+      try { sessions = JSON.parse(raw); } catch (e) {}
+    }
+    const id = `${Date.now()}-${data.expertId}-${data.type}`;
+    const session = {
+      id,
+      expertId: expert.id,
+      expertName: expert.name,
+      expertRole: expert.role,
+      init: expert.init,
+      color: expert.color,
+      textColor: expert.textColor,
+      type: data.type,
+      status: 'upcoming',
+      date: data.date || '',
+      time: data.time || '',
+      duration: data.duration || 60,
+      unread: 0,
+      lastMessage: data.type === 'call'
+        ? `Konfirmasi sesi call: ${data.date || '-'} · ${data.time || '-'}`
+        : `Konfirmasi sesi chat: ${data.date || '-'} · ${data.time || '-'}`,
+      timeLabel: 'Mendatang',
+    };
+    sessions = [session, ...sessions.filter(s => s.id !== id)];
+    localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(sessions));
+    return session;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -258,7 +304,7 @@
       document.getElementById('ocSub').textContent = 'Expert dipilih setelah pembayaran';
     }
 
-    const typeMap = { chat: '💬 Chat', call: '📞 Video Call', offline: '🏢 Offline' };
+    const typeMap = { chat: '💬 Chat', call: '📞 Call', offline: '🏢 Offline' };
     document.getElementById('ocDetail').innerHTML = `
       <div class="oc-pill">${typeMap[data.type] || data.type || 'Konsultasi'}</div>
       <div class="oc-pill">${data.duration || 60} menit</div>`;

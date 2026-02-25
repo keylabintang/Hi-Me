@@ -2,22 +2,372 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesan — Hi-Me</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Chat — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .chat-header {
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ch-title { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+    .ch-badge {
+      background: var(--primary); color: white;
+      font-size: 11px; font-weight: 800; padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .ft-tab {
+      padding: 12px 18px; font-size: 13px; font-weight: 700;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      cursor: pointer; white-space: nowrap; transition: all .15s;
+      flex-shrink: 0;
+    }
+    .ft-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* Chat list */
+    .chat-list { padding: 8px 0 100px; }
+    .chat-item {
+      display: flex; gap: 14px; align-items: center;
+      padding: 14px 20px; cursor: pointer; transition: all .15s;
+      position: relative;
+    }
+    .chat-item:active { background: var(--bg); }
+    .chat-item::after {
+      content: ''; position: absolute; bottom: 0; left: 74px; right: 20px;
+      height: 1px; background: var(--border);
+    }
+
+    .ci-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; flex-shrink: 0;
+      position: relative;
+    }
+    .ci-online-dot {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #22C55E; border: 2px solid white;
+    }
+    .ci-content { flex: 1; min-width: 0; }
+    .ci-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .ci-name { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+    .ci-time { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .ci-msg {
+      font-size: 13px; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ci-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .ci-unread {
+      background: var(--primary); color: white;
+      font-size: 10px; font-weight: 800;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ci-type-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-done { background: #F1F5F9; color: var(--text-muted); }
+    .badge-upcoming { background: var(--primary-pale); color: var(--primary); }
+
+    /* Session card (active) */
+    .active-session-banner {
+      margin: 12px 20px 4px;
+      background: linear-gradient(135deg, var(--primary), #3730a3);
+      border-radius: var(--r-xl); padding: 16px; color: white;
+      cursor: pointer; transition: all .15s;
+    }
+    .active-session-banner:active { transform: scale(.98); }
+    .asb-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; opacity: .75; margin-bottom: 8px; }
+    .asb-row { display: flex; align-items: center; gap: 12px; }
+    .asb-avatar {
+      width: 44px; height: 44px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; flex-shrink: 0;
+    }
+    .asb-name { font-size: 15px; font-weight: 800; }
+    .asb-sub { font-size: 12px; opacity: .8; }
+    .asb-timer {
+      margin-left: auto; background: rgba(255,255,255,.2);
+      border-radius: var(--r-sm); padding: 6px 12px;
+      font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums;
+    }
+
+    /* Empty */
+    .empty-chat { text-align: center; padding: 60px 30px; }
+    .ec-icon { font-size: 56px; margin-bottom: 12px; }
+    .ec-title { font-size: 17px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .ec-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">💬</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Pesan</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Chat dengan expert dan bot.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
-    </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+  <div class="chat-header">
+    <div class="ch-title">💬 Chat</div>
+    <div class="ch-badge">1 Aktif</div>
   </div>
+
+  <div class="filter-tabs">
+    <div class="ft-tab active" onclick="filterChat('all', this)">Semua</div>
+    <div class="ft-tab" onclick="filterChat('active', this)">Aktif</div>
+    <div class="ft-tab" onclick="filterChat('upcoming', this)">Mendatang</div>
+    <div class="ft-tab" onclick="filterChat('done', this)">Selesai</div>
+  </div>
+
+  <div class="scroll-area">
+
+    <!-- Active session banner -->
+    <div class="active-session-banner" onclick="go('chat-room', {expertId:1})" id="activeBanner">
+      <div class="asb-label">🟢 Sesi Berlangsung</div>
+      <div class="asb-row">
+        <div class="asb-avatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
+        <div>
+          <div class="asb-name">Dr. Amara Wijaya</div>
+          <div class="asb-sub">Chat · 60 menit</div>
+        </div>
+        <div class="asb-timer" id="sessionTimer">42:18</div>
+      </div>
+    </div>
+
+    <div class="chat-list" id="chatList">
+      <!-- Active -->
+      <div class="chat-item" onclick="go('chat-room', {expertId:1})" data-type="active">
+        <div class="ci-avatar" style="background:#D8F3DC;color:#2D6A4F;">
+          AW
+          <div class="ci-online-dot"></div>
+        </div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Dr. Amara Wijaya</div>
+            <div class="ci-time">Baru saja</div>
+          </div>
+          <div class="ci-msg">Baik, coba ceritakan lebih lanjut bagaimana perasaanmu...</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-active">🟢 Berlangsung</div>
+            <div class="ci-unread">2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="chat-item" data-type="upcoming">
+        <div class="ci-avatar" style="background:#DBEAFE;color:#1E40AF;">RM</div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Reza Mahardika, M.Psi</div>
+            <div class="ci-time">Besok</div>
+          </div>
+          <div class="ci-msg">Konfirmasi booking: Kamis, 16 Jan · 15:00 WIB</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-upcoming">🕐 Mendatang</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done -->
+      <div class="chat-item" onclick="go('summary', {expertId:3})" data-type="done">
+        <div class="ci-avatar" style="background:#FEF3C7;color:#92400E;">SD</div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Sari Dewanti, S.Psi</div>
+            <div class="ci-time">13 Jan</div>
+          </div>
+          <div class="ci-msg">Sesi telah selesai. Terima kasih, semoga membantu!</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-done">✅ Selesai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-item" onclick="go('summary', {expertId:4})" data-type="done">
+        <div class="ci-avatar" style="background:#EDE9FE;color:#5B21B6;">BP</div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Dr. Bagas Pratama</div>
+            <div class="ci-time">5 Jan</div>
+          </div>
+          <div class="ci-msg">Bagus sekali progressnya! Terus latihan pernapasannya ya.</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-done">✅ Selesai</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bot chat -->
+      <div class="chat-item" onclick="go('chat-bot')" data-type="all">
+        <div class="ci-avatar" style="background:var(--primary-pale);color:var(--primary);">🤖</div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Hi-Me AI Bot</div>
+            <div class="ci-time">Tersedia</div>
+          </div>
+          <div class="ci-msg">Halo! Aku siap mendengarkan. Ada yang ingin kamu ceritakan?</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-upcoming">🤖 AI Free</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottomnav">
+    <div class="nav-item" onclick="go('dashboard')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+    <div class="nav-item active"><div class="nav-icon">💬</div><div class="nav-label">Chat</div></div>
+    <div class="nav-item" onclick="go('consultation')"><div class="nav-icon">🩺</div><div class="nav-label">Konsultasi</div></div>
+    <div class="nav-item" onclick="go('self-talk')"><div class="nav-icon">📓</div><div class="nav-label">Self Talk</div></div>
+    <div class="nav-item" onclick="go('profile')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </nav>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const CHAT_SESSIONS_KEY = 'hime_chat_sessions';
+  let timerSec = 60 * 60 - 42 * 60 - 18; // remaining
+  function formatTimer(s) {
+    const m = Math.floor(s / 60), sec = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+  // Count down timer
+  setInterval(() => {
+    timerSec = Math.max(0, timerSec - 1);
+    const el = document.getElementById('sessionTimer');
+    if (el) el.textContent = formatTimer(timerSec);
+  }, 1000);
+
+  function getDefaultSessions() {
+    return [
+      { id: 'active-1', expertId: 1, expertName: 'Dr. Amara Wijaya', expertRole: 'Psikolog Klinis', init: 'AW', color: '#D8F3DC', textColor: '#2D6A4F', type: 'chat', status: 'active', timeLabel: 'Baru saja', duration: 60, unread: 2, lastMessage: 'Baik, coba ceritakan lebih lanjut bagaimana perasaanmu...' },
+      { id: 'upcoming-2', expertId: 2, expertName: 'Reza Mahardika, M.Psi', expertRole: 'Mental Health Consultant', init: 'RM', color: '#DBEAFE', textColor: '#1E40AF', type: 'chat', status: 'upcoming', timeLabel: 'Besok', duration: 60, unread: 0, lastMessage: 'Konfirmasi booking: Kamis, 16 Jan · 15:00 WIB' },
+      { id: 'done-3', expertId: 3, expertName: 'Sari Dewanti, S.Psi', expertRole: 'Analyst & Counselor', init: 'SD', color: '#FEF3C7', textColor: '#92400E', type: 'chat', status: 'done', timeLabel: '13 Jan', duration: 60, unread: 0, lastMessage: 'Sesi telah selesai. Terima kasih, semoga membantu!' },
+      { id: 'done-4', expertId: 4, expertName: 'Dr. Bagas Pratama', expertRole: 'Psikolog Klinis', init: 'BP', color: '#EDE9FE', textColor: '#5B21B6', type: 'chat', status: 'done', timeLabel: '5 Jan', duration: 60, unread: 0, lastMessage: 'Bagus sekali progressnya! Terus latihan pernapasannya ya.' },
+    ];
+  }
+
+  function loadSavedSessions() {
+    const raw = localStorage.getItem(CHAT_SESSIONS_KEY);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch (e) { return []; }
+  }
+
+  function renderChatList() {
+    const saved = loadSavedSessions();
+    const sessions = [...saved, ...getDefaultSessions().filter(d => !saved.some(s => s.id === d.id))];
+
+    const active = sessions.find(s => s.status === 'active');
+    const banner = document.getElementById('activeBanner');
+    if (active) {
+      banner.style.display = '';
+      banner.dataset.hasActive = '1';
+      banner.onclick = () => goToSession(active);
+      banner.querySelector('.asb-avatar').textContent = active.init;
+      banner.querySelector('.asb-avatar').style.background = active.color;
+      banner.querySelector('.asb-avatar').style.color = active.textColor;
+      banner.querySelector('.asb-name').textContent = active.expertName;
+      banner.querySelector('.asb-sub').textContent = `${active.type === 'call' ? 'Call' : 'Chat'} · ${active.duration || 60} menit`;
+    } else {
+      banner.style.display = 'none';
+      banner.dataset.hasActive = '0';
+    }
+
+    const listEl = document.getElementById('chatList');
+    const statusToType = { active: 'active', upcoming: 'upcoming', done: 'done' };
+    listEl.innerHTML = sessions.map(s => {
+      const badge = s.status === 'active'
+        ? '<div class="ci-type-badge badge-active">🟢 Berlangsung</div>'
+        : s.status === 'upcoming'
+          ? `<div class="ci-type-badge badge-upcoming">${s.type === 'call' ? '📞 Call Mendatang' : '💬 Chat Mendatang'}</div>`
+          : '<div class="ci-type-badge badge-done">✅ Selesai</div>';
+      const unread = s.unread ? `<div class="ci-unread">${s.unread}</div>` : '';
+      return `
+      <div class="chat-item" onclick='goToSession(${JSON.stringify({
+        id: s.id,
+        expertId: s.expertId,
+        type: s.type,
+        status: s.status
+      }).replace(/'/g, '&#39;')})' data-type="${statusToType[s.status] || 'upcoming'}">
+        <div class="ci-avatar" style="background:${s.color};color:${s.textColor};">
+          ${s.init}
+          ${s.status === 'active' ? '<div class="ci-online-dot"></div>' : ''}
+        </div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">${s.expertName}</div>
+            <div class="ci-time">${s.timeLabel || s.time || '-'}</div>
+          </div>
+          <div class="ci-msg">${s.lastMessage || ''}</div>
+          <div class="ci-meta">
+            ${badge}
+            ${unread}
+          </div>
+        </div>
+      </div>`;
+    }).join('') + `
+      <div class="chat-item" onclick="go('chat-bot')" data-type="all">
+        <div class="ci-avatar" style="background:var(--primary-pale);color:var(--primary);">🤖</div>
+        <div class="ci-content">
+          <div class="ci-top">
+            <div class="ci-name">Hi-Me AI Bot</div>
+            <div class="ci-time">Tersedia</div>
+          </div>
+          <div class="ci-msg">Halo! Aku siap mendengarkan. Ada yang ingin kamu ceritakan?</div>
+          <div class="ci-meta">
+            <div class="ci-type-badge badge-upcoming">🤖 AI Free</div>
+          </div>
+        </div>
+      </div>`;
+
+    document.querySelector('.ch-badge').textContent = `${sessions.filter(s => s.status === 'active').length} Aktif`;
+  }
+
+  function goToSession(payload) {
+    if (payload.type === 'call') {
+      if (payload.status === 'upcoming') {
+        go('chat-call-start', { expertId: payload.expertId, sessionId: payload.id });
+      } else {
+        go('chat-room', { expertId: payload.expertId, mode: 'call', sessionId: payload.id });
+      }
+      return;
+    }
+    if (payload.status === 'upcoming') {
+      go('chat-start', { expertId: payload.expertId, sessionId: payload.id });
+    } else {
+      go('chat-room', { expertId: payload.expertId, mode: 'chat', sessionId: payload.id });
+    }
+  }
+
+  renderChatList();
+
+  function filterChat(type, tab) {
+    document.querySelectorAll('.ft-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    const banner = document.getElementById('activeBanner');
+    const items = document.querySelectorAll('.chat-item');
+
+    if (type === 'all') {
+      banner.style.display = banner.dataset.hasActive === '1' ? '' : 'none';
+      items.forEach(i => i.style.display = '');
+    } else if (type === 'active') {
+      banner.style.display = banner.dataset.hasActive === '1' ? '' : 'none';
+      items.forEach(i => i.style.display = i.dataset.type === 'active' ? '' : 'none');
+    } else if (type === 'upcoming') {
+      banner.style.display = 'none';
+      items.forEach(i => i.style.display = i.dataset.type === 'upcoming' ? '' : 'none');
+    } else {
+      banner.style.display = 'none';
+      items.forEach(i => i.style.display = i.dataset.type === 'done' ? '' : 'none');
+    }
+  }
+</script>
 </body>
 </html>

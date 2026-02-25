@@ -50,7 +50,7 @@ Fokus: Semua halaman inti untuk role **User** — autentikasi, beranda, bot chat
 
 ---
 
-### ✅ Phase 2.1 — Expert & Booking Sesi (SELESAI)
+### ✅ Phase 1.2 — Expert & Booking Sesi (SELESAI)
 
 Fokus: Pencarian expert, detail profil, konsultasi home, dan booking sesi untuk role **User**.
 
@@ -63,7 +63,7 @@ Fokus: Pencarian expert, detail profil, konsultasi home, dan booking sesi untuk 
 | Konsultasi Home | `pages/consultation/index.html` | ✅ Done |
 | Booking Sesi (3 step) | `pages/consultation/booking.html` | ✅ Done |
 
-**Fitur Phase 2.1:**
+**Fitur Phase 1.2:**
 - Daftar expert dengan search real-time, filter chip (Semua/Online/Psikolog/Konsultan/Anxiety/Depresi/Stres)
 - Sort by: Rating Tertinggi / Harga Terendah / Harga Tertinggi / Banyak Sesi / Banyak Ulasan
 - Filter sheet lanjutan: ketersediaan, jenis expert, spesialisasi, rating minimum
@@ -77,33 +77,50 @@ Fokus: Pencarian expert, detail profil, konsultasi home, dan booking sesi untuk 
 
 ---
 
-### 🔜 Phase 2.2 — Self Talk & Chat (PLANNED)
+### ✅ Phase 1.3 — Self Talk & Chat (SELESAI)
 
 Fokus: Fitur diary Self Talk dan chat room konsultasi aktif.
 
-**Halaman yang akan dibuat:**
+**Halaman yang sudah dibuat:**
 
 | Halaman | Path | Status |
 |---|---|---|
-| Chat List | `pages/chat/index.html` | 🔜 Planned |
-| Chat Room (sesi aktif) | `pages/chat/room.html` | 🔜 Planned |
-| Session Summary + Rating | `pages/consultation/summary.html` | 🔜 Planned |
-| Self Talk Home | `pages/self-talk/index.html` | 🔜 Planned |
-| Tulis Diary (questionnaire) | `pages/self-talk/new.html` | 🔜 Planned |
-| Detail Diary | `pages/self-talk/detail.html` | 🔜 Planned |
+| Chat List | `pages/chat/index.html` | ✅ Done |
+| Chat Room (sesi aktif) | `pages/chat/room.html` | ✅ Done |
+| Session Summary + Rating | `pages/consultation/summary.html` | ✅ Done |
+| Self Talk Home | `pages/self-talk/index.html` | ✅ Done |
+| Tulis Diary (questionnaire) | `pages/self-talk/new.html` | ✅ Done |
+| Detail Diary | `pages/self-talk/detail.html` | ✅ Done |
 
-**Rencana fitur Phase 2.2:**
-- Chat room aktif dengan timer sesi, typing indicator, attachments
-- Session summary dengan catatan expert, rekomendasi, form rating bintang
-- Chat list: daftar sesi aktif & riwayat chat
-- Self Talk: questionnaire perasaan → pilih penyebab → pilih emosi → tulis diary
-- Detail diary dengan visualisasi emosi
-- Riwayat diary dengan mood tracker kalender
+**Fitur Phase 1.3:**
+- Self Talk Home: mood tracker bar mingguan, streak stats (hari berturut/total/mood positif%), insight mingguan berbasis AI, daftar diary dengan preview & chip emosi
+- Tulis Diary: questionnaire 4 langkah (perasaan → penyebab → emosi multi-select → teks bebas), progress bar, validasi per langkah, tombol rekam suara (simulasi), banner "Need Support" ke expert
+- Detail Diary: visualisasi emosi dengan gradient, mood level indicator bar, catatan diary lengkap, quick actions (bagikan/edit/hapus), rekomendasi konsultasi & teknik relaksasi
+- Chat List: filter Semua/Aktif/Mendatang/Selesai, banner sesi berlangsung dengan countdown timer, status badge per chat (berlangsung/mendatang/selesai), bot AI shortcut
+- Chat Room: topbar expert + status online, session timer countdown, gelembung chat dengan typing indicator, auto-reply simulasi, tombol akhiri sesi
+- Session Summary: hero dengan stats sesi, catatan & rekomendasi dari expert, grid "Langkah Selanjutnya" (4 opsi), form rating bintang interaktif + textarea ulasan
 
 ---
 
-### 🔮 Phase 3 — Expert Role (PLANNED)
-### 🔮 Phase 4 — Admin Role (PLANNED)
+### 🔜 Phase 1.4 — Payment & Halaman Lanjutan (PLANNED)
+
+Fokus: Sistem pembayaran lengkap dan halaman-halaman pendukung.
+
+**Halaman yang akan dibuat/disempurnakan:**
+
+| Halaman | Path | Status |
+|---|---|---|
+| Payment (multi-metode) | `pages/payment/index.html` | 🔜 Planned |
+| Payment Success | `pages/payment/success.html` | 🔜 Planned |
+
+**Rencana fitur Phase 1.4:**
+- Payment: pilih metode (Virtual Account/E-Wallet/Debit/Credit), timer countdown pembayaran, instruksi langkah-per-langkah
+- Payment Success: konfirmasi, booking details, tombol ke chat room
+
+---
+
+### 🔮 Phase 2 — Expert Role (PLANNED)
+### 🔮 Phase 3 — Admin Role (PLANNED)
 
 ---
 

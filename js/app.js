@@ -32,39 +32,52 @@ const App = {
 };
 
 // ── Router ──
-const ROUTES = {
-  // Phase 1.1
-  landing:      '../../index.html',
-  login:        '../pages/auth/login.html',
-  register:     '../pages/auth/register.html',
-  dashboard:    '../pages/dashboard/index.html',
-  'chat-bot':   '../pages/chat/bot.html',
-  profile:      '../pages/profile/index.html',
-  'profile-edit': '../pages/profile/edit.html',
+function detectAppRoot() {
+  const scriptEl = Array.from(document.scripts).find(s => /\/js\/app\.js(\?.*)?$/.test(s.src || ''));
+  if (scriptEl) return (scriptEl.src || '').replace(/\/js\/app\.js(\?.*)?$/, '');
+  const href = window.location.href;
+  const pagesIdx = href.indexOf('/pages/');
+  if (pagesIdx >= 0) return href.slice(0, pagesIdx);
+  return href.replace(/\/[^/]*$/, '');
+}
 
-  // Phase 1.2 (stubs, will be filled later)
-  consultation: '../pages/consultation/index.html',
-  'expert-list':'../pages/expert/list.html',
-  'expert-detail':'../pages/expert/detail.html',
-  booking:      '../pages/consultation/booking.html',
-  payment:      '../pages/payment/index.html',
-  'pay-success':'../pages/payment/success.html',
-  'chat-list':  '../pages/chat/index.html',
-  'chat-room':  '../pages/chat/room.html',
-  'self-talk':  '../pages/self-talk/index.html',
-  'self-talk-new': '../pages/self-talk/new.html',
-  'self-talk-detail': '../pages/self-talk/detail.html',
-  summary:      '../pages/consultation/summary.html',
+const APP_ROOT = detectAppRoot();
+const CANONICAL_ROUTES = {
+  landing: `${APP_ROOT}/index.html`,
+  login: `${APP_ROOT}/pages/auth/login.html`,
+  register: `${APP_ROOT}/pages/auth/register.html`,
+  dashboard: `${APP_ROOT}/pages/dashboard/index.html`,
+  'chat-bot': `${APP_ROOT}/pages/chat/bot.html`,
+  profile: `${APP_ROOT}/pages/profile/index.html`,
+  'profile-edit': `${APP_ROOT}/pages/profile/edit.html`,
+  consultation: `${APP_ROOT}/pages/consultation/index.html`,
+  'expert-list': `${APP_ROOT}/pages/expert/list.html`,
+  'expert-detail': `${APP_ROOT}/pages/expert/detail.html`,
+  booking: `${APP_ROOT}/pages/consultation/booking.html`,
+  payment: `${APP_ROOT}/pages/payment/index.html`,
+  'pay-success': `${APP_ROOT}/pages/payment/success.html`,
+  'chat-list': `${APP_ROOT}/pages/chat/index.html`,
+  'chat-room': `${APP_ROOT}/pages/chat/room.html`,
+  'chat-call': `${APP_ROOT}/pages/chat/call.html`,
+  'chat-start': `${APP_ROOT}/pages/chat/chat-start.html`,
+  'chat-call-start': `${APP_ROOT}/pages/chat/call-start.html`,
+  'self-talk': `${APP_ROOT}/pages/self-talk/index.html`,
+  'self-talk-new': `${APP_ROOT}/pages/self-talk/new.html`,
+  'self-talk-detail': `${APP_ROOT}/pages/self-talk/detail.html`,
+  summary: `${APP_ROOT}/pages/consultation/summary.html`,
 };
+
+const ROUTES = { ...CANONICAL_ROUTES };
 
 function go(page, params = {}) {
   // Store params for next page
   if (Object.keys(params).length) {
     sessionStorage.setItem('hime_params', JSON.stringify(params));
   }
-  const href = ROUTES[page];
+  const href = CANONICAL_ROUTES[page] || ROUTES[page];
   if (!href) { console.warn('Unknown route:', page); return; }
-  window.location.href = href;
+  const resolved = /^(https?:|file:|\/)/.test(href) ? href : new URL(href, window.location.href).href;
+  window.location.href = resolved;
 }
 
 function goBack() { history.back(); }

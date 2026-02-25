@@ -2,22 +2,248 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Self Talk — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .st-header {
+      background: linear-gradient(155deg, #1a1a4e, #3730a3);
+      padding: 0 20px 52px;
+      position: relative; overflow: hidden;
+    }
+    .st-header::before {
+      content: ''; position: absolute;
+      top: -60px; right: -40px; width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(139,92,246,.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .st-header::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 44px; background: var(--bg); border-radius: 44px 44px 0 0;
+    }
+    .hdr-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px; position: relative; z-index: 1;
+    }
+    .hdr-title { font-size: 20px; font-weight: 800; color: white; }
+    .hdr-new-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white; cursor: pointer; transition: all .15s;
+    }
+    .hdr-new-btn:active { transform: scale(.9); }
+    .mood-summary-card {
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--r-xl); padding: 16px; margin-top: 16px;
+      position: relative; z-index: 1;
+    }
+    .msc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .msc-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.8); }
+    .msc-month { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); }
+    .mood-bar { display: flex; gap: 4px; align-items: flex-end; height: 40px; }
+    .mood-day { flex: 1; border-radius: 4px 4px 0 0; cursor: pointer; opacity: .85; transition: opacity .15s; }
+    .mood-day:hover { opacity: 1; }
+    .mood-day.high { background: #34D399; height: 100%; }
+    .mood-day.mid { background: #FCD34D; height: 60%; }
+    .mood-day.low { background: #F87171; height: 38%; }
+    .mood-day.empty { background: rgba(255,255,255,.2); height: 18%; }
+    .mood-days-label { display: flex; gap: 4px; margin-top: 6px; }
+    .mdl-item { flex: 1; text-align: center; font-size: 9px; font-weight: 700; color: rgba(255,255,255,.5); }
+    .st-body { padding: 4px 20px 100px; }
+    .streak-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .streak-card {
+      flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 14px; text-align: center; box-shadow: var(--shadow-xs);
+    }
+    .streak-icon { font-size: 22px; margin-bottom: 4px; }
+    .streak-num { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+    .streak-lbl { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+    .sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .insight-card {
+      background: linear-gradient(135deg, #3730a3, #7c3aed);
+      border-radius: var(--r-xl); padding: 18px; margin-bottom: 20px; color: white;
+    }
+    .ic-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; opacity: .75; margin-bottom: 6px; }
+    .ic-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+    .ic-sub { font-size: 12px; opacity: .8; line-height: 1.5; }
+    .diary-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 12px;
+      box-shadow: var(--shadow-xs); cursor: pointer; transition: all .15s;
+    }
+    .diary-card:active { transform: scale(.98); }
+    .dc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .dc-date { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .dc-emotion-row { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+    .dc-emotion-chip { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+    .chip-purple { background: #EDE9FE; color: #6D28D9; }
+    .chip-blue { background: #DBEAFE; color: #1D4ED8; }
+    .chip-orange { background: #FEF3C7; color: #92400E; }
+    .chip-red { background: #FEE2E2; color: #B91C1C; }
+    .chip-green { background: #D1FAE5; color: #065F46; }
+    .dc-feeling-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .dc-feeling-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-low { background: #F87171; }
+    .dot-mid { background: #FCD34D; }
+    .dot-high { background: #34D399; }
+    .dc-feeling-label { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .dc-preview {
+      font-size: 13px; color: var(--text-muted); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .fab {
+      position: absolute; bottom: 86px; right: 20px;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--primary); color: white; border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; box-shadow: 0 4px 18px rgba(62,94,220,.45);
+      cursor: pointer; z-index: 90; transition: all .2s;
+    }
+    .fab:active { transform: scale(.9); }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">📓</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Self Talk</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Jurnal privat emosi harianmu.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+  <div class="st-header">
+    <div class="hdr-row">
+      <div class="hdr-title">📓 Self Talk</div>
+      <div class="hdr-new-btn" onclick="go('self-talk-new')">＋</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+    <div class="mood-summary-card">
+      <div class="msc-top">
+        <span class="msc-label">Mood Minggu Ini</span>
+        <span class="msc-month">Jan 2025</span>
+      </div>
+      <div class="mood-bar">
+        <div class="mood-day high"></div>
+        <div class="mood-day mid"></div>
+        <div class="mood-day empty"></div>
+        <div class="mood-day low"></div>
+        <div class="mood-day mid"></div>
+        <div class="mood-day high"></div>
+        <div class="mood-day empty"></div>
+      </div>
+      <div class="mood-days-label">
+        <div class="mdl-item">Sen</div>
+        <div class="mdl-item">Sel</div>
+        <div class="mdl-item">Rab</div>
+        <div class="mdl-item">Kam</div>
+        <div class="mdl-item">Jum</div>
+        <div class="mdl-item">Sab</div>
+        <div class="mdl-item">Min</div>
+      </div>
+    </div>
   </div>
+
+  <div class="scroll-area">
+    <div class="st-body">
+      <div class="streak-row">
+        <div class="streak-card">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-num">5</div>
+          <div class="streak-lbl">Hari Berturut</div>
+        </div>
+        <div class="streak-card">
+          <div class="streak-icon">📝</div>
+          <div class="streak-num">12</div>
+          <div class="streak-lbl">Total Diary</div>
+        </div>
+        <div class="streak-card">
+          <div class="streak-icon">😊</div>
+          <div class="streak-num">68%</div>
+          <div class="streak-lbl">Mood Positif</div>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="ic-label">✨ Insight Mingguan</div>
+        <div class="ic-title">Kamu sering merasa stres karena pekerjaan</div>
+        <div class="ic-sub">Berdasarkan 5 diary terakhir, pekerjaan jadi pemicu utama tekananmu. Yuk coba teknik pernapasan 4-7-8!</div>
+      </div>
+
+      <div class="sec-hdr">
+        <div class="sec-title">Diary Terbaru</div>
+        <div class="sec-link" style="font-size:12px;font-weight:700;color:var(--primary);">Lihat Semua</div>
+      </div>
+
+      <div id="diaryList"></div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="go('self-talk-new')">＋</button>
+
+  <nav class="bottomnav">
+    <div class="nav-item" onclick="go('dashboard')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+    <div class="nav-item" onclick="go('chat-list')"><div class="nav-icon">💬</div><div class="nav-label">Chat</div></div>
+    <div class="nav-item" onclick="go('consultation')"><div class="nav-icon">🩺</div><div class="nav-label">Konsultasi</div></div>
+    <div class="nav-item active"><div class="nav-icon">📓</div><div class="nav-label">Self Talk</div></div>
+    <div class="nav-item" onclick="go('profile')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </nav>
 </div>
 <script src="../../js/app.js"></script>
+<script>
+  const DIARY_KEY = 'hime_diary_entries';
+
+  function getDefaultEntries() {
+    return [
+      { id: 1, date: '2025-01-15', feeling: 'Tidak nyaman', cause: 'Pekerjaan / Studi', emotions: ['Cemas', 'Lelah', 'Bingung'], text: 'Hari ini terasa berat sekali. Banyak deadline yang menumpuk dan aku tidak tahu harus mulai dari mana...', mood: 'low' },
+      { id: 2, date: '2025-01-13', feeling: 'Cukup nyaman', cause: 'Dalam diri sendiri', emotions: ['Tenang'], text: 'Merasa lebih baik hari ini setelah meditasi pagi. Pikiran sedikit lebih jernih dan bisa fokus...', mood: 'mid' },
+      { id: 3, date: '2025-01-11', feeling: 'Tidak nyaman', cause: 'Hubungan', emotions: ['Bingung', 'Sedih'], text: 'Ada konflik dengan teman dekat yang membuatku merasa tidak dimengerti...', mood: 'low' },
+    ];
+  }
+
+  function loadEntries() {
+    const raw = localStorage.getItem(DIARY_KEY);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (e) {}
+    }
+    const seed = getDefaultEntries();
+    localStorage.setItem(DIARY_KEY, JSON.stringify(seed));
+    return seed;
+  }
+
+  function formatShortDate(val) {
+    return `📅 ${new Date(val).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
+  }
+
+  function moodDot(feeling) {
+    const f = (feeling || '').toLowerCase();
+    if (f.includes('cukup')) return 'dot-mid';
+    if (f.includes('nyaman') && !f.includes('tidak')) return 'dot-high';
+    return 'dot-low';
+  }
+
+  function chipClass(idx) {
+    return ['chip-red', 'chip-purple', 'chip-orange', 'chip-blue', 'chip-green'][idx % 5];
+  }
+
+  function renderDiaryList() {
+    const list = loadEntries().sort((a, b) => (a.date < b.date ? 1 : -1));
+    const root = document.getElementById('diaryList');
+    if (!list.length) {
+      root.innerHTML = `<div class="diary-card"><div class="dc-preview">Belum ada diary. Tulis diary pertamamu hari ini.</div></div>`;
+      return;
+    }
+    root.innerHTML = list.map(d => `
+      <div class="diary-card" onclick="go('self-talk-detail', {id:${d.id}})">
+        <div class="dc-top">
+          <div class="dc-date">${formatShortDate(d.date)}</div>
+          <div class="dc-emotion-row">
+            ${(d.emotions || []).slice(0, 2).map((e, i) => `<div class="dc-emotion-chip ${chipClass(i)}">${e}</div>`).join('')}
+          </div>
+        </div>
+        <div class="dc-feeling-row">
+          <div class="dc-feeling-dot ${moodDot(d.feeling)}"></div>
+          <div class="dc-feeling-label">${d.feeling || '-'} · ${d.cause || '-'}</div>
+        </div>
+        <div class="dc-preview">${d.text || '-'}</div>
+      </div>
+    `).join('');
+  }
+
+  renderDiaryList();
+</script>
 </body>
 </html>

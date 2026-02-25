@@ -2,22 +2,287 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Detail Diary — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .ph-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+    .ph-more {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer;
+    }
+
+    .detail-body { padding: 20px; padding-bottom: 100px; }
+
+    /* Emotion visualization */
+    .emotion-viz {
+      background: linear-gradient(135deg, #1a1a4e, #3730a3);
+      border-radius: var(--r-xl); padding: 24px; margin-bottom: 20px;
+      color: white; text-align: center;
+    }
+    .ev-date { font-size: 12px; font-weight: 700; opacity: .65; margin-bottom: 12px; }
+    .ev-main-emoji { font-size: 64px; margin-bottom: 8px; }
+    .ev-feeling { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .ev-cause { font-size: 12px; opacity: .75; margin-bottom: 16px; }
+    .ev-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .ev-chip {
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25);
+      font-size: 12px; font-weight: 700;
+    }
+
+    /* Mood indicator */
+    .mood-indicator {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .mi-bar-wrap { flex: 1; }
+    .mi-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+    .mi-bar { height: 10px; border-radius: 10px; background: var(--border); overflow: hidden; }
+    .mi-fill { height: 100%; border-radius: 10px; transition: width .8s ease; }
+    .fill-low { background: linear-gradient(90deg, #F87171, #EF4444); }
+    .fill-mid { background: linear-gradient(90deg, #FCD34D, #F59E0B); }
+    .fill-high { background: linear-gradient(90deg, #6EE7B7, #34D399); }
+    .mi-val { font-size: 22px; font-weight: 900; color: var(--primary); min-width: 44px; text-align: right; }
+
+    /* Diary text */
+    .diary-text-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 20px; margin-bottom: 20px;
+    }
+    .dtc-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; }
+    .dtc-text {
+      font-size: 14px; color: var(--text-primary); line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* Actions */
+    .action-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .action-btn {
+      flex: 1; padding: 14px; border-radius: var(--r-xl);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer; transition: all .15s; box-shadow: var(--shadow-xs);
+    }
+    .action-btn:active { transform: scale(.96); }
+    .ab-icon { font-size: 22px; }
+    .ab-label { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+
+    /* Related recommendation */
+    .rec-card {
+      background: #FEF3C7; border: 1px solid #FDE68A;
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 20px;
+      cursor: pointer; transition: all .15s;
+    }
+    .rc-label { font-size: 10px; font-weight: 800; color: #B45309; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+    .rc-title { font-size: 14px; font-weight: 800; color: #78350F; margin-bottom: 4px; }
+    .rc-sub { font-size: 12px; color: #92400E; line-height: 1.5; }
+
+    /* Delete sheet */
+    .sheet-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 200; opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .bottom-sheet {
+      position: absolute; bottom: -200px; left: 0; right: 0;
+      background: var(--bg-card); border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 16px 20px 36px;
+      transition: bottom .3s cubic-bezier(.4,0,.2,1);
+    }
+    .sheet-overlay.open .bottom-sheet { bottom: 0; }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 16px; }
+    .sheet-title { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+    .sheet-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">📖</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Detail Diary</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Baca kembali entri diarymu.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="ph-title">Detail Diary</div>
+    <div class="ph-more" onclick="openSheet('deleteSheet')">···</div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="detail-body">
+
+      <!-- Emotion Visualization -->
+      <div class="emotion-viz">
+        <div class="ev-date" id="evDate">📅 -</div>
+        <div class="ev-main-emoji" id="evEmoji">🙂</div>
+        <div class="ev-feeling" id="evFeeling">-</div>
+        <div class="ev-cause" id="evCause">-</div>
+        <div class="ev-chips" id="evChips">
+        </div>
+      </div>
+
+      <!-- Mood Level -->
+      <div class="mood-indicator">
+        <div class="mi-bar-wrap">
+          <div class="mi-label">Level Kenyamanan</div>
+          <div class="mi-bar">
+            <div class="mi-fill fill-low" style="width:25%" id="moodFill"></div>
+          </div>
+        </div>
+        <div class="mi-val" id="moodVal">25%</div>
+      </div>
+
+      <!-- Diary Text -->
+      <div class="diary-text-card">
+        <div class="dtc-label">📖 Catatanmu</div>
+        <div class="dtc-text" id="diaryText">-</div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="action-row">
+        <div class="action-btn" onclick="toast('Berbagi diary tidak tersedia')">
+          <div class="ab-icon">📤</div>
+          <div class="ab-label">Bagikan</div>
+        </div>
+        <div class="action-btn" onclick="editDiary()">
+          <div class="ab-icon">✏️</div>
+          <div class="ab-label">Edit</div>
+        </div>
+        <div class="action-btn" onclick="openSheet('deleteSheet')">
+          <div class="ab-icon">🗑️</div>
+          <div class="ab-label">Hapus</div>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div class="rec-card" onclick="go('expert-list')">
+        <div class="rc-label">💡 Rekomendasi untuk kamu</div>
+        <div class="rc-title">Kamu terlihat sedang berjuang dengan stres kerja</div>
+        <div class="rc-sub">Konsultasi dengan expert kami bisa membantu kamu menemukan strategi yang tepat. Sesi 30 menit mulai Rp 100.000.</div>
+      </div>
+
+      <!-- Breathing exercise -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px;cursor:pointer;" onclick="toast('Latihan pernapasan 🌬️ akan segera hadir!')">
+        <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">🌬️ Teknik Relaksasi</div>
+        <div style="font-size:14px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Coba Pernapasan 4-7-8</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Teknik pernapasan sederhana yang terbukti mengurangi kecemasan dalam 2 menit</div>
+      </div>
+
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+  </div>
+
+  <!-- Delete Sheet -->
+  <div class="sheet-overlay" id="deleteSheet" onclick="overlayClick(event, 'deleteSheet')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Hapus Diary?</div>
+      <div class="sheet-sub">Tindakan ini tidak bisa dibatalkan. Diary akan dihapus permanen.</div>
+      <button class="btn" style="width:100%;background:#EF4444;color:white;border:none;margin-bottom:10px;" onclick="deleteDiary()">🗑️ Ya, Hapus</button>
+      <button class="btn btn-ghost" style="width:100%;" onclick="closeSheet('deleteSheet')">Batal</button>
+    </div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const DIARY_KEY = 'hime_diary_entries';
+  const params = getParams();
+  const diaryId = params.id || 1;
+  let currentDiary = null;
+
+  function getDefaultEntries() {
+    return [
+      { id: 1, date: '2025-01-15', feeling: 'Tidak nyaman', cause: 'Pekerjaan / Studi', emotions: ['Cemas', 'Lelah', 'Bingung'], text: 'Hari ini terasa berat sekali. Banyak deadline yang menumpuk dan aku tidak tahu harus mulai dari mana...', mood: 'low' },
+      { id: 2, date: '2025-01-13', feeling: 'Cukup nyaman', cause: 'Dalam diri sendiri', emotions: ['Tenang'], text: 'Merasa lebih baik hari ini setelah meditasi pagi. Pikiran sedikit lebih jernih dan bisa fokus...', mood: 'mid' },
+      { id: 3, date: '2025-01-11', feeling: 'Tidak nyaman', cause: 'Hubungan', emotions: ['Bingung', 'Sedih'], text: 'Ada konflik dengan teman dekat yang membuatku merasa tidak dimengerti...', mood: 'low' },
+    ];
+  }
+
+  function loadEntries() {
+    const raw = localStorage.getItem(DIARY_KEY);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (e) {}
+    }
+    const seed = getDefaultEntries();
+    localStorage.setItem(DIARY_KEY, JSON.stringify(seed));
+    return seed;
+  }
+
+  function saveEntries(entries) {
+    localStorage.setItem(DIARY_KEY, JSON.stringify(entries));
+  }
+
+  function formatHumanDate(val) {
+    return new Date(val).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function moodMeta(feeling) {
+    const f = (feeling || '').toLowerCase();
+    if (f.includes('sangat nyaman') || f.includes('nyaman') && !f.includes('tidak')) return { pct: 85, cls: 'fill-high', emoji: '😄' };
+    if (f.includes('cukup')) return { pct: 55, cls: 'fill-mid', emoji: '🙂' };
+    return { pct: 25, cls: 'fill-low', emoji: '😟' };
+  }
+
+  function causeIcon(cause) {
+    const c = (cause || '').toLowerCase();
+    if (c.includes('pekerjaan') || c.includes('studi')) return '💼';
+    if (c.includes('hubungan')) return '💛';
+    if (c.includes('kesehatan')) return '💪';
+    if (c.includes('keuangan')) return '💰';
+    return '🧠';
+  }
+
+  function renderDiary() {
+    const entries = loadEntries();
+    currentDiary = entries.find(d => String(d.id) === String(diaryId)) || entries[0];
+    if (!currentDiary) return;
+
+    const meta = moodMeta(currentDiary.feeling);
+    document.getElementById('evDate').textContent = `📅 ${formatHumanDate(currentDiary.date)}`;
+    document.getElementById('evEmoji').textContent = meta.emoji;
+    document.getElementById('evFeeling').textContent = currentDiary.feeling || '-';
+    document.getElementById('evCause').textContent = `${causeIcon(currentDiary.cause)} ${currentDiary.cause || '-'}`;
+    document.getElementById('evChips').innerHTML = (currentDiary.emotions || []).map(e => `<div class="ev-chip">${e}</div>`).join('');
+    document.getElementById('diaryText').textContent = currentDiary.text || '-';
+
+    const fill = document.getElementById('moodFill');
+    fill.className = `mi-fill ${meta.cls}`;
+    fill.style.width = `${meta.pct}%`;
+    document.getElementById('moodVal').textContent = `${meta.pct}%`;
+  }
+
+  function editDiary() {
+    if (!currentDiary) return;
+    go('self-talk-new', { id: currentDiary.id });
+  }
+
+  function deleteDiary() {
+    if (!currentDiary) return;
+    const entries = loadEntries().filter(d => String(d.id) !== String(currentDiary.id));
+    saveEntries(entries);
+    closeSheet('deleteSheet');
+    toast('Diary dihapus');
+    setTimeout(() => go('self-talk'), 700);
+  }
+
+  renderDiary();
+
+  // Animate mood bar on load
+  setTimeout(() => {
+    const fill = document.getElementById('moodFill');
+    if (fill && currentDiary) fill.style.width = fill.style.width || '25%';
+  }, 300);
+</script>
 </body>
 </html>

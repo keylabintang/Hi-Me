@@ -2,22 +2,247 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Ringkasan Sesi — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .summary-hero {
+      background: linear-gradient(155deg, var(--primary), #3730a3);
+      padding: 28px 24px 60px;
+      text-align: center; color: white; position: relative; overflow: hidden;
+    }
+    .summary-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 44px; background: var(--bg); border-radius: 44px 44px 0 0;
+    }
+    .sh-confetti { font-size: 40px; margin-bottom: 8px; }
+    .sh-title { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+    .sh-sub { font-size: 13px; opacity: .85; margin-bottom: 20px; }
+    .sh-stats { display: flex; gap: 0; justify-content: center; }
+    .sh-stat {
+      flex: 1; text-align: center;
+      padding: 12px 8px;
+      border-right: 1px solid rgba(255,255,255,.2);
+    }
+    .sh-stat:last-child { border-right: none; }
+    .sh-stat-num { font-size: 20px; font-weight: 900; }
+    .sh-stat-label { font-size: 10px; opacity: .75; font-weight: 700; margin-top: 2px; }
+
+    .summary-body { padding: 8px 20px 100px; }
+
+    /* Expert card */
+    .expert-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 16px;
+      display: flex; gap: 14px; align-items: center;
+      box-shadow: var(--shadow-xs);
+    }
+    .ec-avatar {
+      width: 56px; height: 56px; border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; font-weight: 800; flex-shrink: 0;
+    }
+    .ec-name { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .ec-role { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .ec-meta { display: flex; gap: 12px; }
+    .ec-meta-item { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+
+    /* Notes card */
+    .notes-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 18px; margin-bottom: 16px;
+      box-shadow: var(--shadow-xs);
+    }
+    .nc-label {
+      font-size: 12px; font-weight: 800; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px;
+    }
+    .nc-text { font-size: 14px; color: var(--text-primary); line-height: 1.65; }
+    .nc-item { display: flex; gap: 10px; margin-bottom: 10px; }
+    .nc-bullet { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .nc-item-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* Rating */
+    .rating-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 20px; margin-bottom: 16px;
+      box-shadow: var(--shadow-xs); text-align: center;
+    }
+    .rc-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+    .rc-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+    .stars-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+    .star-btn {
+      font-size: 36px; cursor: pointer; transition: all .15s;
+      filter: grayscale(1); opacity: .4;
+    }
+    .star-btn.active { filter: none; opacity: 1; transform: scale(1.1); }
+    .star-btn:active { transform: scale(.95); }
+    .review-input {
+      width: 100%; padding: 12px 16px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-primary); resize: none; outline: none;
+      line-height: 1.5; transition: border-color .2s;
+    }
+    .review-input:focus { border-color: var(--primary); }
+    .review-input::placeholder { color: var(--text-placeholder); }
+
+    /* Recommendations */
+    .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .rec-item {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 14px; cursor: pointer;
+      transition: all .15s; box-shadow: var(--shadow-xs);
+    }
+    .rec-item:active { transform: scale(.97); }
+    .ri-icon { font-size: 24px; margin-bottom: 8px; }
+    .ri-name { font-size: 12px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .ri-sub { font-size: 11px; color: var(--text-muted); }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">📋</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Ringkasan Sesi</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Lihat ringkasan sesi konsultasi.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+  <div class="summary-hero">
+    <div class="sh-confetti">🎉</div>
+    <div class="sh-title">Sesi Selesai!</div>
+    <div class="sh-sub">Hebat! Kamu telah menyelesaikan sesi konsultasi</div>
+    <div class="sh-stats">
+      <div class="sh-stat">
+        <div class="sh-stat-num">60</div>
+        <div class="sh-stat-label">Menit</div>
+      </div>
+      <div class="sh-stat">
+        <div class="sh-stat-num">24</div>
+        <div class="sh-stat-label">Pesan</div>
+      </div>
+      <div class="sh-stat">
+        <div class="sh-stat-num">💬</div>
+        <div class="sh-stat-label">Chat</div>
+      </div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+  </div>
+
+  <div class="scroll-area">
+    <div class="summary-body">
+
+      <!-- Expert card -->
+      <div class="expert-card">
+        <div class="ec-avatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
+        <div>
+          <div class="ec-name">Dr. Amara Wijaya</div>
+          <div class="ec-role">Psikolog Klinis</div>
+          <div class="ec-meta">
+            <div class="ec-meta-item">📅 15 Jan 2025</div>
+            <div class="ec-meta-item">🕐 14:30 – 15:30</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expert notes -->
+      <div class="notes-card">
+        <div class="nc-label">📋 Catatan dari Expert</div>
+        <div class="nc-item">
+          <div class="nc-bullet">🔍</div>
+          <div class="nc-item-text">Kamu mengalami gejala kecemasan situasional yang dipicu oleh perubahan di lingkungan kerja. Ini adalah reaksi yang normal dan dapat diatasi.</div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-bullet">💡</div>
+          <div class="nc-item-text">Pola overthinking sebelum tidur dapat dikurangi dengan teknik mindfulness dan journaling sebelum tidur.</div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-bullet">🌟</div>
+          <div class="nc-item-text">Kamu menunjukkan kesadaran diri yang baik. Ini adalah modal penting untuk pemulihan.</div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="notes-card" style="margin-bottom:16px;">
+        <div class="nc-label">📌 Rekomendasi Expert</div>
+        <div class="nc-item">
+          <div class="nc-bullet">1️⃣</div>
+          <div class="nc-item-text">Coba teknik pernapasan 4-7-8 setiap malam sebelum tidur selama 5 menit.</div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-bullet">2️⃣</div>
+          <div class="nc-item-text">Tulis 3 hal yang kamu syukuri setiap hari di Self Talk diary.</div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-bullet">3️⃣</div>
+          <div class="nc-item-text">Batasi paparan berita negatif dan media sosial 1 jam sebelum tidur.</div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-bullet">4️⃣</div>
+          <div class="nc-item-text">Jadwalkan sesi follow-up dalam 2 minggu untuk mengevaluasi progress.</div>
+        </div>
+      </div>
+
+      <!-- Next steps grid -->
+      <div style="font-size:13px;font-weight:800;color:var(--text-primary);margin-bottom:12px;">Langkah Selanjutnya</div>
+      <div class="rec-grid" style="margin-bottom:20px;">
+        <div class="rec-item" onclick="go('self-talk-new')">
+          <div class="ri-icon">📓</div>
+          <div class="ri-name">Tulis Self Talk</div>
+          <div class="ri-sub">Catat perasaanmu sekarang</div>
+        </div>
+        <div class="rec-item" onclick="go('booking', {expertId:1})">
+          <div class="ri-icon">📅</div>
+          <div class="ri-name">Book Lanjutan</div>
+          <div class="ri-sub">Jadwal sesi berikutnya</div>
+        </div>
+        <div class="rec-item" onclick="toast('Artikel akan segera hadir 📖')">
+          <div class="ri-icon">📚</div>
+          <div class="ri-name">Baca Artikel</div>
+          <div class="ri-sub">Tips mengatasi cemas</div>
+        </div>
+        <div class="rec-item" onclick="go('expert-list')">
+          <div class="ri-icon">🩺</div>
+          <div class="ri-name">Expert Lain</div>
+          <div class="ri-sub">Temukan expert sesuai kebutuhan</div>
+        </div>
+      </div>
+
+      <!-- Rating -->
+      <div class="rating-card" id="ratingCard">
+        <div class="rc-title">Bagaimana sesi ini?</div>
+        <div class="rc-sub">Berikan penilaianmu untuk membantu kami berkembang</div>
+        <div class="stars-row" id="starsRow">
+          <div class="star-btn" onclick="setRating(1)">⭐</div>
+          <div class="star-btn" onclick="setRating(2)">⭐</div>
+          <div class="star-btn" onclick="setRating(3)">⭐</div>
+          <div class="star-btn" onclick="setRating(4)">⭐</div>
+          <div class="star-btn" onclick="setRating(5)">⭐</div>
+        </div>
+        <textarea class="review-input" id="reviewText" rows="3" placeholder="Ceritakan pengalamanmu (opsional)..."></textarea>
+      </div>
+
+      <!-- CTA buttons -->
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="submitRating()">
+        Kirim Ulasan & Selesai
+      </button>
+      <button class="btn btn-ghost" style="width:100%;" onclick="go('dashboard')">
+        Ke Beranda
+      </button>
+    </div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  let selectedRating = 0;
+
+  function setRating(n) {
+    selectedRating = n;
+    const stars = document.querySelectorAll('.star-btn');
+    stars.forEach((s, i) => {
+      s.classList.toggle('active', i < n);
+    });
+  }
+
+  function submitRating() {
+    if (selectedRating === 0) { toast('Berikan rating dulu ya ⭐'); return; }
+    toast('Terima kasih atas ulasanmu! 🙏');
+    setTimeout(() => go('dashboard'), 1200);
+  }
+</script>
 </body>
 </html>

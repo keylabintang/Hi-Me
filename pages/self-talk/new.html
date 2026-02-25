@@ -2,22 +2,417 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Tulis Diary — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; flex-shrink: 0; transition: all .15s;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .ph-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+
+    /* Progress */
+    .prog-bar-wrap { padding: 0 20px 0; background: var(--bg-card); }
+    .prog-steps { display: flex; gap: 6px; padding-bottom: 16px; }
+    .prog-step { flex: 1; height: 4px; border-radius: 4px; background: var(--border); transition: all .3s; }
+    .prog-step.done { background: var(--primary); }
+    .prog-step.active { background: var(--primary); opacity: .5; }
+
+    /* Step panels */
+    .step-panel { display: none; padding: 20px; animation: fadeUp .3s ease; }
+    .step-panel.active { display: block; }
+
+    .step-title { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .step-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+    /* Feeling options */
+    .feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .feeling-opt {
+      padding: 20px 16px; border-radius: var(--r-xl);
+      border: 2px solid var(--border); background: var(--bg-card);
+      text-align: center; cursor: pointer; transition: all .2s;
+    }
+    .feeling-opt:active { transform: scale(.96); }
+    .feeling-opt.selected { border-color: var(--primary); background: var(--primary-pale); }
+    .fo-emoji { font-size: 36px; margin-bottom: 8px; }
+    .fo-name { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .fo-sub { font-size: 12px; color: var(--text-muted); }
+    .feeling-opt.selected .fo-name { color: var(--primary); }
+
+    /* Cause options */
+    .cause-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .cause-opt {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: var(--r-xl);
+      border: 2px solid var(--border); background: var(--bg-card);
+      cursor: pointer; transition: all .15s;
+    }
+    .cause-opt:active { transform: scale(.98); }
+    .cause-opt.selected { border-color: var(--primary); background: var(--primary-xpale); }
+    .cause-icon { font-size: 26px; width: 36px; text-align: center; flex-shrink: 0; }
+    .cause-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .cause-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .cause-opt.selected .cause-name { color: var(--primary); }
+
+    /* Emotion chips */
+    .emotion-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .emotion-chip {
+      padding: 10px 16px; border-radius: 30px;
+      border: 2px solid var(--border); background: var(--bg-card);
+      font-size: 13px; font-weight: 700; color: var(--text-secondary);
+      cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px;
+    }
+    .emotion-chip:active { transform: scale(.95); }
+    .emotion-chip.selected {
+      background: var(--primary); border-color: var(--primary);
+      color: white;
+    }
+
+    /* Diary write */
+    .diary-textarea {
+      width: 100%; min-height: 160px; padding: 16px;
+      border: 2px solid var(--border); border-radius: var(--r-xl);
+      font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-primary); background: var(--bg-card);
+      resize: none; line-height: 1.6;
+      outline: none; transition: border-color .2s;
+      margin-bottom: 14px;
+    }
+    .diary-textarea:focus { border-color: var(--primary); }
+    .diary-textarea::placeholder { color: var(--text-placeholder); }
+    .char-count { font-size: 11px; font-weight: 600; color: var(--text-muted); text-align: right; margin-bottom: 16px; }
+
+    /* Voice btn */
+    .voice-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .voice-btn {
+      flex: 1; padding: 14px; border-radius: var(--r-xl);
+      border: 2px dashed var(--border); background: var(--bg);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .voice-btn:active { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+
+    /* Need support */
+    .support-banner {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 1px solid #F59E0B; border-radius: var(--r-xl);
+      padding: 16px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .sb-icon { font-size: 28px; flex-shrink: 0; }
+    .sb-title { font-size: 13px; font-weight: 800; color: #92400E; margin-bottom: 2px; }
+    .sb-sub { font-size: 12px; color: #B45309; line-height: 1.4; }
+
+    .step-nav { padding: 0 20px 20px; }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">✍️</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Tulis Diary</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Ekspresikan perasaanmu hari ini.</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="ph-title">Tulis Diary</div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-steps">
+      <div class="prog-step active" id="ps1"></div>
+      <div class="prog-step" id="ps2"></div>
+      <div class="prog-step" id="ps3"></div>
+      <div class="prog-step" id="ps4"></div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+  </div>
+
+  <div class="scroll-area" style="padding-bottom: 80px;">
+
+    <!-- Step 1: Feeling -->
+    <div class="step-panel active" id="step1">
+      <div class="step-title">Bagaimana perasaanmu<br>sekarang? 🌤</div>
+      <div class="step-sub">Pilih yang paling menggambarkan kondisimu saat ini</div>
+      <div class="feeling-grid">
+        <div class="feeling-opt" onclick="selectFeeling(this, 'Sangat nyaman')">
+          <div class="fo-emoji">😁</div>
+          <div class="fo-name">Sangat Nyaman</div>
+          <div class="fo-sub">Hari yang luar biasa</div>
+        </div>
+        <div class="feeling-opt" onclick="selectFeeling(this, 'Cukup nyaman')">
+          <div class="fo-emoji">😊</div>
+          <div class="fo-name">Cukup Nyaman</div>
+          <div class="fo-sub">Biasa saja, oke</div>
+        </div>
+        <div class="feeling-opt" onclick="selectFeeling(this, 'Tidak nyaman')">
+          <div class="fo-emoji">😟</div>
+          <div class="fo-name">Tidak Nyaman</div>
+          <div class="fo-sub">Ada yang mengganggu</div>
+        </div>
+        <div class="feeling-opt" onclick="selectFeeling(this, 'Sangat tidak nyaman')">
+          <div class="fo-emoji">😣</div>
+          <div class="fo-name">Sangat Berat</div>
+          <div class="fo-sub">Hari yang sangat sulit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Cause -->
+    <div class="step-panel" id="step2">
+      <div class="step-title">Apa yang mempengaruhimu? 🔍</div>
+      <div class="step-sub">Pilih sumber utama dari perasaanmu</div>
+      <div class="cause-list">
+        <div class="cause-opt" onclick="selectCause(this, 'Dalam diri sendiri')">
+          <div class="cause-icon">🧠</div>
+          <div>
+            <div class="cause-name">Dalam diri sendiri</div>
+            <div class="cause-sub">Pikiran, perasaan, atau kondisi internal</div>
+          </div>
+        </div>
+        <div class="cause-opt" onclick="selectCause(this, 'Pekerjaan / Studi')">
+          <div class="cause-icon">💼</div>
+          <div>
+            <div class="cause-name">Pekerjaan / Studi</div>
+            <div class="cause-sub">Tekanan kerja, tugas, deadline</div>
+          </div>
+        </div>
+        <div class="cause-opt" onclick="selectCause(this, 'Hubungan')">
+          <div class="cause-icon">💛</div>
+          <div>
+            <div class="cause-name">Hubungan</div>
+            <div class="cause-sub">Keluarga, teman, pasangan</div>
+          </div>
+        </div>
+        <div class="cause-opt" onclick="selectCause(this, 'Kesehatan')">
+          <div class="cause-icon">💪</div>
+          <div>
+            <div class="cause-name">Kesehatan</div>
+            <div class="cause-sub">Kondisi fisik atau mental</div>
+          </div>
+        </div>
+        <div class="cause-opt" onclick="selectCause(this, 'Keuangan')">
+          <div class="cause-icon">💰</div>
+          <div>
+            <div class="cause-name">Keuangan</div>
+            <div class="cause-sub">Tekanan finansial atau ekonomi</div>
+          </div>
+        </div>
+        <div class="cause-opt" onclick="selectCause(this, 'Lainnya')">
+          <div class="cause-icon">🌐</div>
+          <div>
+            <div class="cause-name">Lainnya</div>
+            <div class="cause-sub">Faktor eksternal lain</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Emotions -->
+    <div class="step-panel" id="step3">
+      <div class="step-title">Emosi apa yang kamu rasakan? 💭</div>
+      <div class="step-sub">Bisa pilih lebih dari satu</div>
+      <div class="emotion-grid">
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Cemas')">😰 Cemas</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Sedih')">😢 Sedih</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Marah')">😡 Marah</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Lelah')">😪 Lelah</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Bingung')">😕 Bingung</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Takut')">😨 Takut</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Bahagia')">😄 Bahagia</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Bersyukur')">🙏 Bersyukur</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Lega')">😮‍💨 Lega</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Kecewa')">😞 Kecewa</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Kesepian')">🥺 Kesepian</div>
+        <div class="emotion-chip" onclick="toggleEmotion(this, 'Bersemangat')">🤩 Bersemangat</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Write -->
+    <div class="step-panel" id="step4">
+      <div class="step-title">Ceritakan lebih lanjut ✍️</div>
+      <div class="step-sub">Tulis apa yang kamu rasakan hari ini. Ini ruang pribadimu.</div>
+      <textarea class="diary-textarea" id="diaryText" placeholder="Hari ini aku merasa..." oninput="updateCount(this)"></textarea>
+      <div class="char-count"><span id="charCount">0</span> karakter</div>
+      <div class="voice-row">
+        <div class="voice-btn" onclick="toast('Fitur rekam suara akan segera hadir 🎙')">
+          🎙 Rekam Suara
+        </div>
+      </div>
+      <div class="support-banner" onclick="go('expert-list')">
+        <div class="sb-icon">🤝</div>
+        <div>
+          <div class="sb-title">Butuh bantuan lebih?</div>
+          <div class="sb-sub">Konsultasi dengan expert kami untuk dukungan profesional</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav buttons -->
+  <div class="step-nav" style="position:absolute;bottom:0;left:0;right:0;background:var(--bg-card);border-top:1px solid var(--border);padding:16px 20px;">
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" id="prevBtn" style="flex:1;display:none;" onclick="prevStep()">← Kembali</button>
+      <button class="btn btn-primary" id="nextBtn" style="flex:1;" onclick="nextStep()">Lanjut →</button>
+    </div>
   </div>
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const DIARY_KEY = 'hime_diary_entries';
+  const params = getParams();
+  const editingId = params.id || null;
+  let diaryEntries = [];
+
+  let currentStep = 1;
+  const totalSteps = 4;
+  let answers = { feeling: null, cause: null, emotions: [] };
+
+  function moodFromFeeling(feeling) {
+    const f = (feeling || '').toLowerCase();
+    if (f.includes('sangat nyaman') || f.includes('nyaman')) return 'high';
+    if (f.includes('cukup')) return 'mid';
+    return 'low';
+  }
+
+  function getDefaultEntries() {
+    return [
+      { id: 1, date: '2025-01-15', feeling: 'Tidak nyaman', cause: 'Pekerjaan / Studi', emotions: ['Cemas', 'Lelah', 'Bingung'], text: 'Hari ini terasa berat sekali. Banyak deadline yang menumpuk dan aku tidak tahu harus mulai dari mana...', mood: 'low' },
+      { id: 2, date: '2025-01-13', feeling: 'Cukup nyaman', cause: 'Dalam diri sendiri', emotions: ['Tenang'], text: 'Merasa lebih baik hari ini setelah meditasi pagi. Pikiran sedikit lebih jernih dan bisa fokus...', mood: 'mid' },
+      { id: 3, date: '2025-01-11', feeling: 'Tidak nyaman', cause: 'Hubungan', emotions: ['Bingung', 'Sedih'], text: 'Ada konflik dengan teman dekat yang membuatku merasa tidak dimengerti...', mood: 'low' },
+    ];
+  }
+
+  function loadEntries() {
+    const raw = localStorage.getItem(DIARY_KEY);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (e) {}
+    }
+    const seed = getDefaultEntries();
+    localStorage.setItem(DIARY_KEY, JSON.stringify(seed));
+    return seed;
+  }
+
+  function saveEntries(entries) {
+    localStorage.setItem(DIARY_KEY, JSON.stringify(entries));
+  }
+
+  function prefillForEdit() {
+    if (!editingId) return;
+    const entry = diaryEntries.find(d => String(d.id) === String(editingId));
+    if (!entry) return;
+
+    answers.feeling = entry.feeling || null;
+    answers.cause = entry.cause || null;
+    answers.emotions = Array.isArray(entry.emotions) ? [...entry.emotions] : [];
+
+    document.querySelectorAll('.feeling-opt').forEach(el => {
+      const name = el.querySelector('.fo-name')?.textContent.trim();
+      const match = (answers.feeling === 'Sangat tidak nyaman' && name === 'Sangat Berat') || name?.toLowerCase() === (answers.feeling || '').toLowerCase();
+      if (match) el.classList.add('selected');
+    });
+    document.querySelectorAll('.cause-opt').forEach(el => {
+      const name = el.querySelector('.cause-name')?.textContent.trim();
+      if (name?.toLowerCase() === (answers.cause || '').toLowerCase()) el.classList.add('selected');
+    });
+    document.querySelectorAll('.emotion-chip').forEach(el => {
+      const val = el.textContent.replace(/^[^\s]+\s/, '').trim();
+      if (answers.emotions.includes(val)) el.classList.add('selected');
+    });
+
+    const textEl = document.getElementById('diaryText');
+    textEl.value = entry.text || '';
+    updateCount(textEl);
+    document.querySelector('.ph-title').textContent = 'Edit Diary';
+  }
+
+  function updateProgress() {
+    for (let i = 1; i <= totalSteps; i++) {
+      const el = document.getElementById('ps' + i);
+      if (i < currentStep) el.className = 'prog-step done';
+      else if (i === currentStep) el.className = 'prog-step active';
+      else el.className = 'prog-step';
+    }
+    document.getElementById('prevBtn').style.display = currentStep > 1 ? 'flex' : 'none';
+    document.getElementById('nextBtn').textContent = currentStep === totalSteps ? '💾 Simpan Diary' : 'Lanjut →';
+  }
+
+  function selectFeeling(el, val) {
+    document.querySelectorAll('.feeling-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    answers.feeling = val;
+  }
+  function selectCause(el, val) {
+    document.querySelectorAll('.cause-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    answers.cause = val;
+  }
+  function toggleEmotion(el, val) {
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) {
+      answers.emotions.push(val);
+    } else {
+      answers.emotions = answers.emotions.filter(e => e !== val);
+    }
+  }
+
+  function updateCount(el) {
+    document.getElementById('charCount').textContent = el.value.length;
+  }
+
+  function nextStep() {
+    if (currentStep === 1 && !answers.feeling) { toast('Pilih perasaanmu dulu ya 😊'); return; }
+    if (currentStep === 2 && !answers.cause) { toast('Pilih penyebabnya ya'); return; }
+    if (currentStep === 3 && answers.emotions.length === 0) { toast('Pilih minimal 1 emosi'); return; }
+
+    if (currentStep === totalSteps) {
+      // Save
+      const text = document.getElementById('diaryText').value;
+      if (!text.trim()) { toast('Tulis sedikit ceritamu ya 📝'); return; }
+      const payload = {
+        id: editingId ? Number(editingId) : Date.now(),
+        date: new Date().toISOString().slice(0, 10),
+        feeling: answers.feeling,
+        cause: answers.cause,
+        emotions: [...answers.emotions],
+        text: text.trim(),
+        mood: moodFromFeeling(answers.feeling),
+      };
+
+      if (editingId) {
+        diaryEntries = diaryEntries.map(d => String(d.id) === String(editingId) ? { ...d, ...payload, id: d.id } : d);
+        toast('Perubahan diary disimpan ✨');
+      } else {
+        diaryEntries.unshift(payload);
+        toast('Diary tersimpan! ✨');
+      }
+      saveEntries(diaryEntries);
+      setTimeout(() => go('self-talk'), 1200);
+      return;
+    }
+
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+    document.querySelector('.scroll-area').scrollTop = 0;
+  }
+
+  function prevStep() {
+    if (currentStep <= 1) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+  }
+
+  diaryEntries = loadEntries();
+  prefillForEdit();
+  updateProgress();
+</script>
 </body>
 </html>

@@ -178,8 +178,8 @@
       </div>
       <div class="type-card" id="typeCall" onclick="selectType('call',this)">
         <div class="type-icon">📞</div>
-        <div class="type-name">Video Call</div>
-        <div class="type-sub">Tatap muka online</div>
+        <div class="type-name">Call</div>
+        <div class="type-sub">Panggilan online</div>
       </div>
       <div class="type-card" id="typeOffline" onclick="selectType('offline',this)">
         <div class="type-icon">🏥</div>
@@ -281,7 +281,7 @@
     selectedType = type;
     document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    const labels = { chat:'Chat Teks & Pesan', call:'Video Call Online', offline:'Kunjungan Langsung' };
+    const labels = { chat:'Chat Teks & Pesan', call:'Call Online', offline:'Kunjungan Langsung' };
     toast(labels[type] + ' dipilih');
   }
 
