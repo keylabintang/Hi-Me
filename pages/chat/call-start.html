@@ -95,7 +95,7 @@
 <script>
   const CHAT_SESSIONS_KEY = 'hime_chat_sessions';
   const params = getParams();
-  const payment = JSON.parse(sessionStorage.getItem('hime_payment') || '{}');
+  const payment = JSON.parse(sessionStorage.getItem('hime_pay_result') || sessionStorage.getItem('hime_payment') || '{}');
   let currentSession = null;
   let currentExpert = null;
 
@@ -123,7 +123,7 @@
     document.getElementById('role').textContent = currentExpert.role;
     document.getElementById('dateVal').textContent = currentSession?.date || '-';
     document.getElementById('timeVal').textContent = currentSession?.time || '-';
-    document.getElementById('totalVal').textContent = formatRupiah(payment.price || payment.total || 0);
+    document.getElementById('totalVal').textContent = formatRupiah(payment.finalAmount || payment.price || payment.total || 0);
     const stamp = currentSession?.id || `${Date.now()}`;
     document.getElementById('invoiceId').textContent = `INV-CALL-${String(stamp).slice(-8)}`;
   }

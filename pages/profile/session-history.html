@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Riwayat Sesi — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .page-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex; gap: 0; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .ss-stat {
+      flex: 1; padding: 14px 10px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .ss-stat:last-child { border-right: none; }
+    .ss-val { font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
+    .ss-lbl { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .ft-tab {
+      padding: 12px 18px; font-size: 13px; font-weight: 700;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0;
+    }
+    .ft-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .sessions-body { padding: 12px 20px 80px; }
+
+    /* Session card */
+    .session-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); margin-bottom: 12px;
+      box-shadow: var(--shadow-xs); overflow: hidden;
+      cursor: pointer; transition: all .15s;
+    }
+    .session-card:active { transform: scale(.99); box-shadow: var(--shadow-md); }
+
+    .sc-top { padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+    .sc-av {
+      width: 46px; height: 46px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; flex-shrink: 0;
+    }
+    .sc-info { flex: 1; min-width: 0; }
+    .sc-name { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .sc-role { font-size: 12px; color: var(--text-muted); }
+    .sc-status {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 800; white-space: nowrap;
+    }
+    .status-done { background: #D1FAE5; color: #065F46; }
+    .status-upcoming { background: var(--primary-pale); color: var(--primary); }
+    .status-cancelled { background: #FEE2E2; color: #B91C1C; }
+
+    .sc-divider { height: 1px; background: var(--border); }
+
+    .sc-meta {
+      display: flex; gap: 0; padding: 10px 0;
+      margin: 0 16px;
+    }
+    .sc-meta-item {
+      flex: 1; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .sc-meta-item:last-child { border-right: none; }
+    .sc-meta-val { font-size: 13px; font-weight: 800; color: var(--text-primary); }
+    .sc-meta-lbl { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+    .sc-footer {
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sc-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .sc-action {
+      font-size: 12px; font-weight: 800; color: var(--primary);
+      padding: 4px 12px; border: 1px solid var(--primary);
+      border-radius: 20px; cursor: pointer; transition: all .15s;
+    }
+    .sc-action:active { background: var(--primary-pale); }
+
+    /* Month separator */
+    .month-sep {
+      font-size: 12px; font-weight: 800; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .6px;
+      padding: 16px 0 8px;
+    }
+
+    /* Upcoming banner */
+    .upcoming-banner {
+      background: linear-gradient(135deg, var(--primary), #3730a3);
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 16px;
+      color: white; cursor: pointer; transition: all .15s;
+    }
+    .upcoming-banner:active { transform: scale(.98); }
+    .ub-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; opacity: .75; margin-bottom: 10px; }
+    .ub-row { display: flex; align-items: center; gap: 12px; }
+    .ub-av {
+      width: 44px; height: 44px; border-radius: var(--r-md);
+      background: rgba(255,255,255,.2); display: flex; align-items: center;
+      justify-content: center; font-size: 15px; font-weight: 800; flex-shrink: 0;
+    }
+    .ub-name { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+    .ub-sub { font-size: 12px; opacity: .8; }
+    .ub-cta {
+      margin-left: auto; background: white; color: var(--primary);
+      border-radius: var(--r-md); padding: 8px 14px;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="page-title">Riwayat Sesi</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="ss-stat">
+      <div class="ss-val">7</div>
+      <div class="ss-lbl">Total Sesi</div>
+    </div>
+    <div class="ss-stat">
+      <div class="ss-val">5</div>
+      <div class="ss-lbl">Selesai</div>
+    </div>
+    <div class="ss-stat">
+      <div class="ss-val">4</div>
+      <div class="ss-lbl">Psikolog</div>
+    </div>
+    <div class="ss-stat">
+      <div class="ss-val">4.8⭐</div>
+      <div class="ss-lbl">Rata-rata</div>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <div class="ft-tab active" onclick="filterSessions('all', this)">Semua</div>
+    <div class="ft-tab" onclick="filterSessions('upcoming', this)">Mendatang</div>
+    <div class="ft-tab" onclick="filterSessions('done', this)">Selesai</div>
+    <div class="ft-tab" onclick="filterSessions('cancelled', this)">Dibatalkan</div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="sessions-body">
+
+      <!-- Upcoming sessions -->
+      <div class="upcoming-banner" onclick="go('chat-list')" data-status="upcoming">
+        <div class="ub-label">🗓 Sesi Mendatang</div>
+        <div class="ub-row">
+          <div class="ub-av">AW</div>
+          <div>
+            <div class="ub-name">Dr. Amara Wijaya</div>
+            <div class="ub-sub">💬 Chat · Besok, 15:00 WIB · 60 menit</div>
+          </div>
+          <div class="ub-cta">Masuk</div>
+        </div>
+      </div>
+
+      <div class="month-sep" data-status="done">Januari 2025</div>
+
+      <!-- Session 1 -->
+      <div class="session-card" onclick="go('summary')" data-status="done">
+        <div class="sc-top">
+          <div class="sc-av" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
+          <div class="sc-info">
+            <div class="sc-name">Dr. Amara Wijaya</div>
+            <div class="sc-role">Psikolog Klinis</div>
+          </div>
+          <div class="sc-status status-done">✅ Selesai</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-meta">
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">15 Jan</div>
+            <div class="sc-meta-lbl">Tanggal</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">14:30</div>
+            <div class="sc-meta-lbl">Waktu</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">60 mnt</div>
+            <div class="sc-meta-lbl">Durasi</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">💬 Chat</div>
+            <div class="sc-meta-lbl">Tipe</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <div class="sc-rating">⭐ 5.0 · "Sangat membantu!"</div>
+          <div class="sc-action" onclick="event.stopPropagation();go('summary')">Lihat Detail</div>
+        </div>
+      </div>
+
+      <!-- Session 2 -->
+      <div class="session-card" onclick="go('summary')" data-status="done">
+        <div class="sc-top">
+          <div class="sc-av" style="background:#FEF3C7;color:#92400E;">SD</div>
+          <div class="sc-info">
+            <div class="sc-name">Sari Dewanti, S.Psi</div>
+            <div class="sc-role">Analyst & Counselor</div>
+          </div>
+          <div class="sc-status status-done">✅ Selesai</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-meta">
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">13 Jan</div>
+            <div class="sc-meta-lbl">Tanggal</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">10:00</div>
+            <div class="sc-meta-lbl">Waktu</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">45 mnt</div>
+            <div class="sc-meta-lbl">Durasi</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">📞 Call</div>
+            <div class="sc-meta-lbl">Tipe</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <div class="sc-rating">⭐ 4.5 · "Insightful session"</div>
+          <div class="sc-action" onclick="event.stopPropagation();go('summary')">Lihat Detail</div>
+        </div>
+      </div>
+
+      <div class="month-sep" data-status="done">Desember 2024</div>
+
+      <!-- Session 3 -->
+      <div class="session-card" onclick="go('summary')" data-status="done">
+        <div class="sc-top">
+          <div class="sc-av" style="background:#EDE9FE;color:#5B21B6;">BP</div>
+          <div class="sc-info">
+            <div class="sc-name">Dr. Bagas Pratama</div>
+            <div class="sc-role">Psikolog Klinis</div>
+          </div>
+          <div class="sc-status status-done">✅ Selesai</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-meta">
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">28 Des</div>
+            <div class="sc-meta-lbl">Tanggal</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">16:00</div>
+            <div class="sc-meta-lbl">Waktu</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">60 mnt</div>
+            <div class="sc-meta-lbl">Durasi</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">💬 Chat</div>
+            <div class="sc-meta-lbl">Tipe</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <div class="sc-rating">⭐ 5.0 · "Highly recommended"</div>
+          <div class="sc-action" onclick="event.stopPropagation();go('summary')">Lihat Detail</div>
+        </div>
+      </div>
+
+      <!-- Cancelled session -->
+      <div class="session-card" data-status="cancelled">
+        <div class="sc-top">
+          <div class="sc-av" style="background:#DBEAFE;color:#1E40AF;">RM</div>
+          <div class="sc-info">
+            <div class="sc-name">Reza Mahardika, M.Psi</div>
+            <div class="sc-role">Mental Health Consultant</div>
+          </div>
+          <div class="sc-status status-cancelled">❌ Dibatalkan</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-meta">
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">20 Des</div>
+            <div class="sc-meta-lbl">Tanggal</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">09:00</div>
+            <div class="sc-meta-lbl">Waktu</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">60 mnt</div>
+            <div class="sc-meta-lbl">Durasi</div>
+          </div>
+          <div class="sc-meta-item">
+            <div class="sc-meta-val">📞 Call</div>
+            <div class="sc-meta-lbl">Tipe</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <div class="sc-rating" style="color:#EF4444;">Refund Rp 120.000</div>
+          <div class="sc-action" onclick="event.stopPropagation();go('booking',{expertId:2})">Booking Ulang</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  function filterSessions(type, tab) {
+    document.querySelectorAll('.ft-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cards = document.querySelectorAll('.session-card, .upcoming-banner, .month-sep');
+    cards.forEach(c => {
+      if (type === 'all') { c.style.display = ''; return; }
+      const st = c.dataset.status;
+      c.style.display = (st === type || !st) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

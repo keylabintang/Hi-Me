@@ -169,7 +169,7 @@
     <div class="topbar-avatar" id="topAvatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
     <div class="expert-info">
       <div class="ei-name" id="topName">Dr. Amara Wijaya</div>
-      <div class="ei-status" id="topStatus">🟢 Online · Psikolog Klinis</div>
+      <div class="ei-status" id="topStatus">Online · Psikolog Klinis</div>
     </div>
     <div class="topbar-actions">
       <div class="topbar-btn" id="callBtn" onclick="go('chat-call', { expertId: 1 })">📞</div>
@@ -196,7 +196,7 @@
       <div class="msg-avatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
       <div>
         <div class="msg-bubble expert">
-          Halo! Selamat datang di sesi konsultasi kita. Senang bisa berbicara denganmu hari ini. Bagaimana kondisimu sekarang? 😊
+          Halo, selamat datang di sesi konsultasi. Senang bisa berbicara denganmu hari ini. Bagaimana kondisimu sekarang?
           <div class="msg-meta">14:30</div>
         </div>
       </div>
@@ -281,7 +281,7 @@
       <div class="sheet-handle"></div>
       <div style="font-size:16px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Akhiri Sesi?</div>
       <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Sisa waktu sesi masih ada. Yakin ingin mengakhiri lebih awal?</div>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="endSession()">✅ Ya, Akhiri Sesi</button>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="endSession()">Ya, Akhiri Sesi</button>
       <button class="btn btn-ghost" style="width:100%;" onclick="closeSheet('endSheet')">Lanjutkan Sesi</button>
     </div>
   </div>
@@ -297,7 +297,7 @@
   document.getElementById('topAvatar').style.background = currentExpert.color;
   document.getElementById('topAvatar').style.color = currentExpert.textColor;
   document.getElementById('topName').textContent = currentExpert.name;
-  document.getElementById('topStatus').textContent = `🟢 Online · ${currentExpert.role}`;
+  document.getElementById('topStatus').textContent = `Online · ${currentExpert.role}`;
   document.getElementById('callBtn').setAttribute('onclick', `go('chat-call', { expertId: ${currentExpert.id} })`);
 
   if (mode !== 'call') {

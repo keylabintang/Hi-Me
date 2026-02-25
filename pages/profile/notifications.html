@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Notifikasi — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .page-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+
+    .notif-body { padding: 16px 20px 80px; }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative; width: 48px; height: 26px; flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 26px; cursor: pointer; transition: .3s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background: white; border-radius: 50%;
+      transition: .3s; box-shadow: var(--shadow-xs);
+    }
+    input:checked + .toggle-slider { background: var(--primary); }
+    input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    /* Section */
+    .notif-section { margin-bottom: 24px; }
+    .notif-section-title {
+      font-size: 11px; font-weight: 800; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px;
+    }
+    .notif-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-xs);
+    }
+    .notif-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px; border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .ni-icon {
+      width: 40px; height: 40px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .ni-content { flex: 1; min-width: 0; }
+    .ni-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .ni-sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+    /* Reminder time picker */
+    .reminder-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px 14px; flex-wrap: wrap;
+    }
+    .reminder-chip {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 12px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .reminder-chip.sel { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
+
+    /* Unread notification list */
+    .inbox-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+    }
+    .inbox-item:last-child { border-bottom: none; }
+    .inbox-item:active { background: var(--bg); }
+    .inbox-item.unread { background: var(--primary-xpale); }
+    .inbox-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--primary);
+      flex-shrink: 0; margin-top: 6px;
+    }
+    .inbox-dot.read { background: transparent; }
+    .inbox-content { flex: 1; }
+    .inbox-title { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 3px; }
+    .inbox-msg { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .inbox-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+    .inbox-icon { font-size: 22px; flex-shrink: 0; }
+
+    .mark-all {
+      font-size: 12px; font-weight: 800; color: var(--primary);
+      cursor: pointer; padding: 4px;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="page-title">Notifikasi</div>
+    <div class="mark-all" onclick="markAllRead()">Tandai Dibaca</div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="notif-body">
+
+      <!-- Inbox notifikasi -->
+      <div class="notif-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="notif-section-title" style="margin-bottom:0;">Kotak Masuk</div>
+          <div style="background:var(--primary);color:white;font-size:10px;font-weight:800;padding:2px 10px;border-radius:20px;" id="unreadBadge">3 Baru</div>
+        </div>
+        <div class="notif-card">
+          <div class="inbox-item unread" id="notif1" onclick="readNotif(this)">
+            <div class="inbox-icon">🗓</div>
+            <div class="inbox-content">
+              <div class="inbox-title">Pengingat Sesi Besok</div>
+              <div class="inbox-msg">Sesi konsultasi dengan Dr. Amara Wijaya besok pukul 15:00 WIB. Pastikan koneksimu stabil!</div>
+              <div class="inbox-time">2 jam yang lalu</div>
+            </div>
+            <div class="inbox-dot" id="dot1"></div>
+          </div>
+          <div class="inbox-item unread" id="notif2" onclick="readNotif(this)">
+            <div class="inbox-icon">🎉</div>
+            <div class="inbox-content">
+              <div class="inbox-title">Promo Spesial Untukmu!</div>
+              <div class="inbox-msg">Gunakan kode HIME20 untuk diskon 20% pada booking sesi berikutnya. Berlaku hingga akhir bulan.</div>
+              <div class="inbox-time">5 jam yang lalu</div>
+            </div>
+            <div class="inbox-dot" id="dot2"></div>
+          </div>
+          <div class="inbox-item unread" id="notif3" onclick="readNotif(this)">
+            <div class="inbox-icon">📝</div>
+            <div class="inbox-content">
+              <div class="inbox-title">Waktunya Self Talk!</div>
+              <div class="inbox-msg">Sudah 2 hari kamu tidak menulis diary. Luangkan 5 menit untuk refleksi diri hari ini.</div>
+              <div class="inbox-time">Kemarin</div>
+            </div>
+            <div class="inbox-dot" id="dot3"></div>
+          </div>
+          <div class="inbox-item" onclick="readNotif(this)">
+            <div class="inbox-icon">✅</div>
+            <div class="inbox-content">
+              <div class="inbox-title">Pembayaran Berhasil</div>
+              <div class="inbox-msg">Booking sesi dengan Dr. Bagas Pratama (5 Jan) telah dikonfirmasi. INV-20250105-00089.</div>
+              <div class="inbox-time">5 Jan 2025</div>
+            </div>
+            <div class="inbox-dot read"></div>
+          </div>
+          <div class="inbox-item" onclick="readNotif(this)">
+            <div class="inbox-icon">⭐</div>
+            <div class="inbox-content">
+              <div class="inbox-title">Berikan Ulasan Sesimu</div>
+              <div class="inbox-msg">Bagaimana sesi dengan Sari Dewanti, S.Psi? Bantu expert dan pengguna lain dengan ulasanmu.</div>
+              <div class="inbox-time">13 Jan 2025</div>
+            </div>
+            <div class="inbox-dot read"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pengaturan push notification -->
+      <div class="notif-section">
+        <div class="notif-section-title">Pengaturan Push Notifikasi</div>
+        <div class="notif-card">
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#D8F3DC;">🗓</div>
+            <div class="ni-content">
+              <div class="ni-title">Pengingat Sesi</div>
+              <div class="ni-sub">Notifikasi sebelum sesi dimulai</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('session_reminder', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="reminderTimeRow">
+            <div class="reminder-row">
+              <span style="font-size:11px;font-weight:700;color:var(--text-muted);width:100%;margin-bottom:4px;">Ingatkan saya:</span>
+              <div class="reminder-chip sel" onclick="selReminder(this)">30 menit</div>
+              <div class="reminder-chip" onclick="selReminder(this)">1 jam</div>
+              <div class="reminder-chip" onclick="selReminder(this)">2 jam</div>
+              <div class="reminder-chip" onclick="selReminder(this)">1 hari</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#FEF3C7;">💬</div>
+            <div class="ni-content">
+              <div class="ni-title">Pesan dari Expert</div>
+              <div class="ni-sub">Chat dan update dari psikolog</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('expert_message', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#EDE9FE;">📓</div>
+            <div class="ni-content">
+              <div class="ni-title">Pengingat Self Talk</div>
+              <div class="ni-sub">Dorongan rutin untuk menulis diary</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('self_talk_reminder', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#DBEAFE;">🎉</div>
+            <div class="ni-content">
+              <div class="ni-title">Promo & Penawaran</div>
+              <div class="ni-sub">Diskon dan kode promo spesial</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('promo', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#FEE2E2;">💳</div>
+            <div class="ni-content">
+              <div class="ni-title">Status Pembayaran</div>
+              <div class="ni-sub">Konfirmasi & update transaksi</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('payment', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:#F0FDF4;">📰</div>
+            <div class="ni-content">
+              <div class="ni-title">Artikel & Tips</div>
+              <div class="ni-sub">Konten kesehatan mental terbaru</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" onchange="saveToggle('articles', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email preferences -->
+      <div class="notif-section">
+        <div class="notif-section-title">Notifikasi Email</div>
+        <div class="notif-card">
+          <div class="notif-item">
+            <div class="ni-icon" style="background:var(--primary-pale);">📧</div>
+            <div class="ni-content">
+              <div class="ni-title">Bukti Pembayaran</div>
+              <div class="ni-sub">Invoice dikirim ke rizky@email.com</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('email_invoice', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:var(--primary-pale);">📋</div>
+            <div class="ni-content">
+              <div class="ni-title">Ringkasan Sesi</div>
+              <div class="ni-sub">Catatan dan rekomendasi expert</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="saveToggle('email_summary', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  let unreadCount = 3;
+
+  function updateBadge() {
+    const badge = document.getElementById('unreadBadge');
+    badge.textContent = unreadCount > 0 ? unreadCount + ' Baru' : 'Semua Dibaca';
+    badge.style.background = unreadCount > 0 ? 'var(--primary)' : 'var(--success)';
+  }
+
+  function readNotif(item) {
+    if (item.classList.contains('unread')) {
+      item.classList.remove('unread');
+      const dot = item.querySelector('.inbox-dot');
+      if (dot) dot.classList.add('read');
+      unreadCount = Math.max(0, unreadCount - 1);
+      updateBadge();
+    }
+  }
+
+  function markAllRead() {
+    document.querySelectorAll('.inbox-item.unread').forEach(el => {
+      el.classList.remove('unread');
+      const dot = el.querySelector('.inbox-dot');
+      if (dot) dot.classList.add('read');
+    });
+    unreadCount = 0;
+    updateBadge();
+    toast('✅ Semua notifikasi ditandai dibaca');
+  }
+
+  function selReminder(el) {
+    document.querySelectorAll('.reminder-chip').forEach(e => e.classList.remove('sel'));
+    el.classList.add('sel');
+    toast('⏰ Pengingat diset ' + el.textContent + ' sebelum sesi');
+  }
+
+  function saveToggle(key, val) {
+    const labels = {
+      session_reminder: 'Pengingat Sesi',
+      expert_message: 'Pesan Expert',
+      self_talk_reminder: 'Self Talk',
+      promo: 'Promo',
+      payment: 'Pembayaran',
+      articles: 'Artikel',
+      email_invoice: 'Email Invoice',
+      email_summary: 'Email Ringkasan'
+    };
+    toast((val ? '🔔 ' : '🔕 ') + labels[key] + (val ? ' diaktifkan' : ' dinonaktifkan'));
+  }
+</script>
+</body>
+</html>

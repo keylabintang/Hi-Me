@@ -113,7 +113,7 @@
 <body>
 <div class="phone">
   <div class="chat-header">
-    <div class="ch-title">💬 Chat</div>
+    <div class="ch-title">Chat</div>
     <div class="ch-badge">1 Aktif</div>
   </div>
 
@@ -128,7 +128,7 @@
 
     <!-- Active session banner -->
     <div class="active-session-banner" onclick="go('chat-room', {expertId:1})" id="activeBanner">
-      <div class="asb-label">🟢 Sesi Berlangsung</div>
+      <div class="asb-label">Sesi Berlangsung</div>
       <div class="asb-row">
         <div class="asb-avatar" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
         <div>
@@ -283,10 +283,10 @@
     const statusToType = { active: 'active', upcoming: 'upcoming', done: 'done' };
     listEl.innerHTML = sessions.map(s => {
       const badge = s.status === 'active'
-        ? '<div class="ci-type-badge badge-active">🟢 Berlangsung</div>'
+        ? '<div class="ci-type-badge badge-active">Berlangsung</div>'
         : s.status === 'upcoming'
-          ? `<div class="ci-type-badge badge-upcoming">${s.type === 'call' ? '📞 Call Mendatang' : '💬 Chat Mendatang'}</div>`
-          : '<div class="ci-type-badge badge-done">✅ Selesai</div>';
+          ? `<div class="ci-type-badge badge-upcoming">${s.type === 'call' ? 'Call Mendatang' : 'Chat Mendatang'}</div>`
+          : '<div class="ci-type-badge badge-done">Selesai</div>';
       const unread = s.unread ? `<div class="ci-unread">${s.unread}</div>` : '';
       return `
       <div class="chat-item" onclick='goToSession(${JSON.stringify({
@@ -332,14 +332,14 @@
   function goToSession(payload) {
     if (payload.type === 'call') {
       if (payload.status === 'upcoming') {
-        go('chat-call-start', { expertId: payload.expertId, sessionId: payload.id });
+        go('chat-call-confirmation', { expertId: payload.expertId, sessionId: payload.id });
       } else {
         go('chat-room', { expertId: payload.expertId, mode: 'call', sessionId: payload.id });
       }
       return;
     }
     if (payload.status === 'upcoming') {
-      go('chat-start', { expertId: payload.expertId, sessionId: payload.id });
+      go('chat-confirmation', { expertId: payload.expertId, sessionId: payload.id });
     } else {
       go('chat-room', { expertId: payload.expertId, mode: 'chat', sessionId: payload.id });
     }

@@ -2,23 +2,421 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Pembayaran Berhasil — Hi-Me</title>
   <link rel="stylesheet" href="../../css/global.css">
+  <style>
+
+    /* ── Hero ── */
+    .success-hero {
+      background: linear-gradient(160deg, #052e16, #166534, #15803d);
+      padding: 32px 24px 64px;
+      text-align: center; color: white;
+      position: relative; overflow: hidden;
+    }
+    .success-hero::before {
+      content: ''; position: absolute;
+      top: -80px; left: 50%; transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(134,239,172,.18) 0%, transparent 65%);
+    }
+    .success-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 44px; background: var(--bg); border-radius: 44px 44px 0 0;
+    }
+
+    /* Checkmark animation */
+    .check-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,.18); border: 3px solid rgba(255,255,255,.4);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      animation: bounceIn .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .check-icon { font-size: 40px; }
+    .hero-title {
+      font-size: 26px; font-weight: 900; margin-bottom: 4px;
+      letter-spacing: -.5px;
+      animation: fadeUp .4s ease .2s both;
+    }
+    .hero-sub {
+      font-size: 13px; opacity: .85; margin-bottom: 0;
+      animation: fadeUp .4s ease .3s both;
+    }
+
+    /* Confetti particles */
+    .confetti { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; }
+    .cf-dot {
+      position: absolute;
+      width: 8px; height: 8px; border-radius: 50%;
+      animation: cfFall 2.5s ease-in both;
+    }
+    @keyframes cfFall {
+      0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(200px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Body */
+    .success-body { padding: 8px 20px 100px; }
+
+    /* Invoice card */
+    .invoice-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); overflow: hidden;
+      margin-bottom: 16px; box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s ease .35s both;
+    }
+    .ic-header {
+      background: linear-gradient(135deg, var(--primary), #3730a3);
+      padding: 16px 20px; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ic-header-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; opacity: .8; }
+    .ic-header-id { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .ic-status-badge {
+      background: #22C55E; color: white;
+      font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px;
+    }
+    .ic-body { padding: 16px 20px; }
+    .ic-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .ic-row:last-child { border-bottom: none; }
+    .ic-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .ic-val { font-size: 13px; font-weight: 800; color: var(--text-primary); text-align: right; max-width: 55%; }
+    .ic-val.highlight { color: var(--primary); font-size: 17px; }
+    .ic-val.success { color: #16A34A; }
+
+    /* Dotted divider */
+    .invoice-divider {
+      border: none; border-top: 2px dashed var(--border);
+      margin: 0;
+      position: relative;
+    }
+    .invoice-divider::before,
+    .invoice-divider::after {
+      content: ''; position: absolute; top: -10px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg);
+    }
+    .invoice-divider::before { left: -10px; }
+    .invoice-divider::after { right: -10px; }
+
+    /* Expert info */
+    .expert-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--r-xl);
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-xs);
+      animation: fadeUp .4s ease .45s both;
+    }
+    .er-av {
+      width: 48px; height: 48px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; flex-shrink: 0;
+    }
+    .er-name { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .er-role { font-size: 12px; color: var(--text-muted); }
+    .er-arrow { margin-left: auto; font-size: 16px; color: var(--text-muted); }
+
+    /* Next steps */
+    .next-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 16px; margin-bottom: 16px;
+      box-shadow: var(--shadow-xs);
+      animation: fadeUp .4s ease .55s both;
+    }
+    .nc-title { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+    .nc-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 8px 0; border-bottom: 1px dashed var(--border);
+    }
+    .nc-step:last-child { border-bottom: none; }
+    .nc-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--primary-pale); color: var(--primary);
+      font-size: 11px; font-weight: 900; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nc-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; padding-top: 3px; }
+
+    /* Reminder */
+    .reminder-card {
+      background: #FEF3C7; border: 1px solid #FDE68A;
+      border-radius: var(--r-xl); padding: 14px 16px; margin-bottom: 20px;
+      display: flex; gap: 10px; align-items: center;
+      animation: fadeUp .4s ease .6s both;
+    }
+    .rc-icon { font-size: 22px; flex-shrink: 0; }
+    .rc-text { font-size: 12px; font-weight: 700; color: #92400E; line-height: 1.5; }
+
+    /* CTA buttons */
+    .cta-wrap {
+      animation: fadeUp .4s ease .65s both;
+    }
+    .cta-btn {
+      width: 100%; height: 52px; border-radius: var(--r-2xl);
+      font-size: 15px; font-weight: 800; cursor: pointer;
+      font-family: inherit; border: none; transition: all .18s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cta-primary {
+      background: var(--primary); color: white;
+      box-shadow: 0 4px 16px rgba(62,94,220,.3);
+    }
+    .cta-primary:active { transform: scale(.98); box-shadow: none; }
+    .cta-ghost {
+      background: transparent; color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .cta-ghost:active { background: var(--primary-pale); }
+    .cta-muted {
+      background: var(--bg); color: var(--text-muted);
+      border: 1.5px solid var(--border);
+    }
+    .cta-muted:active { background: var(--border); }
+  </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar dark"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>🔋</span></div></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:32px;text-align:center;gap:16px;">
-    <div style="font-size:64px;">✅</div>
-    <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);">Pembayaran Berhasil</h2>
-    <p style="font-size:14px;color:var(--text-muted);max-width:260px;line-height:1.6;">Booking kamu sudah dikonfirmasi!</p>
-    <div style="background:var(--primary-pale);border:1.5px solid var(--primary);border-radius:var(--r-md);padding:12px 20px;">
-      <p style="font-size:13px;font-weight:700;color:var(--primary);">Akan tersedia di Phase 1.2</p>
+
+  <!-- Hero -->
+  <div class="success-hero">
+    <!-- Confetti -->
+    <div class="confetti" id="confetti"></div>
+
+    <div class="check-circle">
+      <div class="check-icon">✅</div>
     </div>
-    <button class="btn btn-ghost" style="width:auto;padding:12px 24px;" onclick="history.back()">← Kembali</button>
+    <div class="hero-title">Pembayaran Berhasil!</div>
+    <div class="hero-sub">Booking kamu sudah dikonfirmasi. Selamat!</div>
   </div>
+
+  <!-- Body -->
+  <div class="scroll-area">
+    <div class="success-body">
+
+      <!-- Invoice card -->
+      <div class="invoice-card">
+        <div class="ic-header">
+          <div>
+            <div class="ic-header-label">Bukti Pembayaran</div>
+            <div class="ic-header-id" id="invoiceId">INV-20250115-00247</div>
+          </div>
+          <div class="ic-status-badge">✓ LUNAS</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row">
+            <div class="ic-label">Tanggal Bayar</div>
+            <div class="ic-val" id="payDate">15 Jan 2025, 20:14</div>
+          </div>
+          <div class="ic-row">
+            <div class="ic-label">Metode Bayar</div>
+            <div class="ic-val" id="payMethod">BCA Virtual Account</div>
+          </div>
+          <div class="ic-row">
+            <div class="ic-label">Jenis Sesi</div>
+            <div class="ic-val" id="sessionType">Chat Online · 60 menit</div>
+          </div>
+          <div class="ic-row">
+            <div class="ic-label">Jadwal Sesi</div>
+            <div class="ic-val" id="sessionSchedule">Besok · 15:00 WIB</div>
+          </div>
+          <div class="ic-row">
+            <div class="ic-label">Diskon Promo</div>
+            <div class="ic-val success" id="discountRow" style="display:none;"></div>
+          </div>
+        </div>
+        <hr class="invoice-divider">
+        <div class="ic-body">
+          <div class="ic-row" style="border-bottom:none;">
+            <div class="ic-label" style="font-weight:800;color:var(--text-primary);font-size:14px;">Total Dibayar</div>
+            <div class="ic-val highlight" id="totalPaid">Rp 150.000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expert row -->
+      <div class="expert-row" id="expertRowWrap">
+        <div class="er-av" id="erAv" style="background:#D8F3DC;color:#2D6A4F;">AW</div>
+        <div>
+          <div class="er-name" id="erName">Dr. Amara Wijaya</div>
+          <div class="er-role" id="erRole">Psikolog Klinis · Sesi dikonfirmasi</div>
+        </div>
+        <div class="er-arrow">›</div>
+      </div>
+
+      <!-- Reminder -->
+      <div class="reminder-card">
+        <div class="rc-icon">🔔</div>
+        <div class="rc-text">Kamu akan menerima notifikasi 30 menit sebelum sesi dimulai. Pastikan koneksi internetmu stabil.</div>
+      </div>
+
+      <!-- Next steps -->
+      <div class="next-card">
+        <div class="nc-title">📋 Apa yang harus kamu lakukan?</div>
+        <div class="nc-step">
+          <div class="nc-num">1</div>
+          <div class="nc-text">Simpan bukti pembayaran ini atau screenshot halaman ini</div>
+        </div>
+        <div class="nc-step">
+          <div class="nc-num">2</div>
+          <div class="nc-text">Masuk ke halaman Chat pada waktu sesi yang telah dijadwalkan</div>
+        </div>
+        <div class="nc-step">
+          <div class="nc-num">3</div>
+          <div class="nc-text">Siapkan pertanyaan atau hal yang ingin kamu diskusikan dengan expert</div>
+        </div>
+        <div class="nc-step">
+          <div class="nc-num">4</div>
+          <div class="nc-text">Jika ada perubahan jadwal, hubungi customer service minimal 2 jam sebelum sesi</div>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="cta-wrap">
+        <button class="cta-btn cta-primary" id="primaryCta" onclick="continueAfterPayment()">
+          Lihat Sesi Saya
+        </button>
+        <button class="cta-btn cta-ghost" onclick="shareInvoice()">
+          📤 Bagikan Bukti Bayar
+        </button>
+        <button class="cta-btn cta-muted" onclick="go('dashboard')">
+          🏠 Kembali ke Beranda
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </div>
+
 <script src="../../js/app.js"></script>
+<script>
+  const params = getParams();
+  let paymentResult = null;
+
+  /* ─── Confetti spawn ─── */
+  const colors = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#EC4899'];
+  const container = document.getElementById('confetti');
+  for (let i = 0; i < 28; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'cf-dot';
+    dot.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${-10 - Math.random() * 30}px;
+      background: ${colors[i % colors.length]};
+      animation-delay: ${Math.random() * 1.2}s;
+      animation-duration: ${2 + Math.random() * 1.5}s;
+      width: ${5 + Math.random() * 8}px;
+      height: ${5 + Math.random() * 8}px;
+    `;
+    container.appendChild(dot);
+  }
+
+  /* ─── Load payment result ─── */
+  function getMethodLabel(method, sub) {
+    const map = {
+      va: { bca:'BCA Virtual Account', bni:'BNI Virtual Account', bri:'BRI Virtual Account', mandiri:'Mandiri Virtual Account' },
+      ewallet: { gopay:'GoPay', ovo:'OVO', dana:'DANA', shopee:'ShopeePay' },
+      qris: { _:'QRIS' },
+      card: { _:'Kartu Debit/Kredit' },
+    };
+    return map[method]?.[sub || '_'] || map[method]?.bca || 'Transfer Bank';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const raw = sessionStorage.getItem('hime_pay_result') || sessionStorage.getItem('hime_payment') || sessionStorage.getItem('hime_params');
+
+    // Generate invoice ID
+    const ts = Date.now();
+    const invId = 'INV-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + String(ts).slice(-5);
+    document.getElementById('invoiceId').textContent = invId;
+
+    // Payment date
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) +
+      ', ' + now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', hour12:false });
+    document.getElementById('payDate').textContent = dateStr;
+
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    paymentResult = data;
+
+    // Method
+    document.getElementById('payMethod').textContent = getMethodLabel(data.method, data.subMethod);
+
+    // Session type
+    const typeMap = { chat:'💬 Chat Online', call:'📞 Call', offline:'🏢 Offline' };
+    const typeLabel = typeMap[data.type] || 'Konsultasi';
+    document.getElementById('sessionType').textContent = typeLabel + (data.duration ? ' · ' + data.duration + ' menit' : '');
+
+    // Schedule
+    let sched = '';
+    if (data.date) sched += data.date;
+    if (data.time) sched += ' · ' + data.time + ' WIB';
+    if (sched) document.getElementById('sessionSchedule').textContent = sched;
+
+    // Total
+    const amt = data.finalAmount || data.price || data.total || 150000;
+    document.getElementById('totalPaid').textContent = formatRupiah(amt);
+
+    // Discount
+    const orig = data.price || data.total || 0;
+    if (orig > amt) {
+      const dRow = document.getElementById('discountRow');
+      dRow.style.display = 'block';
+      dRow.textContent = '-' + formatRupiah(orig - amt);
+    }
+
+    // Expert
+    const expert = data.expertId ? DATA.experts.find(e => e.id === data.expertId) : null;
+    if (expert) {
+      const av = document.getElementById('erAv');
+      av.textContent = expert.init;
+      av.style.background = expert.color;
+      av.style.color = expert.textColor;
+      document.getElementById('erName').textContent = expert.name;
+      document.getElementById('erRole').textContent = expert.role + ' · Sesi dikonfirmasi ✓';
+    }
+
+    const primaryCta = document.getElementById('primaryCta');
+    if (primaryCta) {
+      if (data.type === 'chat') primaryCta.textContent = 'Lanjut ke Konfirmasi Chat';
+      else if (data.type === 'call') primaryCta.textContent = 'Lanjut ke Konfirmasi Call';
+      else primaryCta.textContent = 'Lihat Sesi Saya';
+    }
+  });
+
+  function shareInvoice() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Bukti Pembayaran Hi-Me',
+        text: 'Pembayaran sesi konsultasi Hi-Me berhasil! 🎉',
+      }).catch(() => {});
+    } else {
+      toast('📋 Link bukti disalin ke clipboard!');
+    }
+  }
+
+  function continueAfterPayment() {
+    const data = paymentResult || {};
+    const expertId = data.expertId || params.expertId;
+    const sessionId = params.sessionId;
+
+    if (data.type === 'chat') {
+      go('chat-confirmation', { expertId, sessionId });
+      return;
+    }
+    if (data.type === 'call') {
+      go('chat-call-confirmation', { expertId, sessionId });
+      return;
+    }
+    go('chat-list');
+  }
+</script>
 </body>
 </html>

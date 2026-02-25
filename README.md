@@ -102,25 +102,142 @@ Fokus: Fitur diary Self Talk dan chat room konsultasi aktif.
 
 ---
 
-### 🔜 Phase 1.4 — Payment & Halaman Lanjutan (PLANNED)
+### ✅ Phase 1.4 — Payment System (SELESAI)
 
-Fokus: Sistem pembayaran lengkap dan halaman-halaman pendukung.
+Fokus: Sistem pembayaran lengkap untuk menyelesaikan alur User end-to-end.
 
-**Halaman yang akan dibuat/disempurnakan:**
+**Halaman yang sudah dibuat:**
 
 | Halaman | Path | Status |
 |---|---|---|
-| Payment (multi-metode) | `pages/payment/index.html` | 🔜 Planned |
-| Payment Success | `pages/payment/success.html` | 🔜 Planned |
+| Payment (multi-metode) | `pages/payment/index.html` | ✅ Done |
+| Payment Success | `pages/payment/success.html` | ✅ Done |
 
-**Rencana fitur Phase 1.4:**
-- Payment: pilih metode (Virtual Account/E-Wallet/Debit/Credit), timer countdown pembayaran, instruksi langkah-per-langkah
-- Payment Success: konfirmasi, booking details, tombol ke chat room
+**Fitur Phase 1.4:**
+- **Payment Page:**
+  - Countdown timer 15 menit dengan warning merah di 60 detik terakhir
+  - Order summary card bergradient dengan detail expert, tipe sesi, jadwal
+  - Kode promo interaktif: HIME20 (diskon 20%) & FIRSTIME (hemat Rp 50.000), badge diskon & harga coret
+  - 4 metode pembayaran: Transfer Bank/VA (BCA, BNI, BRI, Mandiri), E-Wallet (GoPay, OVO, DANA, ShopeePay), QRIS, Kartu Debit/Kredit
+  - Form kartu kredit dengan auto-formatting nomor kartu & expiry date
+  - Processing overlay dengan spinner saat memproses pembayaran
+  - CTA bar sticky dengan total akhir dan catatan keamanan SSL
+
+- **Payment Success Page:**
+  - Animasi confetti 28 partikel warna-warni saat halaman muncul
+  - Checkmark bounce-in animation dengan hero gradient hijau
+  - Invoice card dengan nomor unik otomatis (INV-YYYYMMDD-XXXXX), status LUNAS, detail lengkap
+  - Ticket-style divider (berlubang di sisi kanan-kiri) memisahkan invoice detail & total
+  - Expert row dengan detail sesi yang baru dikonfirmasi
+  - Reminder card kuning untuk persiapan sesi
+  - Checklist 4 langkah "Apa yang harus dilakukan selanjutnya"
+  - 3 CTA: Lihat Sesi → Chat List, Bagikan Bukti (native share API), Kembali ke Beranda
 
 ---
 
-### 🔮 Phase 2 — Expert Role (PLANNED)
+### ✅ Phase 1.5 — Profile Completion (SELESAI)
+
+Fokus: Melengkapi semua sub-halaman profil user agar alur akun terasa utuh dan production-ready.
+
+**Halaman yang sudah dibuat:**
+
+| Halaman | Path | Status |
+|---|---|---|
+| Informasi Pribadi | `pages/profile/personal-info.html` | ✅ Done |
+| Notifikasi | `pages/profile/notifications.html` | ✅ Done |
+| Privasi & Keamanan | `pages/profile/privacy.html` | ✅ Done |
+| Riwayat Sesi | `pages/profile/session-history.html` | ✅ Done |
+| Resep & Catatan Expert | `pages/profile/prescriptions.html` | ✅ Done |
+| Riwayat Pembayaran | `pages/profile/payment-history.html` | ✅ Done |
+
+**Fitur Phase 1.5:**
+
+- **Informasi Pribadi:**
+  - Avatar hero dengan gradient + tombol ganti foto
+  - Form fields inline (tanpa border kotak) untuk nama, panggilan, tanggal lahir, gender, email, telepon, kota
+  - Selector gender dengan chip interaktif (Laki-laki / Perempuan / Lainnya)
+  - Multi-select tag kondisi kesehatan (Kecemasan, Stres Kerja, Depresi, Burnout, dll.)
+  - Tombol "Ubah" dan "Verifikasi" inline untuk email & nomor telepon
+  - Validasi + update App.user state saat simpan
+
+- **Notifikasi:**
+  - Kotak masuk (inbox) 5 notifikasi dengan state baca/belum, badge counter "3 Baru"
+  - Tombol "Tandai Dibaca" massal
+  - Toggle switch untuk 6 kategori push notifikasi: Pengingat Sesi, Pesan Expert, Self Talk, Promo, Pembayaran, Artikel
+  - Chip pilihan waktu pengingat sesi: 30 menit / 1 jam / 2 jam / 1 hari
+  - Toggle email notification: Invoice & Ringkasan Sesi
+
+- **Privasi & Keamanan:**
+  - Security score card bergradient hijau tua dengan ring indicator (80 → 100 setelah aktifkan 2FA)
+  - Chip status: ✓ Password, ✓ Email, 2FA
+  - Ubah kata sandi via bottom sheet dengan strength indicator 4-bar warna
+  - Toggle Autentikasi 2 Faktor (badge Aktif/Nonaktif berubah real-time)
+  - Log aktivitas akun dalam bottom sheet (login, pembayaran, perubahan profil)
+  - Toggle privasi: Sembunyikan Profil & Analitik
+  - Unduh Data Saya & link Kebijakan Privasi
+  - Zona Berbahaya: Nonaktifkan Akun & Hapus Akun Permanen (dengan konfirmasi sheet detail)
+
+- **Riwayat Sesi:**
+  - Stats strip: Total Sesi / Selesai / Psikolog / Rata-rata Rating
+  - Filter tabs: Semua / Mendatang / Selesai / Dibatalkan — hide/show kartu + month separator
+  - Banner sesi mendatang bergradient dengan CTA langsung ke Chat
+  - Kartu sesi dengan: avatar expert, status badge berwarna, grid meta 4 kolom (Tanggal/Waktu/Durasi/Tipe)
+  - Footer kartu: rating + ulasan, tombol "Lihat Detail" menuju Session Summary
+  - Kartu dibatalkan dengan info refund + tombol "Booking Ulang"
+
+- **Resep & Catatan Expert:**
+  - Filter tabs: Semua / Catatan / Tugas / Obat-Suplemen
+  - Kartu Catatan dengan header gradient berwarna per expert, chip status Baru/Dibaca
+  - Bullet observasi expert (🔍 diagnosis, 💡 insight, 🌟 kekuatan)
+  - Kartu Tugas Mandiri (homework) dengan checklist interaktif — klik untuk centang/uncentang, badge "X/Y Selesai"
+  - Kartu Suplemen dengan daftar item (ikon, nama, dosis, frekuensi), warning card kuning
+  - Tombol "Unduh PDF" per kartu
+
+- **Riwayat Pembayaran:**
+  - Summary strip bergradient: Total Dikeluarkan / Jumlah Transaksi / Hemat Promo
+  - Filter tabs: Semua / Berhasil / Menunggu / Refund — filter kartu + hide month separator kosong
+  - 7 transaksi mock tersebar di 3 bulan (Nov–Jan) dengan status berbeda
+  - Chip metadata per kartu: tanggal, metode bayar, kode promo yang dipakai
+  - Bottom sheet detail invoice per transaksi: semua field lengkap, harga coret jika ada diskon, catatan
+  - Aksi kontekstual per status: Unduh Invoice (sukses), Cara Bayar + Batalkan (pending), Bukti Refund + Booking Ulang (refund)
+
+---
+
+
+
+Fokus: Dashboard dan alur kerja untuk role **Expert** (Psikolog, Konsultan, Analyst).
+
+**Halaman yang direncanakan:**
+
+| Halaman | Path | Status |
+|---|---|---|
+| Expert Login | `pages/expert/auth/login.html` | 🔮 Planned |
+| Expert Dashboard | `pages/expert/dashboard/index.html` | 🔮 Planned |
+| Jadwal Konsultasi | `pages/expert/schedule/index.html` | 🔮 Planned |
+| Terima Sesi / Chat | `pages/expert/chat/room.html` | 🔮 Planned |
+| Profil Expert | `pages/expert/profile/index.html` | 🔮 Planned |
+| Availability Setting | `pages/expert/availability/index.html` | 🔮 Planned |
+
+**Rencana fitur Phase 2:**
+- Login khusus expert (role selector di halaman login)
+- Dashboard expert: sesi hari ini, pendapatan, statistik, rating
+- Manajemen jadwal & availability (set jam tersedia per hari)
+- Notifikasi sesi masuk, terima/tolak request konsultasi
+- Chat room dari sisi expert dengan tools: kirim catatan, end session, tulis summary
+- Profil expert dengan edit bio, spesialisasi, foto, harga
+
+---
+
 ### 🔮 Phase 3 — Admin Role (PLANNED)
+
+Fokus: Dashboard admin dengan layout **desktop** untuk kelola seluruh platform.
+
+**Rencana fitur Phase 3:**
+- Dashboard statistik: total user, expert, sesi, pendapatan
+- Kelola & verifikasi expert (approve/reject, edit profil)
+- Kelola konsultasi (monitor sesi aktif, riwayat)
+- Kelola pembayaran & laporan keuangan
+- Manajemen konten (artikel, notifikasi platform)
 
 ---
 
@@ -248,5 +365,11 @@ hi-me/
     │   └── detail.html          ← Phase 1.2
     └── profile/
         ├── index.html
-        └── edit.html
+        ├── edit.html
+        ├── personal-info.html   ← Phase 1.5
+        ├── notifications.html   ← Phase 1.5
+        ├── privacy.html         ← Phase 1.5
+        ├── session-history.html ← Phase 1.5
+        ├── prescriptions.html   ← Phase 1.5
+        └── payment-history.html ← Phase 1.5
 ```

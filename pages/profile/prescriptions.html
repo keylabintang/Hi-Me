@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Resep & Catatan Expert — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .page-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .ft-tab {
+      flex: 1; padding: 12px 8px; font-size: 13px; font-weight: 700;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      cursor: pointer; text-align: center; transition: all .15s;
+    }
+    .ft-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .rx-body { padding: 14px 20px 80px; }
+
+    /* Prescription card */
+    .rx-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); margin-bottom: 14px;
+      box-shadow: var(--shadow-xs); overflow: hidden;
+      cursor: pointer; transition: all .15s;
+    }
+    .rx-card:active { transform: scale(.99); }
+    .rx-header {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .rx-header.blue { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); }
+    .rx-header.green { background: linear-gradient(135deg, #F0FDF4, #D1FAE5); }
+    .rx-header.purple { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); }
+    .rx-icon { font-size: 28px; flex-shrink: 0; }
+    .rx-title { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+    .rx-meta { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .rx-badge {
+      margin-left: auto; padding: 3px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; flex-shrink: 0;
+    }
+    .badge-new { background: var(--primary); color: white; }
+    .badge-read { background: var(--border); color: var(--text-muted); }
+
+    .rx-body-inner { padding: 14px 16px; }
+    .rx-section-label {
+      font-size: 10px; font-weight: 800; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px;
+    }
+    .rx-note-item {
+      display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start;
+    }
+    .rx-note-bullet { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .rx-note-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* Pill / medication item */
+    .rx-pill-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px dashed var(--border);
+    }
+    .rx-pill-item:last-child { border-bottom: none; }
+    .rpi-icon { font-size: 22px; flex-shrink: 0; }
+    .rpi-name { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 1px; }
+    .rpi-dose { font-size: 12px; color: var(--text-muted); }
+    .rpi-freq {
+      margin-left: auto; padding: 3px 10px; border-radius: 20px;
+      background: var(--primary-pale); color: var(--primary);
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+    }
+
+    /* Task list */
+    .task-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 8px 0; border-bottom: 1px dashed var(--border); cursor: pointer;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px; transition: all .15s;
+    }
+    .task-check.done { background: var(--primary); border-color: var(--primary); color: white; font-size: 11px; }
+    .task-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .task-text.done { text-decoration: line-through; color: var(--text-muted); }
+
+    .rx-footer {
+      border-top: 1px solid var(--border); padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rx-from { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .rx-download {
+      font-size: 12px; font-weight: 800; color: var(--primary);
+      cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .rx-download:active { opacity: .7; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .es-icon { font-size: 52px; margin-bottom: 12px; }
+    .es-title { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .es-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="page-title">Resep & Catatan Expert</div>
+  </div>
+
+  <div class="filter-tabs">
+    <div class="ft-tab active" onclick="filterRx('all', this)">Semua</div>
+    <div class="ft-tab" onclick="filterRx('notes', this)">Catatan</div>
+    <div class="ft-tab" onclick="filterRx('tasks', this)">Tugas</div>
+    <div class="ft-tab" onclick="filterRx('meds', this)">Obat/Suplemen</div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="rx-body">
+
+      <!-- Catatan & Rekomendasi -->
+      <div class="rx-card" data-type="notes">
+        <div class="rx-header">
+          <div class="rx-icon">📋</div>
+          <div>
+            <div class="rx-title">Catatan Sesi #7</div>
+            <div class="rx-meta">Dr. Amara Wijaya · 15 Jan 2025</div>
+          </div>
+          <div class="rx-badge badge-new">Baru</div>
+        </div>
+        <div class="rx-body-inner">
+          <div class="rx-section-label">Observasi Expert</div>
+          <div class="rx-note-item">
+            <div class="rx-note-bullet">🔍</div>
+            <div class="rx-note-text">Kamu menunjukkan pola kecemasan situasional yang dipicu perubahan di lingkungan kerja. Ini adalah reaksi yang umum dan dapat dikelola.</div>
+          </div>
+          <div class="rx-note-item">
+            <div class="rx-note-bullet">💡</div>
+            <div class="rx-note-text">Overthinking sebelum tidur terkait kekhawatiran performa kerja. Pola pikir catastrophizing perlu dikenali dan diinterupsi lebih awal.</div>
+          </div>
+          <div class="rx-note-item">
+            <div class="rx-note-bullet">🌟</div>
+            <div class="rx-note-text">Self-awareness yang tinggi terhadap kondisi emosional sendiri — ini aset besar dalam proses pemulihan.</div>
+          </div>
+        </div>
+        <div class="rx-footer">
+          <div class="rx-from">Psikolog Klinis · Sesi Chat 60 mnt</div>
+          <div class="rx-download" onclick="toast('📄 Catatan diunduh sebagai PDF')">📥 Unduh</div>
+        </div>
+      </div>
+
+      <!-- Tugas / Homework -->
+      <div class="rx-card" data-type="tasks">
+        <div class="rx-header blue">
+          <div class="rx-icon">✅</div>
+          <div>
+            <div class="rx-title">Tugas Mandiri #7</div>
+            <div class="rx-meta">Dr. Amara Wijaya · Deadline: 22 Jan 2025</div>
+          </div>
+          <div class="rx-badge badge-new">2/4 Selesai</div>
+        </div>
+        <div class="rx-body-inner">
+          <div class="rx-section-label">Daftar Tugas</div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check done">✓</div>
+            <div class="task-text done">Teknik pernapasan 4-7-8 setiap malam selama 5 menit sebelum tidur</div>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check done">✓</div>
+            <div class="task-text done">Tulis 3 hal yang disyukuri di Self Talk diary setiap hari</div>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check"></div>
+            <div class="task-text">Batasi scrolling media sosial maksimal 30 menit per hari</div>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check"></div>
+            <div class="task-text">Olahraga ringan 20 menit, 3x seminggu (jalan, yoga, atau stretching)</div>
+          </div>
+        </div>
+        <div class="rx-footer">
+          <div class="rx-from">Progress dilaporkan di sesi berikutnya</div>
+          <div class="rx-download" onclick="toast('📊 Progress tersimpan')">💾 Simpan</div>
+        </div>
+      </div>
+
+      <!-- Catatan Sesi sebelumnya -->
+      <div class="rx-card" data-type="notes">
+        <div class="rx-header green">
+          <div class="rx-icon">📝</div>
+          <div>
+            <div class="rx-title">Catatan Sesi #6</div>
+            <div class="rx-meta">Sari Dewanti, S.Psi · 13 Jan 2025</div>
+          </div>
+          <div class="rx-badge badge-read">Dibaca</div>
+        </div>
+        <div class="rx-body-inner">
+          <div class="rx-section-label">Poin Utama</div>
+          <div class="rx-note-item">
+            <div class="rx-note-bullet">💬</div>
+            <div class="rx-note-text">Kemampuan komunikasi assertif sedang berkembang dengan baik. Latihan role-play yang dilakukan menunjukkan peningkatan signifikan.</div>
+          </div>
+          <div class="rx-note-item">
+            <div class="rx-note-bullet">🎯</div>
+            <div class="rx-note-text">Fokus sesi berikutnya: mengelola ekspektasi diri sendiri dan mengurangi perfeksionisme dalam pekerjaan.</div>
+          </div>
+        </div>
+        <div class="rx-footer">
+          <div class="rx-from">Analyst & Counselor · Sesi Call 45 mnt</div>
+          <div class="rx-download" onclick="toast('📄 Catatan diunduh sebagai PDF')">📥 Unduh</div>
+        </div>
+      </div>
+
+      <!-- Suplemen & Rekomendasi -->
+      <div class="rx-card" data-type="meds">
+        <div class="rx-header purple">
+          <div class="rx-icon">💊</div>
+          <div>
+            <div class="rx-title">Suplemen & Vitamin</div>
+            <div class="rx-meta">Dr. Bagas Pratama · 28 Des 2024</div>
+          </div>
+          <div class="rx-badge badge-read">Dibaca</div>
+        </div>
+        <div class="rx-body-inner">
+          <div class="rx-section-label">Rekomendasi Suplemen (Bukan Resep Medis)</div>
+          <div class="rx-pill-item">
+            <div class="rpi-icon">🧴</div>
+            <div>
+              <div class="rpi-name">Magnesium Glycinate</div>
+              <div class="rpi-dose">200-400mg · Sebelum tidur</div>
+            </div>
+            <div class="rpi-freq">1x / hari</div>
+          </div>
+          <div class="rx-pill-item">
+            <div class="rpi-icon">🌿</div>
+            <div>
+              <div class="rpi-name">Ashwagandha Extract</div>
+              <div class="rpi-dose">300mg · Setelah makan pagi</div>
+            </div>
+            <div class="rpi-freq">1x / hari</div>
+          </div>
+          <div class="rx-pill-item">
+            <div class="rpi-icon">☀️</div>
+            <div>
+              <div class="rpi-name">Vitamin D3 + K2</div>
+              <div class="rpi-dose">2000 IU · Bersama makanan</div>
+            </div>
+            <div class="rpi-freq">1x / hari</div>
+          </div>
+          <div style="background:#FEF3C7;border-radius:var(--r-md);padding:10px;margin-top:10px;">
+            <div style="font-size:11px;font-weight:700;color:#92400E;">⚠️ Catatan</div>
+            <div style="font-size:12px;color:#B45309;margin-top:4px;line-height:1.5;">Ini adalah rekomendasi suplemen, bukan resep medis. Konsultasikan dengan dokter sebelum mengonsumsi jika memiliki kondisi medis tertentu.</div>
+          </div>
+        </div>
+        <div class="rx-footer">
+          <div class="rx-from">Psikolog Klinis · Sesi Chat 60 mnt</div>
+          <div class="rx-download" onclick="toast('📄 Resep diunduh')">📥 Unduh</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  function filterRx(type, tab) {
+    document.querySelectorAll('.ft-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.rx-card').forEach(c => {
+      c.style.display = (type === 'all' || c.dataset.type === type) ? '' : 'none';
+    });
+  }
+
+  function toggleTask(item) {
+    const check = item.querySelector('.task-check');
+    const text = item.querySelector('.task-text');
+    const isDone = check.classList.contains('done');
+    check.classList.toggle('done', !isDone);
+    check.textContent = isDone ? '' : '✓';
+    text.classList.toggle('done', !isDone);
+    toast(isDone ? '↩ Tugas ditandai belum selesai' : '✅ Tugas selesai!');
+  }
+</script>
+</body>
+</html>
