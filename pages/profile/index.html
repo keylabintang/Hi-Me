@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Profil — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .profile-header {
+      background: linear-gradient(155deg, var(--green-900), var(--green-700));
+      padding: 0 20px 56px;
+      position: relative; text-align: center; overflow: hidden;
+    }
+    .profile-header::before {
+      content: ''; position: absolute;
+      top: -50px; left: 50%; transform: translateX(-50%);
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(149,213,178,.18) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .profile-header::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 40px; background: var(--bg); border-radius: 40px 40px 0 0;
+    }
+    .ph-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .ph-title { font-size: 17px; font-weight: 700; color: white; }
+    .ph-edit-btn {
+      padding: 7px 16px; border-radius: 100px;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25);
+      font-size: 12px; font-weight: 700; color: white;
+      cursor: pointer; transition: all .15s;
+    }
+    .ph-edit-btn:active { transform: scale(.95); background: rgba(255,255,255,.3); }
+    .profile-av {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: 3px solid rgba(255,255,255,.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 800; color: white;
+      margin: 0 auto 12px; position: relative; z-index: 1;
+    }
+    .profile-name { font-size: 20px; font-weight: 800; color: white; margin-bottom: 4px; position: relative; z-index: 1; }
+    .profile-email { font-size: 13px; color: rgba(255,255,255,.7); position: relative; z-index: 1; }
+    .profile-since { font-size: 11px; color: rgba(255,255,255,.55); margin-top: 4px; position: relative; z-index: 1; }
+
+    /* Stats */
+    .stats-card {
+      background: var(--bg-card); border-radius: var(--r-xl);
+      border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      margin: 0 20px 24px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      overflow: hidden;
+    }
+    .stat-item {
+      padding: 16px 10px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1; }
+    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Menu */
+    .menu-section { padding: 0 20px; margin-bottom: 20px; }
+    .menu-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+    .menu-card { background: var(--bg-card); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow-xs); overflow: hidden; }
+    .menu-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: var(--bg); }
+    .menu-ico {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .menu-text { flex: 1; }
+    .menu-text h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .menu-text p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .menu-arrow { font-size: 14px; color: var(--text-muted); }
+    .menu-badge { background: var(--primary); color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 100px; }
+    .logout-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; transition: background .15s; }
+    .logout-item:active { background: #FEF2F2; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
+    <span class="sb-time">09:41</span>
+    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+  </div>
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div style="height: 56px;"></div>
+    <div class="ph-top">
+      <div class="ph-title">Profil Saya</div>
+      <div class="ph-edit-btn" onclick="go('profile-edit')">Edit Profil</div>
+    </div>
+    <div class="profile-av anim-scale-in" id="profileAv">P</div>
+    <div class="profile-name anim-fade-up" id="profileName">Pengguna</div>
+    <div class="profile-email anim-fade-up d1" id="profileEmail">email@email.com</div>
+    <div class="profile-since anim-fade-up d2">Bergabung sejak Januari 2024</div>
+    <div style="height: 40px;"></div>
+  </div>
+
+  <div class="scroll-area has-nav">
+    <!-- Stats -->
+    <div style="height: 8px;"></div>
+    <div class="stats-card anim-fade-up">
+      <div class="stat-item">
+        <div class="stat-val">5</div>
+        <div class="stat-lbl">Sesi Selesai</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">12</div>
+        <div class="stat-lbl">Entri Diary</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">7</div>
+        <div class="stat-lbl">Hari Streak</div>
+      </div>
+    </div>
+
+    <!-- Upcoming session info -->
+    <div style="padding: 0 20px; margin-bottom: 20px;">
+      <div style="background: var(--primary-pale); border: 1.5px solid var(--primary); border-radius: var(--r-lg); padding: 14px; display:flex; gap:12px; align-items:center; cursor:pointer;" onclick="go('consultation')" class="anim-fade-up d1">
+        <div style="font-size: 24px;">🗓</div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px; font-weight: 800; color: var(--primary);">1 Sesi Mendatang</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Dr. Amara Wijaya · Besok, 14:00</div>
+        </div>
+        <span style="color: var(--primary); font-weight:800;">→</span>
+      </div>
+    </div>
+
+    <!-- Account Menu -->
+    <div class="menu-section anim-fade-up d2">
+      <div class="menu-label">Akun</div>
+      <div class="menu-card">
+        <div class="menu-item" onclick="go('profile-edit')">
+          <div class="menu-ico" style="background: var(--primary-pale);">👤</div>
+          <div class="menu-text"><h4>Informasi Pribadi</h4><p>Nama, email, tanggal lahir</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Notifikasi dikelola')">
+          <div class="menu-ico" style="background: #EDE9FE;">🔔</div>
+          <div class="menu-text"><h4>Notifikasi</h4><p>Pengingat sesi, promo</p></div>
+          <span class="menu-badge">3</span>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Privasi & Keamanan')">
+          <div class="menu-ico" style="background: #DCFCE7;">🔒</div>
+          <div class="menu-text"><h4>Privasi &amp; Keamanan</h4><p>Kata sandi, autentikasi</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultation Menu -->
+    <div class="menu-section anim-fade-up d3">
+      <div class="menu-label">Konsultasi</div>
+      <div class="menu-card">
+        <div class="menu-item" onclick="go('consultation')">
+          <div class="menu-ico" style="background: var(--primary-pale);">🩺</div>
+          <div class="menu-text"><h4>Riwayat Sesi</h4><p>Semua sesi konsultasi</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Resep dibuka')">
+          <div class="menu-ico" style="background: #FEF3C7;">📋</div>
+          <div class="menu-text"><h4>Resep &amp; Catatan Expert</h4><p>Dari sesi sebelumnya</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Pembayaran dibuka')">
+          <div class="menu-ico" style="background: #F0FFF4);">💳</div>
+          <div class="menu-text"><h4>Riwayat Pembayaran</h4><p>Invoice &amp; transaksi</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Menu -->
+    <div class="menu-section anim-fade-up d4">
+      <div class="menu-label">Bantuan</div>
+      <div class="menu-card">
+        <div class="menu-item" onclick="toast('Pusat bantuan dibuka')">
+          <div class="menu-ico" style="background: #DBEAFE;">❓</div>
+          <div class="menu-text"><h4>Pusat Bantuan</h4><p>FAQ, panduan penggunaan</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Hubungi kami')">
+          <div class="menu-ico" style="background: var(--primary-pale);">💬</div>
+          <div class="menu-text"><h4>Hubungi Kami</h4><p>Chat support, email</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="toast('Tentang Hi-Me v1.0')">
+          <div class="menu-ico" style="background: var(--bg);">ℹ️</div>
+          <div class="menu-text"><h4>Tentang Hi-Me</h4><p>Versi 1.0 · Phase 1.1</p></div>
+          <span class="menu-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div style="padding: 0 20px; margin-bottom: 8px;">
+      <div class="menu-card" style="border-color: #FECACA;">
+        <div class="logout-item" onclick="confirmLogout()">
+          <div class="menu-ico" style="background: #FEF2F2;">🚪</div>
+          <div class="menu-text"><h4 style="color: var(--danger);">Keluar</h4><p>Keluar dari akun ini</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 16px 20px; text-align: center;">
+      <p style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+        Hi-Me v1.0 Phase 1.1<br>
+        <span style="color: var(--primary); cursor:pointer;" onclick="toast('Syarat & Ketentuan')">Syarat & Ketentuan</span> · <span style="color: var(--primary); cursor:pointer;" onclick="toast('Kebijakan Privasi')">Kebijakan Privasi</span>
+      </p>
+    </div>
+    <div style="height: 8px;"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottomnav">
+    <div class="nav-item" onclick="go('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="go('chat-list')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></div>
+    <div class="nav-item" onclick="go('consultation')"><span class="nav-icon">🩺</span><span class="nav-label">Konsultasi</span></div>
+    <div class="nav-item" onclick="go('self-talk')"><span class="nav-icon">📓</span><span class="nav-label">Self Talk</span></div>
+    <div class="nav-item active"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+  </nav>
+
+  <!-- Logout Confirmation Sheet -->
+  <div class="overlay" id="logoutSheet" onclick="overlayClick(event, 'logoutSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 6px;">Keluar dari Hi-Me?</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">Kamu akan keluar dari akun ini. Semua data tersimpan dengan aman dan bisa diakses saat masuk kembali.</p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn btn-danger" onclick="doLogout()">Ya, Keluar</button>
+        <button class="btn btn-ghost" onclick="closeSheet('logoutSheet')">Batal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    dashboard:    '../dashboard/index.html',
+    'chat-list':  '../chat/index.html',
+    consultation: '../consultation/index.html',
+    'self-talk':  '../self-talk/index.html',
+    'profile-edit': 'edit.html',
+    landing:      '../../index.html',
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = App.user;
+    if (!user) { go('landing'); return; }
+    document.getElementById('profileName').textContent = user.name || 'Pengguna';
+    document.getElementById('profileEmail').textContent = user.email || '';
+    document.getElementById('profileAv').textContent = user.initials || 'P';
+  });
+
+  function confirmLogout() { openSheet('logoutSheet'); }
+  function doLogout() {
+    closeSheet('logoutSheet');
+    setTimeout(() => App.logout(), 300);
+  }
+</script>
+</body>
+</html>

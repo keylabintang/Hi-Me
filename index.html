@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Hi-Me — Mental Health Consultation</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    /* ── Landing-specific overrides ── */
+    .landing-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    .landing-scroll::-webkit-scrollbar { display: none; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(155deg, var(--green-900) 0%, var(--green-800) 45%, var(--green-700) 100%);
+      padding: 0 24px 52px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(82,183,136,.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 44px; background: var(--bg); border-radius: 44px 44px 0 0;
+    }
+    .hero-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 40px; color: white; line-height: 1;
+      margin-bottom: 2px;
+    }
+    .hero-logo em { color: var(--green-300); font-style: normal; }
+    .hero-sub { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 32px; line-height: 1.5; }
+    .hero-pill-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .hero-pill {
+      padding: 6px 14px; border-radius: 100px;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,.9);
+    }
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.13);
+      border-radius: var(--r-xl); overflow: hidden;
+    }
+    .stat-cell {
+      padding: 14px 10px; text-align: center;
+      border-right: 1px solid rgba(255,255,255,.12);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num { font-size: 22px; font-weight: 800; color: white; line-height: 1; }
+    .stat-label { font-size: 10px; color: rgba(255,255,255,.6); margin-top: 3px; }
+
+    /* Body */
+    .landing-body { padding: 28px 20px 20px; }
+
+    /* Feature cards */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 16px;
+      background: var(--bg-card); border-radius: var(--r-lg);
+      border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+      cursor: pointer; transition: all .15s;
+    }
+    .feature-item:active { transform: scale(.98); }
+    .feature-icon {
+      width: 46px; height: 46px; border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .feature-item h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .feature-item p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    /* CTA */
+    .cta-stack { display: flex; flex-direction: column; gap: 10px; }
+    .no-login { text-align: center; font-size: 13px; color: var(--primary); font-weight: 700; cursor: pointer; padding: 10px 0; }
+    .already-have { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .already-have span { color: var(--primary); font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
+    <span class="sb-time">09:41</span>
+    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+  </div>
+
+  <div class="landing-scroll">
+    <!-- Hero -->
+    <div class="hero">
+      <div style="height: 60px;"></div>
+      <div class="anim-fade-up">
+        <div class="hero-logo">Hi<em>-</em>Me</div>
+        <p class="hero-sub">Ruang aman untuk kesehatan mentalmu.<br>Konsultasi kapan saja, di mana saja.</p>
+        <div class="hero-pill-row">
+          <div class="hero-pill">Psikolog Terverifikasi</div>
+          <div class="hero-pill">Privat & Aman</div>
+          <div class="hero-pill">Mulai Gratis</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-cell">
+            <div class="stat-num">500+</div>
+            <div class="stat-label">Psikolog</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-num">50K+</div>
+            <div class="stat-label">Pengguna</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-num">4.9</div>
+            <div class="stat-label">Rating</div>
+          </div>
+        </div>
+      </div>
+      <div style="height: 44px;"></div>
+    </div>
+
+    <!-- Body -->
+    <div class="landing-body">
+      <!-- Features -->
+      <div class="feature-list">
+        <div class="feature-item anim-fade-up d1">
+          <div class="feature-icon" style="background: var(--primary-pale);">💬</div>
+          <div>
+            <h4>Konsultasi Online</h4>
+            <p>Chat atau voice call dengan psikolog & konsultan berpengalaman, kapan pun kamu butuh.</p>
+          </div>
+        </div>
+        <div class="feature-item anim-fade-up d2">
+          <div class="feature-icon" style="background: #EDE9FE;">📓</div>
+          <div>
+            <h4>Self Talk Diary</h4>
+            <p>Jurnal privat harian untuk mengenali dan mengelola emosi kamu secara mandiri.</p>
+          </div>
+        </div>
+        <div class="feature-item anim-fade-up d3">
+          <div class="feature-icon" style="background: #FEF3C7;">🏢</div>
+          <div>
+            <h4>Sesi Tatap Muka</h4>
+            <p>Booking langsung sesi offline di klinik terdekat sesuai jadwalmu.</p>
+          </div>
+        </div>
+        <div class="feature-item anim-fade-up d4">
+          <div class="feature-icon" style="background: #DCFCE7;">🤖</div>
+          <div>
+            <h4>AI Assistant Gratis</h4>
+            <p>Ngobrol dengan AI tanpa perlu login. Cerita apa saja, aman dan privat.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-stack anim-fade-up d5">
+        <button class="btn btn-primary" onclick="go('chat-bot')">Consult with an Expert Now</button>
+        <div class="divider-text" style="margin: 4px 0;">atau</div>
+        <button class="btn btn-outline" onclick="go('login')">Sign In</button>
+        <button class="btn btn-outline" onclick="go('register')">Register New Account</button>
+      </div>
+      <div style="height: 24px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  // Override routes for landing page (root-relative)
+  Object.assign(ROUTES, {
+    consultation: 'pages/consultation/index.html',
+    register: 'pages/auth/register.html',
+    login:    'pages/auth/login.html',
+    'chat-bot': 'pages/chat/bot.html',
+    dashboard: 'pages/dashboard/index.html',
+  });
+</script>
+</body>
+</html>

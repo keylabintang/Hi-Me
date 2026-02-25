@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Daftar — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .auth-hero {
+      background: linear-gradient(155deg, var(--green-900), var(--green-600));
+      padding: 0 24px 52px;
+      position: relative; overflow: hidden;
+    }
+    .auth-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 40px; background: var(--bg); border-radius: 40px 40px 0 0;
+    }
+    .hero-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: white; font-size: 18px; transition: all .15s;
+    }
+    .hero-back:active { transform: scale(.92); }
+    .step-dots { display: flex; gap: 6px; margin-bottom: 18px; }
+    .step-dot {
+      height: 4px; border-radius: 100px;
+      background: rgba(255,255,255,.25); transition: all .3s;
+    }
+    .step-dot.active { background: white; }
+    .step-dot.s1 { flex: 1; }
+    .step-dot.s2 { flex: 1; }
+    .step-dot.s3 { flex: 1; }
+    .auth-title { font-family: 'DM Serif Display', serif; font-size: 30px; color: white; line-height: 1.2; }
+    .auth-desc { font-size: 13px; color: rgba(255,255,255,.65); margin-top: 6px; }
+    .step-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+    .auth-body { padding: 24px 20px 20px; }
+
+    /* Gender selector */
+    .gender-row { display: flex; gap: 8px; }
+    .gender-opt {
+      flex: 1; padding: 11px 8px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      text-align: center; font-size: 13px; font-weight: 700;
+      color: var(--text-secondary); cursor: pointer; transition: all .15s;
+    }
+    .gender-opt.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
+    .gender-opt:active { transform: scale(.96); }
+
+    /* Goal chips */
+    .goal-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .goal-chip {
+      padding: 8px 14px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      font-size: 12px; font-weight: 700; color: var(--text-secondary);
+      cursor: pointer; transition: all .15s;
+    }
+    .goal-chip.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
+    .goal-chip:active { transform: scale(.95); }
+
+    /* Nav footer inside body */
+    .step-footer { display: flex; gap: 10px; margin-top: 24px; }
+    .login-prompt { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 20px; }
+    .login-prompt span { color: var(--primary); font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
+    <span class="sb-time">09:41</span>
+    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+  </div>
+
+  <div class="scroll-area">
+    <!-- Hero -->
+    <div class="auth-hero">
+      <div style="height: 56px;"></div>
+      <div style="margin-bottom: 22px;">
+        <div class="hero-back" onclick="handleBack()">←</div>
+      </div>
+      <div class="step-dots">
+        <div class="step-dot s1 active" id="dot1"></div>
+        <div class="step-dot s2" id="dot2"></div>
+        <div class="step-dot s3" id="dot3"></div>
+      </div>
+      <div class="step-label" id="stepLabel">Langkah 1 dari 3</div>
+      <h1 class="auth-title" id="heroTitle">Buat Akun<br>Hi-Me</h1>
+      <p class="auth-desc" id="heroDesc">Mulai perjalanan kesehatan mentalmu hari ini</p>
+      <div style="height: 40px;"></div>
+    </div>
+
+    <!-- Steps -->
+    <div class="auth-body">
+
+      <!-- Step 1: Basic Info -->
+      <div id="step1" class="anim-fade-up">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input type="text" class="form-input" id="nameInput" placeholder="Nama kamu" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="emailInput" placeholder="nama@email.com" autocomplete="email">
+        </div>
+        <div class="step-footer">
+          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan →</button>
+        </div>
+        <p class="login-prompt">Sudah punya akun? <span onclick="go('login')">Masuk</span></p>
+      </div>
+
+      <!-- Step 2: Password -->
+      <div id="step2" style="display:none;" class="anim-fade-up">
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <div class="input-wrap">
+            <input type="password" class="form-input" id="passInput" placeholder="Minimal 8 karakter">
+            <span class="input-trail" onclick="togglePass('passInput', this)">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ulangi Kata Sandi</label>
+          <div class="input-wrap">
+            <input type="password" class="form-input" id="pass2Input" placeholder="Sama dengan di atas">
+            <span class="input-trail" onclick="togglePass('pass2Input', this)">👁</span>
+          </div>
+        </div>
+
+        <!-- Password strength -->
+        <div style="margin-bottom: 16px;">
+          <div style="display:flex; gap:4px; margin-bottom:4px;">
+            <div class="skel" id="str1" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
+            <div class="skel" id="str2" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
+            <div class="skel" id="str3" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
+            <div class="skel" id="str4" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
+          </div>
+          <p id="strengthLabel" style="font-size:11px; color:var(--text-muted);">Masukkan kata sandi untuk cek kekuatan</p>
+        </div>
+
+        <div class="step-footer">
+          <button class="btn btn-ghost" onclick="prevStep()" style="width: auto; padding: 14px 20px;">←</button>
+          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Profile -->
+      <div id="step3" style="display:none;" class="anim-fade-up">
+        <div class="form-group">
+          <label class="form-label">Tanggal Lahir</label>
+          <input type="date" class="form-input" id="dobInput">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jenis Kelamin</label>
+          <div class="gender-row">
+            <div class="gender-opt" id="gL" onclick="selGender('L')">Laki-laki</div>
+            <div class="gender-opt" id="gP" onclick="selGender('P')">Perempuan</div>
+            <div class="gender-opt" id="gO" onclick="selGender('O')">Lainnya</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apa tujuanmu bergabung? <span style="font-weight:400; color:var(--text-muted);">(Pilih beberapa)</span></label>
+          <div class="goal-grid">
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Mengelola stres</div>
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Atasi kecemasan</div>
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Hubungan lebih baik</div>
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Pengembangan diri</div>
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Tidur lebih berkualitas</div>
+            <div class="goal-chip" onclick="this.classList.toggle('selected')">Kurangi burnout</div>
+          </div>
+        </div>
+
+        <div style="padding: 14px; background: var(--primary-xpale); border-radius: var(--r-md); border: 1px solid var(--primary-pale); margin-bottom: 4px;">
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            Dengan mendaftar, kamu menyetujui <strong>Syarat & Ketentuan</strong> serta <strong>Kebijakan Privasi</strong> Hi-Me. Data kamu aman dan tidak akan dibagikan ke pihak ketiga.
+          </p>
+        </div>
+
+        <div class="step-footer">
+          <button class="btn btn-ghost" onclick="prevStep()" style="width: auto; padding: 14px 20px;">←</button>
+          <button class="btn btn-primary" id="regBtn" onclick="handleRegister()">Buat Akun</button>
+        </div>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    login:     'login.html',
+    dashboard: '../dashboard/index.html',
+    landing:   '../../index.html',
+  });
+
+  let currentStep = 1;
+  let selectedGender = '';
+
+  const heroTitles = ['Buat Akun\nHi-Me', 'Buat Kata\nSandi', 'Lengkapi\nProfilmu'];
+  const heroDescs  = ['Mulai perjalanan kesehatan mentalmu hari ini', 'Buat kata sandi yang kuat untuk keamananmu', 'Bantu kami mengenalmu lebih baik'];
+  const stepLabels = ['Langkah 1 dari 3', 'Langkah 2 dari 3', 'Langkah 3 dari 3'];
+
+  function updateHero() {
+    ['dot1','dot2','dot3'].forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', i < currentStep);
+    });
+    document.getElementById('stepLabel').textContent = stepLabels[currentStep - 1];
+    document.getElementById('heroTitle').innerHTML = heroTitles[currentStep - 1].replace('\n', '<br>');
+    document.getElementById('heroDesc').textContent = heroDescs[currentStep - 1];
+  }
+
+  function showStep(n) {
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById('step' + i);
+      if (el) el.style.display = i === n ? 'block' : 'none';
+    }
+    updateHero();
+  }
+
+  function nextStep() {
+    if (currentStep === 1) {
+      const name  = document.getElementById('nameInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
+      if (!name)  { toast('Masukkan nama lengkap kamu'); return; }
+      if (!email || !email.includes('@')) { toast('Masukkan email yang valid'); return; }
+    }
+    if (currentStep === 2) {
+      const p1 = document.getElementById('passInput').value;
+      const p2 = document.getElementById('pass2Input').value;
+      if (p1.length < 8) { toast('Kata sandi minimal 8 karakter'); return; }
+      if (p1 !== p2)     { toast('Kata sandi tidak cocok'); return; }
+    }
+    if (currentStep < 3) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) { currentStep--; showStep(currentStep); }
+    else goBack();
+  }
+
+  function handleBack() {
+    if (currentStep > 1) prevStep();
+    else go('landing');
+  }
+
+  function selGender(g) {
+    selectedGender = g;
+    ['L','P','O'].forEach(x => document.getElementById('g'+x).classList.toggle('selected', x === g));
+  }
+
+  function togglePass(id, el) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    el.textContent = inp.type === 'password' ? '👁' : '🙈';
+  }
+
+  // Password strength indicator
+  document.addEventListener('DOMContentLoaded', () => {
+    const passInp = document.getElementById('passInput');
+    if (passInp) {
+      passInp.addEventListener('input', () => {
+        const val = passInp.value;
+        let score = 0;
+        if (val.length >= 8)  score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const colors = ['', '#EF4444', '#F97316', '#EAB308', '#22C55E'];
+        const labels = ['', 'Lemah', 'Cukup', 'Kuat', 'Sangat Kuat'];
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('str'+i).style.background = i <= score ? colors[score] : 'var(--border)';
+        }
+        document.getElementById('strengthLabel').textContent = val ? labels[score] : 'Masukkan kata sandi untuk cek kekuatan';
+        document.getElementById('strengthLabel').style.color = val ? colors[score] : 'var(--text-muted)';
+      });
+    }
+  });
+
+  function handleRegister() {
+    const name  = document.getElementById('nameInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const btn = document.getElementById('regBtn');
+    btn.innerHTML = '<div class="spinner"></div> Membuat akun...';
+    btn.disabled = true;
+    setTimeout(() => {
+      const initials = name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      App.login({ name, email, initials, avatar: '', gender: selectedGender });
+      go('dashboard');
+    }, 1500);
+  }
+</script>
+</body>
+</html>

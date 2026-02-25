@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Edit Profil — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .avatar-section {
+      background: linear-gradient(155deg, var(--green-900), var(--green-700));
+      padding: 16px 20px 48px;
+      text-align: center; position: relative;
+    }
+    .avatar-section::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 36px; background: var(--bg); border-radius: 36px 36px 0 0;
+    }
+    .edit-av-wrap {
+      position: relative; display: inline-block; margin-top: 8px;
+    }
+    .edit-av {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: rgba(255,255,255,.22); border: 3px solid rgba(255,255,255,.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 800; color: white;
+    }
+    .av-change-btn {
+      position: absolute; bottom: 0; right: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary); border: 2px solid white;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 13px;
+    }
+
+    .edit-body { padding: 20px 20px 20px; }
+    .section-sep {
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin: 20px 0 12px;
+    }
+
+    .gender-row { display: flex; gap: 8px; }
+    .gender-opt {
+      flex: 1; padding: 11px 8px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      text-align: center; font-size: 13px; font-weight: 700;
+      color: var(--text-secondary); cursor: pointer; transition: all .15s;
+    }
+    .gender-opt.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
+    .gender-opt:active { transform: scale(.96); }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
+    <span class="sb-time">09:41</span>
+    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+  </div>
+
+  <!-- Avatar Section -->
+  <div class="avatar-section">
+    <div style="height: 56px;"></div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+      <div class="back-btn" onclick="goBack()" style="background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.25); color:white;">←</div>
+      <span style="font-size:16px; font-weight:700; color:white;">Edit Profil</span>
+      <div style="width:36px;"></div>
+    </div>
+    <div class="edit-av-wrap">
+      <div class="edit-av" id="editAv">P</div>
+      <div class="av-change-btn" onclick="toast('Ubah foto (simulasi)')">📷</div>
+    </div>
+    <div style="height: 36px;"></div>
+  </div>
+
+  <div class="scroll-area" style="padding-bottom: 100px;">
+    <div class="edit-body anim-fade-up">
+      <div class="section-sep">Informasi Pribadi</div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-input" id="nameInput" placeholder="Nama lengkap kamu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="emailInput" placeholder="email@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor Telepon</label>
+        <input type="tel" class="form-input" id="phoneInput" placeholder="+62 8xx xxxx xxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Lahir</label>
+        <input type="date" class="form-input" id="dobInput">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Kelamin</label>
+        <div class="gender-row">
+          <div class="gender-opt" id="gL" onclick="selGender('L')">Laki-laki</div>
+          <div class="gender-opt" id="gP" onclick="selGender('P')">Perempuan</div>
+          <div class="gender-opt" id="gO" onclick="selGender('O')">Lainnya</div>
+        </div>
+      </div>
+
+      <div class="section-sep">Kondisi &amp; Tujuan</div>
+      <div class="form-group">
+        <label class="form-label">Kondisi yang sedang kamu alami <span style="font-weight:400; color:var(--text-muted);">(opsional)</span></label>
+        <textarea class="form-input" rows="3" id="condInput" placeholder="Contoh: sering cemas, susah tidur, stres kerja..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kota Domisili</label>
+        <input type="text" class="form-input" id="cityInput" placeholder="Contoh: Jakarta Selatan">
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Footer -->
+  <div style="position:absolute; bottom:0; left:0; right:0; background:var(--bg-card); border-top:1px solid var(--border); padding:14px 20px; box-shadow:0 -4px 20px rgba(0,0,0,.07);">
+    <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">Simpan Perubahan</button>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  Object.assign(ROUTES, {
+    profile: 'index.html',
+    landing: '../../index.html',
+  });
+
+  let selectedGender = '';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = App.user;
+    if (!user) { go('landing'); return; }
+    document.getElementById('editAv').textContent = user.initials || 'P';
+    document.getElementById('nameInput').value = user.name || '';
+    document.getElementById('emailInput').value = user.email || '';
+    if (user.phone) document.getElementById('phoneInput').value = user.phone;
+    if (user.dob)   document.getElementById('dobInput').value = user.dob;
+    if (user.city)  document.getElementById('cityInput').value = user.city;
+    if (user.cond)  document.getElementById('condInput').value = user.cond;
+    if (user.gender) {
+      selectedGender = user.gender;
+      document.getElementById('g' + user.gender)?.classList.add('selected');
+    }
+  });
+
+  function selGender(g) {
+    selectedGender = g;
+    ['L','P','O'].forEach(x => document.getElementById('g'+x).classList.toggle('selected', x === g));
+  }
+
+  function saveProfile() {
+    const name  = document.getElementById('nameInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    if (!name)  { toast('Nama tidak boleh kosong'); return; }
+    if (!email) { toast('Email tidak boleh kosong'); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.innerHTML = '<div class="spinner"></div> Menyimpan...';
+    btn.disabled = true;
+
+    const updated = {
+      ...App.user,
+      name,
+      email,
+      phone:    document.getElementById('phoneInput').value,
+      dob:      document.getElementById('dobInput').value,
+      city:     document.getElementById('cityInput').value,
+      cond:     document.getElementById('condInput').value,
+      gender:   selectedGender,
+      initials: name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(),
+    };
+
+    setTimeout(() => {
+      App.login(updated);
+      toast('Profil berhasil diperbarui');
+      setTimeout(() => go('profile'), 800);
+    }, 1000);
+  }
+</script>
+</body>
+</html>
