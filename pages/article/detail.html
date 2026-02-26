@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Artikel — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    /* Floating top bar (over hero image) */
+    .art-topbar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 0;
+    }
+    .topbar-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.88); border: 1px solid rgba(0,0,0,.06);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      transition: all .15s; backdrop-filter: blur(4px);
+    }
+    .topbar-btn:active { transform: scale(.9); }
+    .topbar-actions { display: flex; gap: 8px; }
+
+    /* Hero image */
+    .art-hero {
+      position: relative; width: 100%; height: 220px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .art-hero img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center;
+    }
+    .art-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,15,40,.6) 0%, rgba(10,15,40,.08) 60%);
+    }
+    .art-hero-cat {
+      position: absolute; bottom: 14px; left: 16px;
+      font-size: 11px; font-weight: 800; padding: 4px 12px;
+      border-radius: 20px; color: white;
+    }
+    .art-hero-readtime {
+      position: absolute; bottom: 14px; right: 16px;
+      background: rgba(0,0,0,.4); color: white;
+      font-size: 11px; font-weight: 700;
+      padding: 4px 10px; border-radius: 10px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Article body */
+    .art-body { padding: 22px 22px 100px; }
+
+    .art-title {
+      font-size: 21px; font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.25; letter-spacing: -.4px;
+      margin-bottom: 14px;
+    }
+
+    /* Author row */
+    .author-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .author-av {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: var(--primary);
+      flex-shrink: 0;
+    }
+    .author-name { font-size: 13px; font-weight: 800; color: var(--text-primary); }
+    .author-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    /* Read progress bar */
+    .progress-bar-wrap {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--border); z-index: 30;
+    }
+    .progress-bar-fill {
+      height: 100%; background: var(--primary);
+      transition: width .1s linear;
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* Typography */
+    .art-lead {
+      font-size: 15px; color: var(--text-secondary);
+      line-height: 1.75; font-weight: 500;
+      margin-bottom: 22px;
+    }
+    .art-h2 {
+      font-size: 17px; font-weight: 900;
+      color: var(--text-primary); letter-spacing: -.3px;
+      margin: 26px 0 12px;
+    }
+    .art-p {
+      font-size: 14px; color: var(--text-secondary);
+      line-height: 1.8; margin-bottom: 16px;
+    }
+
+    /* Highlight / callout box */
+    .art-callout {
+      background: var(--primary-xpale);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      padding: 14px 16px; margin: 20px 0;
+    }
+    .art-callout p {
+      font-size: 13px; color: var(--primary);
+      font-weight: 700; line-height: 1.6; margin: 0;
+    }
+
+    /* Numbered list */
+    .art-list { margin: 0 0 16px; padding: 0; list-style: none; }
+    .art-list li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .art-list li:last-child { border-bottom: none; }
+    .list-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--primary-pale); color: var(--primary);
+      font-size: 12px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Tip card */
+    .art-tip {
+      background: #F0FDF4; border: 1px solid #BBF7D0;
+      border-radius: var(--r-xl); padding: 16px; margin: 20px 0;
+    }
+    .art-tip-label { font-size: 11px; font-weight: 800; color: #16A34A; margin-bottom: 8px; }
+    .art-tip p { font-size: 13px; color: #15803D; line-height: 1.6; margin: 0; }
+
+    /* Key takeaway */
+    .art-takeaway {
+      background: linear-gradient(135deg, var(--primary-pale), #EEF2FF);
+      border-radius: var(--r-xl); padding: 18px; margin: 24px 0;
+      border: 1px solid var(--primary-pale);
+    }
+    .takeaway-label { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+    .takeaway-items { display: flex; flex-direction: column; gap: 7px; }
+    .takeaway-item { display: flex; gap: 8px; font-size: 13px; color: var(--text-secondary); font-weight: 600; line-height: 1.4; }
+
+    /* Divider */
+    .art-divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* CTA consult */
+    .consult-cta {
+      background: linear-gradient(135deg, var(--green-900), var(--green-700));
+      border-radius: var(--r-xl); padding: 18px 20px; margin: 24px 0;
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .consult-cta:active { transform: scale(.98); }
+    .cta-title { font-size: 15px; font-weight: 900; color: white; margin-bottom: 6px; }
+    .cta-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 14px; line-height: 1.5; }
+    .cta-btn {
+      display: inline-block; background: white; color: var(--primary);
+      font-size: 13px; font-weight: 800;
+      padding: 10px 24px; border-radius: var(--r-xl);
+    }
+
+    /* Related articles */
+    .related-section { margin-top: 8px; }
+    .rel-title { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+    .rel-card {
+      display: flex; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: opacity .15s;
+    }
+    .rel-card:last-child { border-bottom: none; }
+    .rel-card:active { opacity: .7; }
+    .rel-thumb {
+      width: 60px; height: 60px; border-radius: var(--r-md);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .rel-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .rel-info { flex: 1; min-width: 0; }
+    .rel-cat { font-size: 10px; font-weight: 800; margin-bottom: 3px; }
+    .rel-art-title {
+      font-size: 12px; font-weight: 800; color: var(--text-primary); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .rel-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    /* Share / bookmark bar */
+    .action-bar {
+      position: absolute; bottom: 66px; left: 0; right: 0;
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      padding: 10px 20px; display: flex; gap: 10px; z-index: 10;
+    }
+    .ab-btn {
+      flex: 1; height: 42px; border-radius: var(--r-xl);
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 13px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .15s;
+    }
+    .ab-btn:active { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+    .ab-btn.primary {
+      background: var(--primary); color: white; border-color: transparent;
+      box-shadow: 0 4px 12px rgba(62,94,220,.25);
+    }
+    .ab-btn.primary:active { background: var(--primary-hover); }
+  </style>
+</head>
+<body>
+<div class="phone" style="overflow:hidden;">
+  <!-- Progress bar -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+
+  <!-- Floating top bar -->
+  <div class="art-topbar" style="margin-top:44px;">
+    <div class="topbar-btn" onclick="goBack()">←</div>
+    <div class="topbar-actions">
+      <div class="topbar-btn" id="bookmarkBtn" onclick="toggleBookmark()">🔖</div>
+      <div class="topbar-btn" onclick="shareArticle()">↗</div>
+    </div>
+  </div>
+
+  <!-- Hero image -->
+  <div class="art-hero" id="artHero">
+    <img src="../../logo.png" alt="Artikel" id="heroImg">
+    <div class="art-hero-overlay"></div>
+    <div class="art-hero-cat" id="heroCat" style="background:var(--primary);">Kecemasan</div>
+    <div class="art-hero-readtime" id="heroReadtime">5 mnt baca</div>
+  </div>
+
+  <div class="scroll-area has-nav" id="articleScroll" onscroll="updateProgress()">
+    <div class="art-body">
+
+      <!-- Title -->
+      <div class="art-title" id="artTitle">5 Cara Mengelola Kecemasan Sehari-hari yang Terbukti Efektif</div>
+
+      <!-- Author -->
+      <div class="author-row">
+        <div class="author-av" id="authorAv">HM</div>
+        <div>
+          <div class="author-name" id="authorName">Hi-Me Editorial</div>
+          <div class="author-meta" id="authorMeta">12 Januari 2025 · 5 menit baca</div>
+        </div>
+      </div>
+
+      <!-- Article content — rendered by JS per article -->
+      <div id="artContent"></div>
+
+      <!-- CTA consult -->
+      <div class="consult-cta" onclick="go('expert-list')">
+        <div class="cta-title">Butuh bantuan profesional?</div>
+        <div class="cta-sub">Bicarakan kondisimu dengan psikolog & konsultan terverifikasi di Hi-Me.</div>
+        <div class="cta-btn">Temukan Expert →</div>
+      </div>
+
+      <div class="art-divider"></div>
+
+      <!-- Related articles -->
+      <div class="related-section">
+        <div class="rel-title">Artikel Terkait</div>
+        <div id="relatedList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <div class="ab-btn" onclick="toggleBookmark()">🔖 Simpan</div>
+    <div class="ab-btn" onclick="shareArticle()">↗ Bagikan</div>
+    <div class="ab-btn primary" onclick="go('expert-list')">💬 Konsultasi</div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottomnav">
+    <div class="nav-item active" onclick="go('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="go('chat-list')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></div>
+    <div class="nav-item" onclick="go('consultation')"><span class="nav-icon">🩺</span><span class="nav-label">Konsultasi</span></div>
+    <div class="nav-item" onclick="go('self-talk')"><span class="nav-icon">📓</span><span class="nav-label">Self Talk</span></div>
+    <div class="nav-item" onclick="go('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+  </nav>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  // ── Article data ──
+  const ARTICLES = [
+    {
+      id: 0,
+      title: '5 Cara Mengelola Kecemasan Sehari-hari yang Terbukti Efektif',
+      category: 'Kecemasan', catBg: 'var(--primary)', catText: '#EEF2FF',
+      readTime: '5 mnt', author: 'Hi-Me Editorial', authorInit: 'HM',
+      date: '12 Januari 2025',
+      content: `
+        <p class="art-lead">Kecemasan adalah respons alami tubuh terhadap tekanan. Namun ketika hadir terlalu sering dan terlalu intens, ia bisa mengganggu aktivitas dan kualitas hidupmu sehari-hari.</p>
+        <div class="art-callout"><p>"Kecemasan bukan kelemahan — ia adalah sinyal bahwa kamu peduli. Yang penting adalah belajar meresponsnya dengan cara yang lebih sehat."</p></div>
+        <div class="art-h2">Apa yang Sebenarnya Terjadi Saat Kamu Cemas?</div>
+        <p class="art-p">Saat otak mendeteksi ancaman — nyata atau yang dibayangkan — ia mengaktifkan sistem "fight or flight". Hormon stres seperti kortisol dan adrenalin dilepaskan, menyebabkan jantung berdebar, napas terasa sesak, dan pikiran berputar cepat.</p>
+        <p class="art-p">Masalahnya, otak modern kita sering salah membaca situasi sehari-hari — seperti presentasi kerja atau antrian panjang — sebagai ancaman serius. Inilah yang memicu kecemasan berlebih.</p>
+        <div class="art-h2">5 Cara yang Terbukti Efektif</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Teknik pernapasan 4-7-8</strong> — Tarik napas 4 detik, tahan 7 detik, hembuskan 8 detik. Lakukan 3–4 kali. Ini mengaktifkan sistem saraf parasimpatis yang menenangkan tubuh secara fisiologis.</div></li>
+          <li><div class="list-num">2</div><div><strong>Grounding 5-4-3-2-1</strong> — Sebutkan 5 benda yang bisa kamu lihat, 4 yang bisa kamu sentuh, 3 suara, 2 bau, dan 1 rasa. Teknik ini mengembalikan fokus ke momen sekarang.</div></li>
+          <li><div class="list-num">3</div><div><strong>Tulis pikiran yang mengkhawatirkan</strong> — Menuliskan kekhawatiran terbukti mengurangi intensitasnya. Gunakan Self Talk di Hi-Me untuk menjurnal secara terstruktur.</div></li>
+          <li><div class="list-num">4</div><div><strong>Batasi konsumsi informasi</strong> — Terlalu banyak scroll berita atau media sosial langsung memengaruhi level kecemasan. Tetapkan "batas waktu layar" harian.</div></li>
+          <li><div class="list-num">5</div><div><strong>Olahraga ringan 20 menit</strong> — Berjalan, yoga, atau stretching melepaskan endorfin yang secara alami menekan hormon stres.</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">💡 Tips Praktis</div><p>Mulai dari satu teknik saja. Jangan coba semuanya sekaligus. Konsisten dengan satu cara selama 2 minggu sebelum menambahkan yang lain.</p></div>
+        <div class="art-h2">Kapan Harus Mencari Bantuan Profesional?</div>
+        <p class="art-p">Jika kecemasanmu sudah mengganggu pekerjaan, hubungan, atau aktivitas sehari-hari selama lebih dari dua minggu, ini adalah tanda untuk berbicara dengan psikolog. Kecemasan yang tidak ditangani bisa berkembang menjadi gangguan yang lebih serius.</p>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Kecemasan adalah respons normal — bisa dikelola</span></div>
+            <div class="takeaway-item">✅ <span>Teknik pernapasan adalah cara tercepat untuk meredakannya</span></div>
+            <div class="takeaway-item">✅ <span>Jurnal dan grounding membantu memutus lingkaran overthinking</span></div>
+            <div class="takeaway-item">✅ <span>Konsultasi profesional jika sudah berlangsung >2 minggu</span></div>
+          </div>
+        </div>
+      `,
+      related: [1, 5, 7],
+    },
+    {
+      id: 1,
+      title: 'Kenapa Kualitas Tidur Sangat Mempengaruhi Mood dan Emosi?',
+      category: 'Tidur', catBg: '#7C3AED', catText: '#EDE9FE',
+      readTime: '4 mnt', author: 'Hi-Me Editorial', authorInit: 'HM',
+      date: '10 Januari 2025',
+      content: `
+        <p class="art-lead">Kurang tidur bukan hanya soal ngantuk seharian. Ia secara langsung dan signifikan memengaruhi kemampuanmu meregulasi emosi, membuat keputusan, dan menjaga kesehatan mental.</p>
+        <div class="art-callout"><p>"Tidur bukan kemewahan — ia adalah kebutuhan biologis fundamental yang menopang seluruh fungsi mental dan emosionalmu."</p></div>
+        <div class="art-h2">Apa yang Terjadi di Otak Saat Kamu Tidur?</div>
+        <p class="art-p">Selama tidur, otak melakukan "pembuangan sampah" — membuang protein toksik, mengkonsolidasikan memori, dan memulihkan koneksi saraf yang dibutuhkan untuk regulasi emosi. Area amigdala (pusat emosi otak) sangat bergantung pada tidur yang cukup.</p>
+        <p class="art-p">Penelitian dari UC Berkeley menemukan bahwa kurang tidur satu malam saja meningkatkan reaktivitas amigdala hingga 60%, membuat otak 60% lebih sensitif terhadap stimuli negatif.</p>
+        <div class="art-h2">Dampak Kurang Tidur pada Emosi</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Mudah marah dan impulsif</strong> — Korteks prefrontal (bagian otak untuk kontrol diri) tidak bisa berfungsi optimal saat kelelahan.</div></li>
+          <li><div class="list-num">2</div><div><strong>Kecemasan meningkat</strong> — Tidur yang buruk memicu siklus kecemasan-insomnia yang sulit diputus.</div></li>
+          <li><div class="list-num">3</div><div><strong>Sulit berempati</strong> — Kemampuan membaca ekspresi emosi orang lain menurun signifikan setelah kurang tidur.</div></li>
+          <li><div class="list-num">4</div><div><strong>Risiko depresi meningkat</strong> — Insomnia kronis adalah salah satu prediktor terkuat gangguan depresi.</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">💡 Rekomendasi Tidur</div><p>Dewasa membutuhkan 7–9 jam tidur per malam. Remaja 8–10 jam. Konsistensi waktu tidur lebih penting dari durasi.</p></div>
+        <div class="art-h2">3 Kebiasaan untuk Tidur Lebih Berkualitas</div>
+        <p class="art-p"><strong>1. "Sleep window" konsisten</strong> — Tidur dan bangun di jam yang sama setiap hari, termasuk akhir pekan. Ini mengatur ritme sirkadian tubuh.</p>
+        <p class="art-p"><strong>2. Hindari layar 1 jam sebelum tidur</strong> — Cahaya biru dari smartphone menekan produksi melatonin (hormon tidur) hingga 3 jam.</p>
+        <p class="art-p"><strong>3. Rutinitas pre-tidur</strong> — Mandi hangat, membaca, atau meditasi ringan memberi sinyal ke otak bahwa sudah waktunya istirahat.</p>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Kurang tidur meningkatkan reaktivitas emosi hingga 60%</span></div>
+            <div class="takeaway-item">✅ <span>Konsistensi jadwal tidur lebih penting dari durasi</span></div>
+            <div class="takeaway-item">✅ <span>Hindari layar 1 jam sebelum tidur</span></div>
+          </div>
+        </div>
+      `,
+      related: [0, 5, 4],
+    },
+    {
+      id: 2,
+      title: 'Tanda-tanda Burnout yang Sering Diabaikan — dan Cara Mengatasinya',
+      category: 'Burnout', catBg: '#D97706', catText: '#FEF3C7',
+      readTime: '6 mnt', author: 'dr. Rizal Pratama', authorInit: 'RP',
+      date: '8 Januari 2025',
+      content: `
+        <p class="art-lead">Burnout bukan hanya kelelahan biasa. Ia adalah kondisi kelelahan emosional, fisik, dan mental yang disebabkan oleh stres kronis yang tidak ditangani — dan bisa sangat merusak jika dibiarkan.</p>
+        <div class="art-callout"><p>"Burnout tidak muncul tiba-tiba. Ia datang perlahan, sedikit demi sedikit, sampai suatu hari kamu sadar tidak punya energi untuk hal-hal yang dulu kamu cintai."</p></div>
+        <div class="art-h2">3 Dimensi Burnout (Menurut WHO)</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Kelelahan energi</strong> — Merasa habis terkuras meskipun sudah beristirahat. Ini berbeda dari kelelahan fisik biasa.</div></li>
+          <li><div class="list-num">2</div><div><strong>Cynicism / detachment</strong> — Merasa jauh dan apatis terhadap pekerjaan, orang-orang di sekitar, atau hal-hal yang dulu bermakna.</div></li>
+          <li><div class="list-num">3</div><div><strong>Inefisiensi</strong> — Kesulitan berkonsentrasi, produktivitas menurun drastis, merasa tidak kompeten meski sudah berusaha keras.</div></li>
+        </ul>
+        <div class="art-h2">Tanda-tanda yang Sering Terlewatkan</div>
+        <p class="art-p">Banyak orang mengabaikan burnout dini karena gejalanya mudah dirasionalisasikan: "Semua orang juga capek", "Ini cuma fase", "Aku harus lebih keras berusaha".</p>
+        <ul class="art-list">
+          <li><div class="list-num">✓</div><div>Sering sakit — sistem imun melemah akibat stres kronis</div></li>
+          <li><div class="list-num">✓</div><div>Prokrastinasi parah meski dulu kamu produktif</div></li>
+          <li><div class="list-num">✓</div><div>Kehilangan minat pada hobi atau hal yang dulu menyenangkan</div></li>
+          <li><div class="list-num">✓</div><div>Mudah tersinggung atau menangis tanpa sebab jelas</div></li>
+          <li><div class="list-num">✓</div><div>Isolasi sosial — menghindari orang-orang bahkan yang kamu sayangi</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">⚠️ Penting</div><p>Burnout berbeda dari depresi, meski gejalanya bisa tumpang tindih. Diagnosis yang tepat penting untuk penanganan yang efektif. Konsultasikan dengan profesional.</p></div>
+        <div class="art-h2">Langkah Pertama Keluar dari Burnout</div>
+        <p class="art-p"><strong>1. Akui kondisinya</strong> — Ini langkah terpenting dan tersulit. Berhenti meminimalisasi apa yang kamu rasakan.</p>
+        <p class="art-p"><strong>2. Kurangi beban secara strategis</strong> — Identifikasi apa yang bisa dihilangkan, didelegasikan, atau ditunda. Bukan semua hal sama pentingnya.</p>
+        <p class="art-p"><strong>3. Prioritaskan pemulihan aktif</strong> — Istirahat bukan hanya tidur. Aktivitas yang secara aktif mengisi ulang energimu (bukan sekadar tidak melakukan apa-apa) jauh lebih efektif.</p>
+        <p class="art-p"><strong>4. Cari dukungan profesional</strong> — Burnout berat membutuhkan bantuan dari psikolog atau konsultan kesehatan mental, bukan hanya "cuti panjang".</p>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Burnout punya 3 dimensi: lelah, apatis, inefisiensi</span></div>
+            <div class="takeaway-item">✅ <span>Tanda awal sering dirasionalisasikan dan diabaikan</span></div>
+            <div class="takeaway-item">✅ <span>Akui kondisi sebagai langkah pertama pemulihan</span></div>
+            <div class="takeaway-item">✅ <span>Bantuan profesional sering kali diperlukan</span></div>
+          </div>
+        </div>
+      `,
+      related: [0, 3, 5],
+    },
+    {
+      id: 3,
+      title: 'Cara Bicara dengan Diri Sendiri yang Lebih Sehat (Self-talk Positif)',
+      category: 'Self-esteem', catBg: '#16A34A', catText: '#D1FAE5',
+      readTime: '5 mnt', author: 'Sari Dewanti, S.Psi', authorInit: 'SD',
+      date: '5 Januari 2025',
+      content: `
+        <p class="art-lead">Setiap hari, kamu "berbicara" dengan dirimu sendiri ribuan kali — dalam pikiran. Apa yang kamu katakan kepada dirimu sendiri secara langsung membentuk harga diri, kepercayaan diri, dan cara kamu menghadapi tantangan.</p>
+        <div class="art-callout"><p>"Kamu tidak akan membiarkan siapapun berbicara buruk kepada orang yang kamu cintai. Maka mengapa kamu membiarkan dirimu sendiri melakukannya kepadamu?"</p></div>
+        <div class="art-h2">Apa Itu Inner Critic?</div>
+        <p class="art-p">Semua orang punya "kritikus dalam" — suara internal yang menilai, membandingkan, dan sering kali merendahkan. Ini adalah hasil dari pengkondisian masa lalu: kritik dari orang tua, guru, pengalaman menyakitkan, atau standar sosial yang terinternalisasi.</p>
+        <p class="art-p">Masalahnya, kritikus dalam sering berbicara seolah-olah ia adalah "kebenaran", padahal ia hanya satu perspektif — dan sering kali perspektif yang distorted (tidak akurat).</p>
+        <div class="art-h2">Mengubah Pola Self-talk</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Sadari dulu</strong> — Perhatikan kapan kamu berbicara negatif pada dirimu. "Aku bodoh", "Aku pasti gagal", "Aku tidak cukup baik". Menulis di jurnal sangat membantu.</div></li>
+          <li><div class="list-num">2</div><div><strong>Pertanyakan validitasnya</strong> — Tanya: "Apakah ini fakta atau interpretasi? Bukti apa yang mendukung atau menentang pikiran ini?"</div></li>
+          <li><div class="list-num">3</div><div><strong>Reframe, bukan membalik</strong> — Bukan mengubah "Aku payah" menjadi "Aku luar biasa" (tidak akan dipercaya otak). Tapi menjadi "Aku sedang belajar dan ini butuh waktu".</div></li>
+          <li><div class="list-num">4</div><div><strong>Bicara seperti kepada sahabat</strong> — Bayangkan sahabat terbaikmu mengalami hal yang sama. Apa yang akan kamu katakan kepadanya? Katakan itu kepada dirimu.</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">💡 Coba Sekarang</div><p>Tulis 3 kalimat negatif yang sering kamu katakan kepada dirimu, lalu tulis ulang masing-masing dengan nada yang akan kamu gunakan kepada sahabat terbaikmu.</p></div>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Self-talk negatif adalah kebiasaan yang bisa diubah</span></div>
+            <div class="takeaway-item">✅ <span>Sadari dulu sebelum bisa mengubahnya</span></div>
+            <div class="takeaway-item">✅ <span>Reframe, bukan membalik — harus terasa nyata</span></div>
+          </div>
+        </div>
+      `,
+      related: [2, 4, 6],
+    },
+    {
+      id: 4,
+      title: 'Mengenali Depresi: Lebih dari Sekadar Sedih',
+      category: 'Depresi', catBg: '#1D4ED8', catText: '#DBEAFE',
+      readTime: '7 mnt', author: 'Hi-Me Editorial', authorInit: 'HM',
+      date: '2 Januari 2025',
+      content: `
+        <p class="art-lead">Depresi sering disalahpahami sebagai "sedih berlebihan" atau "kurang bersyukur". Kenyataannya, depresi adalah kondisi medis serius yang mempengaruhi cara otak bekerja — dan ia bisa terjadi pada siapa saja.</p>
+        <div class="art-callout"><p>"Depresi bukan pilihan dan bukan kelemahan karakter. Ia adalah kondisi kesehatan yang membutuhkan perhatian dan penanganan, seperti kondisi medis lainnya."</p></div>
+        <div class="art-h2">Gejala Depresi (Lebih dari 2 Minggu)</div>
+        <ul class="art-list">
+          <li><div class="list-num">✓</div><div>Mood tertekan atau kosong hampir setiap hari</div></li>
+          <li><div class="list-num">✓</div><div>Kehilangan minat atau kesenangan pada hal yang dulu disukai</div></li>
+          <li><div class="list-num">✓</div><div>Perubahan berat badan atau nafsu makan signifikan</div></li>
+          <li><div class="list-num">✓</div><div>Gangguan tidur (insomnia atau hipersomnia)</div></li>
+          <li><div class="list-num">✓</div><div>Kelelahan dan kehilangan energi hampir setiap hari</div></li>
+          <li><div class="list-num">✓</div><div>Perasaan tidak berharga atau bersalah berlebihan</div></li>
+          <li><div class="list-num">✓</div><div>Kesulitan berpikir, berkonsentrasi, atau membuat keputusan</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">⚠️ Catatan Penting</div><p>Jika kamu atau orang yang kamu kenal mengalami pikiran menyakiti diri sendiri, segera hubungi profesional kesehatan mental atau layanan krisis. Kamu tidak harus menghadapinya sendirian.</p></div>
+        <div class="art-h2">Depresi Bukan Tentang "Bersyukur Lebih"</div>
+        <p class="art-p">Satu miskonsepsi paling berbahaya tentang depresi adalah bahwa ia bisa diatasi dengan "lebih bersyukur", "berpikir positif", atau "berolahraga saja". Meskipun gaya hidup sehat mendukung pemulihan, depresi klinis membutuhkan penanganan profesional.</p>
+        <p class="art-p">Depresi mengubah kimia otak secara nyata — kadar serotonin, dopamin, dan norepinefrin terganggu. Ini adalah kondisi biologis yang memerlukan pendekatan yang tepat.</p>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Depresi adalah kondisi medis, bukan kelemahan</span></div>
+            <div class="takeaway-item">✅ <span>Gejala berlangsung lebih dari 2 minggu</span></div>
+            <div class="takeaway-item">✅ <span>Penanganan profesional sangat direkomendasikan</span></div>
+            <div class="takeaway-item">✅ <span>Dukungan orang sekitar sangat berarti dalam pemulihan</span></div>
+          </div>
+        </div>
+      `,
+      related: [1, 2, 0],
+    },
+    {
+      id: 5,
+      title: '5 Teknik Pernapasan untuk Meredakan Stres dalam 5 Menit',
+      category: 'Stres', catBg: '#DC2626', catText: '#FEE2E2',
+      readTime: '3 mnt', author: 'Hi-Me Editorial', authorInit: 'HM',
+      date: '29 Desember 2024',
+      content: `
+        <p class="art-lead">Pernapasan dalam adalah salah satu cara tercepat dan paling aksesibel untuk menenangkan sistem saraf yang aktif karena stres — bisa dilakukan di mana saja, kapan saja, tanpa alat.</p>
+        <div class="art-callout"><p>"Napasmu adalah satu-satunya fungsi tubuh yang bisa dikontrol secara sadar sekaligus berjalan otomatis. Ini menjadikannya jembatan langsung antara pikiran sadar dan sistem saraf."</p></div>
+        <div class="art-h2">5 Teknik Pernapasan</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>4-7-8 (Relaxing Breath)</strong> — Tarik 4 detik, tahan 7 detik, hembuskan 8 detik. Efektif untuk kecemasan akut dan sebelum tidur.</div></li>
+          <li><div class="list-num">2</div><div><strong>Box Breathing (4-4-4-4)</strong> — Tarik 4 detik, tahan 4, hembuskan 4, tahan lagi 4. Digunakan oleh Navy SEAL untuk kontrol stres di situasi ekstrem.</div></li>
+          <li><div class="list-num">3</div><div><strong>Pernapasan Diafragma</strong> — Bernapas dari perut (bukan dada). Letakkan tangan di perut, pastikan ia naik saat kamu menarik napas. 6-10 napas per menit.</div></li>
+          <li><div class="list-num">4</div><div><strong>Alternate Nostril (Nadi Shodhana)</strong> — Tutup lubang hidung kanan, tarik dari kiri; tutup kiri, hembuskan dari kanan; ulangi bergantian. Dari tradisi yoga.</div></li>
+          <li><div class="list-num">5</div><div><strong>Extended Exhale</strong> — Buat hembusan napas 2x lebih panjang dari tarikan. Tarik 4 detik, hembuskan 8 detik. Langsung mengaktifkan saraf vagus.</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">💡 Mulai dari Mana?</div><p>Jika baru pertama kali, mulai dengan Extended Exhale — paling sederhana dan efek langsung paling terasa. Lakukan 5 menit, 2x sehari selama seminggu.</p></div>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Pernapasan mengaktifkan sistem saraf parasimpatis</span></div>
+            <div class="takeaway-item">✅ <span>Efek terasa dalam hitungan menit</span></div>
+            <div class="takeaway-item">✅ <span>Mulai dengan Extended Exhale untuk pemula</span></div>
+          </div>
+        </div>
+      `,
+      related: [0, 1, 2],
+    },
+    {
+      id: 6,
+      title: 'Komunikasi Sehat dalam Hubungan: Cara Ekspresikan Perasaan Tanpa Menyakiti',
+      category: 'Relationship', catBg: '#9D174D', catText: '#FCE7F3',
+      readTime: '6 mnt', author: 'Reza Mahardika, M.Psi', authorInit: 'RM',
+      date: '26 Desember 2024',
+      content: `
+        <p class="art-lead">Banyak konflik dalam hubungan — romantis, keluarga, maupun persahabatan — bukan soal apa yang dikatakan, tapi bagaimana cara mengatakannya. Komunikasi yang sehat adalah keahlian yang bisa dipelajari.</p>
+        <div class="art-callout"><p>"Tujuan komunikasi bukan untuk menang dalam argumen — tapi untuk dipahami dan untuk memahami."</p></div>
+        <div class="art-h2">Framework "I Statement"</div>
+        <p class="art-p">Alih-alih: <em>"Kamu selalu membuatku merasa diabaikan"</em> (serangan)<br>Coba: <em>"Aku merasa diabaikan ketika kamu tidak merespons pesanku seharian"</em> (ekspresi)</p>
+        <p class="art-p">Formula: <strong>"Aku merasa [emosi] ketika [situasi spesifik] karena [dampaknya padaku]. Aku butuh [kebutuhan konkret]."</strong></p>
+        <div class="art-h2">5 Prinsip Komunikasi Sehat</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Pilih waktu yang tepat</strong> — Jangan diskusi penting saat salah satu pihak sedang lapar, lelah, atau emosi memuncak.</div></li>
+          <li><div class="list-num">2</div><div><strong>Dengarkan untuk memahami</strong> — Bukan untuk membalas. Ulangi apa yang kamu dengar untuk memastikan kamu mengerti dengan benar.</div></li>
+          <li><div class="list-num">3</div><div><strong>Spesifik, bukan generalisasi</strong> — Hindari "selalu", "tidak pernah", "semua orang". Fokus pada kejadian konkret.</div></li>
+          <li><div class="list-num">4</div><div><strong>Akui emosi, bukan menghakimi</strong> — "Aku mengerti kamu merasa frustrasi" jauh lebih membantu dari "Kamu terlalu sensitif".</div></li>
+          <li><div class="list-num">5</div><div><strong>Time-out yang sehat</strong> — Jika diskusi mulai panas, sepakati jeda 20–30 menit untuk menenangkan diri sebelum melanjutkan.</div></li>
+        </ul>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Gunakan "I Statement" untuk menyatakan perasaan</span></div>
+            <div class="takeaway-item">✅ <span>Dengarkan untuk memahami, bukan membalas</span></div>
+            <div class="takeaway-item">✅ <span>Komunikasi sehat adalah keahlian yang bisa dilatih</span></div>
+          </div>
+        </div>
+      `,
+      related: [3, 4, 0],
+    },
+    {
+      id: 7,
+      title: 'Overthinking: Mengapa Otak Kita Sulit Berhenti Berpikir?',
+      category: 'Kecemasan', catBg: 'var(--primary)', catText: '#EEF2FF',
+      readTime: '5 mnt', author: 'Dr. Amara Wijaya', authorInit: 'AW',
+      date: '20 Desember 2024',
+      content: `
+        <p class="art-lead">Terjebak dalam lingkaran pikiran yang sama berulang-ulang — menganalisis masa lalu tanpa henti atau mengkhawatirkan masa depan yang belum terjadi. Ini adalah overthinking, dan otak manusia memang dirancang rentan terhadapnya.</p>
+        <div class="art-callout"><p>"Overthinking bukan soal kamu terlalu pintar atau terlalu sensitif. Ia adalah mekanisme survival yang salah sasaran — otak yang mencoba melindungimu dari ancaman yang sebagian besar tidak pernah terjadi."</p></div>
+        <div class="art-h2">Mengapa Otak Melakukan Ini?</div>
+        <p class="art-p">Default Mode Network (DMN) — jaringan otak yang aktif saat kamu tidak fokus pada tugas — cenderung "memutar ulang" ingatan dan simulasi masa depan. Ini berguna untuk perencanaan, tapi bisa menjadi perangkap ketika sistem ancaman otak terlalu aktif.</p>
+        <p class="art-p">Overthinking sering diperkuat oleh ilusi kontrol: otak percaya bahwa dengan memikirkan sesuatu cukup lama, ia bisa mencegah hasil yang buruk.</p>
+        <div class="art-h2">Cara Memutus Siklus Overthinking</div>
+        <ul class="art-list">
+          <li><div class="list-num">1</div><div><strong>Tetapkan "waktu khawatir"</strong> — Alokasikan 15–20 menit spesifik per hari untuk memikirkan kekhawatiranmu. Di luar itu, tunda pikiran tersebut ke waktu yang sudah ditetapkan.</div></li>
+          <li><div class="list-num">2</div><div><strong>Pertanyaan "Apa yang bisa aku lakukan sekarang?"</strong> — Alihkan dari analisis ke tindakan. Jika tidak ada yang bisa dilakukan, akui itu dan lepaskan.</div></li>
+          <li><div class="list-num">3</div><div><strong>Grounding sensoris</strong> — Teknik 5-4-3-2-1 membawa perhatian kembali ke momen sekarang dan memotong spiral pikiran.</div></li>
+          <li><div class="list-num">4</div><div><strong>Tulis, jangan simpan di kepala</strong> — Mengeluarkan pikiran ke jurnal mengurangi beban kerja kognitif dan sering kali membuat kekhawatiran terlihat lebih kecil.</div></li>
+        </ul>
+        <div class="art-tip"><div class="art-tip-label">💡 Ingat ini</div><p>Tujuannya bukan menghentikan pikiran — itu tidak mungkin. Tujuannya adalah mengubah hubunganmu dengan pikiran tersebut: dari terbawa menjadi mengamati.</p></div>
+        <div class="art-takeaway">
+          <div class="takeaway-label">🎯 Poin Utama</div>
+          <div class="takeaway-items">
+            <div class="takeaway-item">✅ <span>Overthinking adalah mekanisme survival yang salah sasaran</span></div>
+            <div class="takeaway-item">✅ <span>Tetapkan "waktu khawatir" untuk membatasinya</span></div>
+            <div class="takeaway-item">✅ <span>Tujuan: ubah hubungan dengan pikiran, bukan menghentikannya</span></div>
+          </div>
+        </div>
+      `,
+      related: [0, 5, 3],
+    },
+  ];
+
+  // ── Load article ──
+  const params = getParams();
+  const articleId = parseInt(params.articleId ?? 0);
+  const article = ARTICLES.find(a => a.id === articleId) || ARTICLES[0];
+
+  document.title = article.title + ' — Hi-Me';
+  document.getElementById('artTitle').textContent = article.title;
+  document.getElementById('heroCat').textContent = article.category;
+  document.getElementById('heroCat').style.background = article.catBg;
+  document.getElementById('heroReadtime').textContent = article.readTime + ' baca';
+  document.getElementById('authorAv').textContent = article.authorInit;
+  document.getElementById('authorName').textContent = article.author;
+  document.getElementById('authorMeta').textContent = article.date + ' · ' + article.readTime + ' baca';
+  document.getElementById('artContent').innerHTML = article.content;
+
+  // Related articles
+  const relatedList = document.getElementById('relatedList');
+  relatedList.innerHTML = (article.related || []).map(rid => {
+    const rel = ARTICLES.find(a => a.id === rid);
+    if (!rel) return '';
+    return `
+      <div class="rel-card" onclick="go('article-detail', { articleId: ${rel.id} })">
+        <div class="rel-thumb"><img src="../../logo.png" alt="${rel.title}"></div>
+        <div class="rel-info">
+          <div class="rel-cat" style="color:${rel.catBg};">${rel.category}</div>
+          <div class="rel-art-title">${rel.title}</div>
+          <div class="rel-meta">${rel.readTime} baca · ${rel.author}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // ── Read progress ──
+  function updateProgress() {
+    const el = document.getElementById('articleScroll');
+    const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+    document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
+  }
+
+  // ── Bookmark ──
+  let bookmarked = false;
+  function toggleBookmark() {
+    bookmarked = !bookmarked;
+    document.getElementById('bookmarkBtn').textContent = bookmarked ? '🔖' : '🔖';
+    toast(bookmarked ? '🔖 Artikel disimpan!' : 'Bookmark dihapus');
+  }
+
+  function shareArticle() {
+    if (navigator.share) {
+      navigator.share({ title: article.title, text: article.excerpt, url: window.location.href });
+    } else {
+      toast('📋 Link artikel disalin!');
+    }
+  }
+</script>
+</body>
+</html>

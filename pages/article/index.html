@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Artikel — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .page-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .back-btn:active { transform: scale(.9); }
+    .page-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+
+    /* Search bar */
+    .search-wrap {
+      padding: 12px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .search-input-wrap {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--r-xl); padding: 10px 14px;
+      transition: border-color .2s;
+    }
+    .search-input-wrap:focus-within { border-color: var(--primary); }
+    .search-ico { font-size: 15px; flex-shrink: 0; opacity: .5; }
+    .search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 13px; font-weight: 600; color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .search-input::placeholder { color: var(--text-placeholder); font-weight: 400; }
+
+    /* Category chips */
+    .cats-row {
+      display: flex; gap: 8px; padding: 12px 20px;
+      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .cats-row::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      padding: 6px 16px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      font-size: 12px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .cat-chip.active {
+      border-color: var(--primary); background: var(--primary-pale);
+      color: var(--primary);
+    }
+    .cat-chip:active { transform: scale(.96); }
+
+    .body-pad { padding: 6px 20px 90px; }
+
+    /* Featured article — big card */
+    .featured-card {
+      border-radius: var(--r-xl); overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      margin-bottom: 16px; cursor: pointer; transition: all .15s;
+      background: var(--bg-card);
+    }
+    .featured-card:active { transform: scale(.99); box-shadow: var(--shadow-md); }
+    .feat-thumb {
+      width: 100%; height: 160px; overflow: hidden;
+      position: relative;
+    }
+    .feat-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: center;
+    }
+    .feat-thumb-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,.55) 0%, transparent 60%);
+    }
+    .feat-cat-badge {
+      position: absolute; top: 10px; left: 12px;
+      background: var(--primary); color: white;
+      font-size: 10px; font-weight: 800;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .feat-read-time {
+      position: absolute; bottom: 10px; right: 12px;
+      background: rgba(0,0,0,.45); color: white;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 10px; backdrop-filter: blur(4px);
+    }
+    .feat-body { padding: 14px 16px; }
+    .feat-title {
+      font-size: 15px; font-weight: 800; color: var(--text-primary);
+      line-height: 1.35; margin-bottom: 6px;
+    }
+    .feat-excerpt {
+      font-size: 12px; color: var(--text-muted); line-height: 1.55;
+      margin-bottom: 10px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .feat-meta {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .feat-author { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .feat-cta {
+      font-size: 12px; font-weight: 800; color: var(--primary);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px; font-weight: 800; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .8px;
+      margin: 4px 0 12px;
+    }
+
+    /* List article card */
+    .art-card {
+      display: flex; gap: 12px;
+      background: var(--bg-card); border-radius: var(--r-lg);
+      border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+      padding: 12px; cursor: pointer; transition: all .15s;
+      margin-bottom: 10px;
+    }
+    .art-card:active { transform: scale(.99); box-shadow: var(--shadow-md); }
+    .art-thumb {
+      width: 76px; height: 76px; border-radius: var(--r-md);
+      overflow: hidden; flex-shrink: 0; position: relative;
+    }
+    .art-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .art-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .art-cat {
+      display: inline-block; font-size: 10px; font-weight: 800;
+      padding: 2px 8px; border-radius: 10px; margin-bottom: 5px;
+    }
+    .art-title {
+      font-size: 13px; font-weight: 800; color: var(--text-primary);
+      line-height: 1.35; margin-bottom: 5px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .art-meta { font-size: 11px; color: var(--text-muted); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 52px 20px; }
+    .es-icon { font-size: 44px; margin-bottom: 12px; }
+    .es-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .es-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="page-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="page-title">Baca & Pelajari</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-input-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="Cari artikel..." oninput="filterArticles()">
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="cats-row" id="catsRow">
+    <div class="cat-chip active" onclick="selectCat('Semua', this)">Semua</div>
+    <div class="cat-chip" onclick="selectCat('Kecemasan', this)">Kecemasan</div>
+    <div class="cat-chip" onclick="selectCat('Depresi', this)">Depresi</div>
+    <div class="cat-chip" onclick="selectCat('Tidur', this)">Tidur</div>
+    <div class="cat-chip" onclick="selectCat('Burnout', this)">Burnout</div>
+    <div class="cat-chip" onclick="selectCat('Stres', this)">Stres</div>
+    <div class="cat-chip" onclick="selectCat('Relationship', this)">Relationship</div>
+    <div class="cat-chip" onclick="selectCat('Self-esteem', this)">Self-esteem</div>
+  </div>
+
+  <div class="scroll-area has-nav">
+    <div class="body-pad">
+
+      <!-- Featured -->
+      <div id="featuredSection">
+        <div class="featured-card" onclick="openArticle(0)">
+          <div class="feat-thumb">
+            <img src="../../logo.png" alt="">
+            <div class="feat-thumb-overlay"></div>
+            <div class="feat-cat-badge">Kecemasan</div>
+            <div class="feat-read-time">5 mnt baca</div>
+          </div>
+          <div class="feat-body">
+            <div class="feat-title">5 Cara Mengelola Kecemasan Sehari-hari yang Terbukti Efektif</div>
+            <div class="feat-excerpt">Kecemasan adalah respons alami tubuh terhadap tekanan. Namun ketika terlalu sering muncul, ia bisa mengganggu aktivitas dan kualitas hidupmu. Berikut cara sederhana yang bisa kamu mulai hari ini.</div>
+            <div class="feat-meta">
+              <div class="feat-author">✍️ Hi-Me Editorial · 12 Jan 2025</div>
+              <div class="feat-cta">Baca →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All articles list -->
+      <div class="section-label" id="listLabel">Semua Artikel</div>
+      <div id="articleList">
+        <!-- rendered by JS -->
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="es-icon">📭</div>
+        <div class="es-title">Artikel tidak ditemukan</div>
+        <div class="es-sub">Coba kata kunci lain atau pilih kategori yang berbeda.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottomnav">
+    <div class="nav-item active" onclick="go('dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="go('chat-list')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></div>
+    <div class="nav-item" onclick="go('consultation')"><span class="nav-icon">🩺</span><span class="nav-label">Konsultasi</span></div>
+    <div class="nav-item" onclick="go('self-talk')"><span class="nav-icon">📓</span><span class="nav-label">Self Talk</span></div>
+    <div class="nav-item" onclick="go('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+  </nav>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  const ARTICLES = [
+    {
+      id: 0,
+      title: '5 Cara Mengelola Kecemasan Sehari-hari yang Terbukti Efektif',
+      excerpt: 'Kecemasan adalah respons alami tubuh terhadap tekanan. Berikut cara sederhana yang bisa kamu mulai hari ini.',
+      category: 'Kecemasan',
+      catColor: '#EEF2FF', catText: '#3E5EDC',
+      readTime: '5 mnt', author: 'Hi-Me Editorial',
+      date: '12 Jan 2025',
+      featured: true,
+    },
+    {
+      id: 1,
+      title: 'Kenapa Kualitas Tidur Sangat Mempengaruhi Mood dan Emosi?',
+      excerpt: 'Kurang tidur bukan hanya soal ngantuk. Ia secara langsung memengaruhi regulasi emosi dan kesehatan mental.',
+      category: 'Tidur',
+      catColor: '#EDE9FE', catText: '#5B21B6',
+      readTime: '4 mnt', author: 'Hi-Me Editorial',
+      date: '10 Jan 2025',
+    },
+    {
+      id: 2,
+      title: 'Tanda-tanda Burnout yang Sering Diabaikan — dan Cara Mengatasinya',
+      excerpt: 'Kelelahan kronis, apatis, dan produktivitas menurun. Mungkin kamu sedang burnout tanpa sadar.',
+      category: 'Burnout',
+      catColor: '#FEF3C7', catText: '#92400E',
+      readTime: '6 mnt', author: 'dr. Rizal Pratama',
+      date: '8 Jan 2025',
+    },
+    {
+      id: 3,
+      title: 'Cara Bicara dengan Diri Sendiri yang Lebih Sehat (Self-talk Positif)',
+      excerpt: 'Apa yang kamu katakan kepada dirimu sendiri setiap hari membentuk cara pandang dan harga dirimu.',
+      category: 'Self-esteem',
+      catColor: '#D1FAE5', catText: '#065F46',
+      readTime: '5 mnt', author: 'Sari Dewanti, S.Psi',
+      date: '5 Jan 2025',
+    },
+    {
+      id: 4,
+      title: 'Mengenali Depresi: Lebih dari Sekadar Sedih',
+      excerpt: 'Depresi sering disalahpahami. Artikel ini menjelaskan gejala, penyebab, dan langkah pertama untuk mencari bantuan.',
+      category: 'Depresi',
+      catColor: '#DBEAFE', catText: '#1E40AF',
+      readTime: '7 mnt', author: 'Hi-Me Editorial',
+      date: '2 Jan 2025',
+    },
+    {
+      id: 5,
+      title: '5 Teknik Pernapasan untuk Meredakan Stres dalam 5 Menit',
+      excerpt: 'Pernapasan dalam adalah salah satu cara tercepat untuk menenangkan sistem saraf dan mengurangi stres akut.',
+      category: 'Stres',
+      catColor: '#FEE2E2', catText: '#B91C1C',
+      readTime: '3 mnt', author: 'Hi-Me Editorial',
+      date: '29 Des 2024',
+    },
+    {
+      id: 6,
+      title: 'Komunikasi Sehat dalam Hubungan: Cara Ekspresikan Perasaan Tanpa Menyakiti',
+      excerpt: 'Banyak konflik dalam hubungan bukan soal apa yang dikatakan, tapi bagaimana cara mengatakannya.',
+      category: 'Relationship',
+      catColor: '#FCE7F3', catText: '#9D174D',
+      readTime: '6 mnt', author: 'Reza Mahardika, M.Psi',
+      date: '26 Des 2024',
+    },
+    {
+      id: 7,
+      title: 'Overthinking: Mengapa Otak Kita Sulit Berhenti Berpikir?',
+      excerpt: 'Terjebak dalam lingkaran pikiran yang sama berulang-ulang? Inilah penjelasan psikologis dan cara keluarnya.',
+      category: 'Kecemasan',
+      catColor: '#EEF2FF', catText: '#3E5EDC',
+      readTime: '5 mnt', author: 'Dr. Amara Wijaya',
+      date: '20 Des 2024',
+    },
+  ];
+
+  let activeCat = 'Semua';
+  let searchQuery = '';
+
+  function renderArticles() {
+    const list = document.getElementById('articleList');
+    const empty = document.getElementById('emptyState');
+    const featSection = document.getElementById('featuredSection');
+    const label = document.getElementById('listLabel');
+
+    // Filter — exclude featured (id:0) from list
+    const filtered = ARTICLES.filter(a => {
+      if (a.featured && activeCat === 'Semua' && !searchQuery) return false; // featured shown separately
+      const matchCat = activeCat === 'Semua' || a.category === activeCat;
+      const matchSearch = !searchQuery || a.title.toLowerCase().includes(searchQuery) || a.category.toLowerCase().includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+
+    // Show/hide featured card
+    const showFeatured = activeCat === 'Semua' && !searchQuery;
+    featSection.style.display = showFeatured ? '' : 'none';
+
+    label.textContent = activeCat === 'Semua' ? 'Semua Artikel' : 'Artikel: ' + activeCat;
+
+    if (filtered.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    list.innerHTML = filtered.map(a => `
+      <div class="art-card" onclick="openArticle(${a.id})">
+        <div class="art-thumb">
+          <img src="../../logo.png" alt="${a.title}">
+        </div>
+        <div class="art-info">
+          <div class="art-cat" style="background:${a.catColor};color:${a.catText};">${a.category}</div>
+          <div class="art-title">${a.title}</div>
+          <div class="art-meta">${a.readTime} baca · ${a.author}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectCat(cat, el) {
+    activeCat = cat;
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderArticles();
+  }
+
+  function filterArticles() {
+    searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+    renderArticles();
+  }
+
+  function openArticle(id) {
+    go('article-detail', { articleId: id });
+  }
+
+  document.addEventListener('DOMContentLoaded', renderArticles);
+</script>
+</body>
+</html>

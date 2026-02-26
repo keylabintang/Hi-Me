@@ -203,6 +203,21 @@ Fokus: Melengkapi semua sub-halaman profil user agar alur akun terasa utuh dan p
 
 ---
 
+### ✅ Phase 1.5b — Artikel (SELESAI)
+
+Fokus: Halaman daftar artikel dan baca artikel dari section "Baca & Pelajari" di Dashboard.
+
+| Halaman | Path | Status |
+|---|---|---|
+| Daftar Artikel | `pages/article/index.html` | ✅ Done |
+| Baca Artikel | `pages/article/detail.html` | ✅ Done |
+
+**Fitur Phase 1.5b:**
+- **Daftar Artikel:** Search real-time, 8 filter kategori (Kecemasan/Depresi/Tidur/Burnout/Stres/Relationship/Self-esteem), featured card besar di atas dengan thumbnail, daftar 8 artikel dengan chip kategori berwarna, empty state saat filter kosong
+- **Baca Artikel:** 8 artikel berisi konten nyata (bukan placeholder), progress bar baca scroll di atas, floating topbar dengan back/bookmark/share, hero image dengan gradient overlay, typography lengkap (lead, callout quote, numbered list, tip card, takeaway), artikel terkait di bagian bawah, action bar Simpan/Bagikan/Konsultasi, link ke expert-list dari dalam artikel
+
+---
+
 
 
 Fokus: Dashboard dan alur kerja untuk role **Expert** (Psikolog, Konsultan, Analyst).
@@ -340,6 +355,9 @@ hi-me/
 ├── js/
 │   └── app.js                   ← Router, state, data, utilities
 └── pages/
+    ├── article/
+    │   ├── index.html           ← Phase 1.5b
+    │   └── detail.html          ← Phase 1.5b
     ├── auth/
     │   ├── login.html
     │   └── register.html

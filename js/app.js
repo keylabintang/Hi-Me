@@ -73,6 +73,8 @@ const CANONICAL_ROUTES = {
   'self-talk-new': `${APP_ROOT}/pages/self-talk/new.html`,
   'self-talk-detail': `${APP_ROOT}/pages/self-talk/detail.html`,
   summary: `${APP_ROOT}/pages/consultation/summary.html`,
+  'article-list':   `${APP_ROOT}/pages/article/index.html`,
+  'article-detail': `${APP_ROOT}/pages/article/detail.html`,
   'profile-personal-info':   `${APP_ROOT}/pages/profile/personal-info.html`,
   'profile-notifications':   `${APP_ROOT}/pages/profile/notifications.html`,
   'profile-privacy':         `${APP_ROOT}/pages/profile/privacy.html`,
@@ -172,6 +174,17 @@ const ICON_PATHS = {
   info: ['M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z', 'M12 16v-4', 'M12 8h.01'],
   help: ['M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z', 'M9.1 9a3 3 0 1 1 4.9 2.3c-.9.6-2 1.2-2 2.7', 'M12 17h.01'],
   logout: ['M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'M16 17l5-5-5-5', 'M21 12H9'],
+  link: ['M10 13a5 5 0 0 0 7.1 0l2.8-2.8a5 5 0 0 0-7.1-7.1L11 4', 'M14 11a5 5 0 0 0-7.1 0L4 13.8a5 5 0 1 0 7.1 7.1L13 20'],
+  clock: ['M12 6v6l4 2', 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0'],
+  flash: ['M13 2L4 14h7l-1 8 9-12h-7z'],
+  trophy: ['M8 21h8', 'M12 17v4', 'M7 4h10v4a5 5 0 0 1-10 0V4z', 'M17 6h3a2 2 0 0 1-2 2h-1', 'M7 6H4a2 2 0 0 0 2 2h1'],
+  trash: ['M3 6h18', 'M8 6V4h8v2', 'M6 6l1 14h10l1-14', 'M10 11v6', 'M14 11v6'],
+  pause: ['M8 5v14', 'M16 5v14'],
+  edit: ['M12 20h9', 'M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'],
+  camera: ['M4 7h4l2-2h4l2 2h4v12H4z', 'M12 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8'],
+  mic: ['M12 3a3 3 0 0 1 3 3v5a3 3 0 1 1-6 0V6a3 3 0 0 1 3-3z', 'M19 11a7 7 0 0 1-14 0', 'M12 18v3'],
+  volume: ['M11 5L6 9H3v6h3l5 4V5z', 'M15 9a5 5 0 0 1 0 6', 'M17.5 6.5a8.5 8.5 0 0 1 0 11'],
+  stopcall: ['M3 14a9 9 0 0 1 18 0', 'M7 13h10'],
 };
 
 const EMOJI_ICON_MAP = {
@@ -207,6 +220,26 @@ const EMOJI_ICON_MAP = {
   'ℹ': 'info',
   'ℹ️': 'info',
   '🚪': 'logout',
+  '🔗': 'link',
+  '🕐': 'clock',
+  '🗓': 'calendar',
+  '🔥': 'flash',
+  '💎': 'star',
+  '🎯': 'trophy',
+  '🗑': 'trash',
+  '🗑️': 'trash',
+  '⏸': 'pause',
+  '✏': 'edit',
+  '✏️': 'edit',
+  '📷': 'camera',
+  '🎤': 'mic',
+  '🎙': 'mic',
+  '🔈': 'volume',
+  '🔊': 'volume',
+  '📵': 'stopcall',
+  '📎': 'paper',
+  '➤': 'send',
+  '→': 'send',
 };
 
 const EMOJI_RE = /[\p{Extended_Pictographic}\uFE0F]/gu;
@@ -227,6 +260,13 @@ function setElementIcon(el, iconName) {
   if (!svg) return;
   el.innerHTML = svg;
   el.dataset.iconified = '1';
+}
+
+function escapeHtml(text) {
+  return (text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function getNavIconName(label) {
@@ -272,40 +312,51 @@ function iconifyEmojiOnlyElements() {
   });
 }
 
-function stripEmojisFromText(root = document.body) {
+function iconifyEmojiTextNodes(root = document.body) {
   if (!root) return;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-    acceptNode(node) {
-      const parent = node.parentElement;
-      if (!parent) return NodeFilter.FILTER_REJECT;
-      const tag = parent.tagName;
-      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'INPUT') {
-        return NodeFilter.FILTER_REJECT;
-      }
-      if (parent.closest('.mood-card, .mood-options, .mood-opt, .mood-emoji')) {
-        return NodeFilter.FILTER_REJECT;
-      }
-      if (parent.closest('.nav-icon,[class*="icon"]')) return NodeFilter.FILTER_REJECT;
-      if (!EMOJI_TEST_RE.test(node.nodeValue || '')) return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    }
-  });
+  const elements = root.querySelectorAll('*');
+  elements.forEach((el) => {
+    if (el.dataset.iconified === '1') return;
+    if (el.children.length > 0) return;
+    const tag = el.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'INPUT') return;
+    const raw = el.textContent || '';
+    if (!EMOJI_TEST_RE.test(raw)) return;
+    const trimmed = raw.trim();
+    if (!trimmed) return;
 
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  nodes.forEach((node) => {
-    const cleaned = (node.nodeValue || '')
-      .replace(EMOJI_RE, '')
-      .replace(/\s{2,}/g, ' ')
-      .replace(/\s+([,.!?;:])/g, '$1');
-    node.nodeValue = cleaned;
+    const leading = trimmed.match(/^([\p{Extended_Pictographic}\uFE0F]+)\s*(.*)$/u);
+    if (leading) {
+      const emo = cleanEmojiToken(leading[1]);
+      const iconName = EMOJI_ICON_MAP[emo];
+      if (iconName) {
+        const label = leading[2] || '';
+        if (label) {
+          el.innerHTML = `<span class="icon-inline">${iconSvg(iconName)}</span>${escapeHtml(label)}`;
+        } else {
+          el.innerHTML = iconSvg(iconName);
+        }
+        el.dataset.iconified = '1';
+        return;
+      }
+    }
+
+    const replaced = trimmed.replace(/([\p{Extended_Pictographic}\uFE0F]+)/gu, (emoji) => {
+      const iconName = EMOJI_ICON_MAP[cleanEmojiToken(emoji)];
+      if (!iconName) return emoji;
+      return `<span class="icon-inline">${iconSvg(iconName)}</span>`;
+    });
+    if (replaced !== trimmed) {
+      el.innerHTML = replaced;
+      el.dataset.iconified = '1';
+    }
   });
 }
 
 function applyStandardIcons() {
   iconifyBottomNav();
   iconifyEmojiOnlyElements();
-  stripEmojisFromText();
+  iconifyEmojiTextNodes();
 }
 
 // ── Mock Data ──

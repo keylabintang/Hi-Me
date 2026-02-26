@@ -87,6 +87,29 @@
     .review-input:focus { border-color: var(--primary); }
     .review-input::placeholder { color: var(--text-placeholder); }
 
+    /* Thank you modal */
+    .thanks-modal {
+      position: absolute; inset: 0;
+      background: rgba(15,23,42,.38);
+      display: none; align-items: center; justify-content: center;
+      z-index: 220; padding: 20px;
+    }
+    .thanks-modal.show { display: flex; }
+    .thanks-card {
+      width: 100%; max-width: 320px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 18px;
+      text-align: center;
+      animation: fadeUp .2s ease;
+    }
+    .tc-title { font-size: 16px; font-weight: 900; color: var(--text-primary); margin-bottom: 8px; }
+    .tc-sub { font-size: 13px; color: var(--text-muted); line-height: 1.55; margin-bottom: 14px; }
+    .tc-actions { display: flex; flex-direction: column; gap: 8px; }
+    .phone.modal-open .scroll-area { overflow: hidden; }
+
     /* Recommendations */
     .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .rec-item {
@@ -224,6 +247,16 @@
       </button>
     </div>
   </div>
+  <div class="thanks-modal" id="thanksModal" onclick="closeThanksModal(event)">
+    <div class="thanks-card">
+      <div class="tc-title">Terima kasih atas ulasanmu</div>
+      <div class="tc-sub">Feedback kamu membantu expert dan tim kami meningkatkan kualitas sesi konsultasi.</div>
+      <div class="tc-actions">
+        <button class="btn btn-primary" onclick="go('dashboard')">Kembali ke Dashboard</button>
+        <button class="btn btn-outline" onclick="go('profile-session-history')">Lihat Riwayat Sesi</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="../../js/app.js"></script>
@@ -240,8 +273,18 @@
 
   function submitRating() {
     if (selectedRating === 0) { toast('Berikan rating dulu ya ⭐'); return; }
-    toast('Terima kasih atas ulasanmu! 🙏');
-    setTimeout(() => go('dashboard'), 1200);
+    openThanksModal();
+  }
+
+  function openThanksModal() {
+    document.getElementById('thanksModal')?.classList.add('show');
+    document.querySelector('.phone')?.classList.add('modal-open');
+  }
+
+  function closeThanksModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('thanksModal')?.classList.remove('show');
+    document.querySelector('.phone')?.classList.remove('modal-open');
   }
 </script>
 </body>

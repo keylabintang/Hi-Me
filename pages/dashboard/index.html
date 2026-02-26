@@ -172,8 +172,8 @@
         <div class="greeting-name" id="greetName">Pengguna</div>
       </div>
       <div class="header-actions">
-        <div class="hdr-btn" onclick="go('chat-list')">
-          💬
+        <div class="hdr-btn" onclick="go('notifications')">
+          🔔
           <div class="hdr-notif-dot"></div>
         </div>
         <div class="hdr-btn" onclick="go('profile')" id="profileAvatarBtn" style="font-size:13px; font-weight:800;" title="Profil">P</div>
@@ -263,10 +263,10 @@
       <!-- Articles -->
       <div class="sec-header anim-fade-up">
         <span class="sec-title">Baca & Pelajari</span>
-        <span class="sec-link" onclick="go('self-talk')">Semua</span>
+        <span class="sec-link" onclick="go('article-list')">Semua</span>
       </div>
       <div class="anim-fade-up">
-        <div class="article-card" onclick="toast('Artikel dibuka')">
+        <div class="article-card" onclick="go('article-detail', { articleId: 0 })">
           <div class="article-thumb" style="background: var(--primary-pale);">🧠</div>
           <div style="flex:1; min-width:0;">
             <div class="chip" style="margin-bottom:5px; font-size:10px;">Kecemasan</div>
@@ -274,7 +274,7 @@
             <div style="font-size:11px; color:var(--text-muted);">5 menit baca · Hi-Me Editorial</div>
           </div>
         </div>
-        <div class="article-card" onclick="toast('Artikel dibuka')">
+        <div class="article-card" onclick="go('article-detail', { articleId: 1 })">
           <div class="article-thumb" style="background: #EDE9FE;">💤</div>
           <div style="flex:1; min-width:0;">
             <div class="chip chip-muted" style="margin-bottom:5px; font-size:10px;">Tidur</div>
@@ -282,7 +282,7 @@
             <div style="font-size:11px; color:var(--text-muted);">4 menit baca · Hi-Me Editorial</div>
           </div>
         </div>
-        <div class="article-card" onclick="toast('Artikel dibuka')">
+        <div class="article-card" onclick="go('article-detail', { articleId: 2 })">
           <div class="article-thumb" style="background: #FEF3C7;">💼</div>
           <div style="flex:1; min-width:0;">
             <div class="chip chip-warning" style="margin-bottom:5px; font-size:10px;">Burnout</div>
@@ -317,6 +317,7 @@
     'self-talk':  '../self-talk/index.html',
     'self-talk-new': '../self-talk/new.html',
     profile:      '../profile/index.html',
+    'notifications' : '../profile/notifications.html',
     landing:      '../../index.html',
   });
 
