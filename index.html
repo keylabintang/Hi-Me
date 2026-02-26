@@ -6,175 +6,200 @@
   <title>Hi-Me — Mental Health Consultation</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
-    /* ── Landing-specific overrides ── */
-    .landing-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
-    .landing-scroll::-webkit-scrollbar { display: none; }
-
-    /* Hero */
-    .hero {
-      background: linear-gradient(155deg, var(--green-900) 0%, var(--green-800) 45%, var(--green-700) 100%);
-      padding: 0 24px 52px;
-      position: relative; overflow: hidden;
+    .landing-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #FAFBFF;
+      overflow-y: auto;
+      scrollbar-width: none;
     }
-    .hero::before {
+    .landing-wrap::-webkit-scrollbar { display: none; }
+
+    .top-bar {
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 16px 24px 0;
+      flex-shrink: 0;
+    }
+    .login-link {
+      font-size: 13px; font-weight: 700; color: var(--primary);
+      cursor: pointer; padding: 6px 16px;
+      border: 1.5px solid var(--primary);
+      border-radius: 20px;
+      transition: all .15s;
+    }
+    .login-link:active { background: var(--primary-pale); }
+
+    /* Hero center */
+    .hero-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 28px 28px 28px;
+      position: relative;
+    }
+
+    /* Dot pattern background */
+    .hero-section::before {
       content: '';
-      position: absolute; top: -80px; right: -80px;
-      width: 260px; height: 260px;
-      background: radial-gradient(circle, rgba(82,183,136,.25) 0%, transparent 70%);
-      border-radius: 50%;
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, #CBD5E1 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: .45;
+      z-index: 0;
+      pointer-events: none;
     }
-    .hero::after {
-      content: '';
-      position: absolute; bottom: -1px; left: 0; right: 0;
-      height: 44px; background: var(--bg); border-radius: 44px 44px 0 0;
-    }
-    .hero-logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 40px; color: white; line-height: 1;
-      margin-bottom: 2px;
-    }
-    .hero-logo em { color: var(--green-300); font-style: normal; }
-    .hero-sub { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 32px; line-height: 1.5; }
-    .hero-pill-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
-    .hero-pill {
-      padding: 6px 14px; border-radius: 100px;
-      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
-      font-size: 12px; font-weight: 600; color: rgba(255,255,255,.9);
-    }
-    .stats-row {
-      display: grid; grid-template-columns: 1fr 1fr 1fr;
-      background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.13);
-      border-radius: var(--r-xl); overflow: hidden;
-    }
-    .stat-cell {
-      padding: 14px 10px; text-align: center;
-      border-right: 1px solid rgba(255,255,255,.12);
-    }
-    .stat-cell:last-child { border-right: none; }
-    .stat-num { font-size: 22px; font-weight: 800; color: white; line-height: 1; }
-    .stat-label { font-size: 10px; color: rgba(255,255,255,.6); margin-top: 3px; }
 
-    /* Body */
-    .landing-body { padding: 28px 20px 20px; }
+    .hero-section > * { position: relative; z-index: 1; }
 
-    /* Feature cards */
-    .feature-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
-    .feature-item {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 16px;
-      background: var(--bg-card); border-radius: var(--r-lg);
-      border: 1px solid var(--border); box-shadow: var(--shadow-xs);
-      cursor: pointer; transition: all .15s;
+    /* Logo */
+    .logo-wrap {
+      margin-bottom: 8px;
+      animation: logoIn .65s cubic-bezier(.34,1.56,.64,1) both;
     }
-    .feature-item:active { transform: scale(.98); }
-    .feature-icon {
-      width: 46px; height: 46px; border-radius: var(--r-sm);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
+    .logo-img {
+      width: 250px; height: 250px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(62,94,220,.18));
     }
-    .feature-item h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
-    .feature-item p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    @keyframes logoIn {
+      from { opacity: 0; transform: scale(.65) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Title */
+    .hero-title {
+      font-size: 28px; font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -1.2px; line-height: 1.12;
+      margin-bottom: 38px;
+      animation: fadeUp .5s .15s both;
+    }
+    .hero-title .accent { color: var(--primary); }
+
+    /* Subtitle */
+    .hero-sub {
+      font-size: 14px; color: var(--text-muted);
+      line-height: 1.7; max-width: 270px;
+      margin: 0 auto 32px;
+      animation: fadeUp .5s .25s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     /* CTA */
-    .cta-stack { display: flex; flex-direction: column; gap: 10px; }
-    .no-login { text-align: center; font-size: 13px; color: var(--primary); font-weight: 700; cursor: pointer; padding: 10px 0; }
-    .already-have { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-    .already-have span { color: var(--primary); font-weight: 700; cursor: pointer; }
+    .cta-group {
+      width: 100%; max-width: 300px;
+      display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .5s .35s both;
+    }
+    .btn-primary-cta {
+      width: 100%; height: 52px;
+      background: var(--primary); color: white;
+      border: none; border-radius: 14px;
+      font-size: 15px; font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(62,94,220,.28);
+      transition: all .15s; letter-spacing: -.2px;
+    }
+    .btn-primary-cta:active { transform: scale(.97); box-shadow: none; }
+
+    .btn-outline-cta {
+      width: 100%; height: 50px;
+      background: white; color: var(--text-primary);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-outline-cta:active { background: var(--bg); border-color: var(--border-dark); }
+
+    .divider-or {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--text-placeholder); font-size: 12px; font-weight: 600;
+    }
+    .divider-or::before, .divider-or::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Footer */
+    .landing-footer {
+      padding: 16px 20px 28px;
+      text-align: center; flex-shrink: 0;
+    }
+    .footer-text {
+      font-size: 11px; color: var(--text-placeholder); line-height: 1.7;
+    }
+    .footer-text span {
+      color: var(--primary); font-weight: 700; cursor: pointer;
+    }
   </style>
 </head>
 <body>
-<div class="phone">
+<div class="phone" style="overflow:hidden;">
   <!-- Status Bar -->
-  <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
-    <span class="sb-time">09:41</span>
-    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+  <div class="statusbar" style="position:absolute;top:0;left:0;right:0;z-index:50;background:transparent;">
+    <span class="sb-time" style="color:var(--text-secondary);">09:41</span>
+    <div class="sb-icons" style="color:var(--text-secondary);"><span>5G</span><span>🔋</span></div>
   </div>
 
-  <div class="landing-scroll">
+  <div class="landing-wrap">
+    <!-- Top bar -->
+    <!-- <div class="top-bar" style="margin-top:44px;">
+      <div class="login-link" onclick="go('login')">Masuk</div>
+    </div> -->
+
     <!-- Hero -->
-    <div class="hero">
-      <div style="height: 60px;"></div>
-      <div class="anim-fade-up">
-        <div class="hero-logo">Hi<em>-</em>Me</div>
-        <p class="hero-sub">Ruang aman untuk kesehatan mentalmu.<br>Konsultasi kapan saja, di mana saja.</p>
-        <div class="hero-pill-row">
-          <div class="hero-pill">Psikolog Terverifikasi</div>
-          <div class="hero-pill">Privat & Aman</div>
-          <div class="hero-pill">Mulai Gratis</div>
-        </div>
-        <div class="stats-row">
-          <div class="stat-cell">
-            <div class="stat-num">500+</div>
-            <div class="stat-label">Psikolog</div>
-          </div>
-          <div class="stat-cell">
-            <div class="stat-num">50K+</div>
-            <div class="stat-label">Pengguna</div>
-          </div>
-          <div class="stat-cell">
-            <div class="stat-num">4.9</div>
-            <div class="stat-label">Rating</div>
-          </div>
-        </div>
+    <div class="hero-section">
+      <!-- Logo -->
+      <div class="logo-wrap">
+        <img class="logo-img" src="logo.png" alt="Hi-Me">
       </div>
-      <div style="height: 44px;"></div>
+
+      <!-- Title -->
+      <div class="hero-title">
+        <!-- Ruang aman<br>untuk <span class="accent">mental</span>mu -->
+        <span class="accent">Online Psychology</span><br>Consultation Platform
+      </div>
+
+
+      <!-- CTA buttons -->
+      <div class="cta-group">
+        <button class="btn-primary-cta" onclick="go('chat-bot')">Konsultasi Sekarang</button>
+        <div class="divider-or">atau</div>
+        <button class="btn-outline-cta" onclick="go('login')">Login</button>
+        <button class="btn-outline-cta" onclick="go('register')">Register</button>
+      </div>
     </div>
 
-    <!-- Body -->
-    <div class="landing-body">
-      <!-- Features -->
-      <div class="feature-list">
-        <div class="feature-item anim-fade-up d1">
-          <div class="feature-icon" style="background: var(--primary-pale);">💬</div>
-          <div>
-            <h4>Konsultasi Online</h4>
-            <p>Chat atau voice call dengan psikolog & konsultan berpengalaman, kapan pun kamu butuh.</p>
-          </div>
-        </div>
-        <div class="feature-item anim-fade-up d2">
-          <div class="feature-icon" style="background: #EDE9FE;">📓</div>
-          <div>
-            <h4>Self Talk Diary</h4>
-            <p>Jurnal privat harian untuk mengenali dan mengelola emosi kamu secara mandiri.</p>
-          </div>
-        </div>
-        <div class="feature-item anim-fade-up d3">
-          <div class="feature-icon" style="background: #FEF3C7;">🏢</div>
-          <div>
-            <h4>Sesi Tatap Muka</h4>
-            <p>Booking langsung sesi offline di klinik terdekat sesuai jadwalmu.</p>
-          </div>
-        </div>
-        <div class="feature-item anim-fade-up d4">
-          <div class="feature-icon" style="background: #DCFCE7;">🤖</div>
-          <div>
-            <h4>AI Assistant Gratis</h4>
-            <p>Ngobrol dengan AI tanpa perlu login. Cerita apa saja, aman dan privat.</p>
-          </div>
-        </div>
+    <!-- Footer -->
+    <div class="landing-footer">
+      <div class="footer-text">
+        Dengan mendaftar, kamu menyetujui<br>
+        <span onclick="toast('Syarat & Ketentuan')">Syarat & Ketentuan</span>
+        &nbsp;·&nbsp;
+        <span onclick="toast('Kebijakan Privasi')">Kebijakan Privasi</span>
       </div>
-
-      <!-- CTA -->
-      <div class="cta-stack anim-fade-up d5">
-        <button class="btn btn-primary" onclick="go('chat-bot')">Consult with an Expert Now</button>
-        <div class="divider-text" style="margin: 4px 0;">atau</div>
-        <button class="btn btn-outline" onclick="go('login')">Sign In</button>
-        <button class="btn btn-outline" onclick="go('register')">Register New Account</button>
-      </div>
-      <div style="height: 24px;"></div>
     </div>
   </div>
 </div>
 
 <script src="js/app.js"></script>
 <script>
-  // Override routes for landing page (root-relative)
   Object.assign(ROUTES, {
     consultation: 'pages/consultation/index.html',
-    register: 'pages/auth/register.html',
-    login:    'pages/auth/login.html',
-    'chat-bot': 'pages/chat/bot.html',
-    dashboard: 'pages/dashboard/index.html',
+    register:     'pages/auth/register.html',
+    login:        'pages/auth/login.html',
+    'chat-bot':   'pages/chat/bot.html',
+    dashboard:    'pages/dashboard/index.html',
   });
 </script>
 </body>
