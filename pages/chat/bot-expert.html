@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Pilih Expert — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .topbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-xs); flex-shrink: 0;
+    }
+    .tb-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .tb-back:active { transform: scale(.92); }
+    .tb-back svg { width: 16px; height: 16px; stroke: var(--text-primary); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .tb-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .tb-step { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 4px 10px; }
+
+    /* Jenis badge */
+    .jenis-bar {
+      padding: 12px 20px 10px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      background: var(--bg-card); border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .jenis-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .jenis-chip.active { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
+    .jenis-chip svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Expert cards */
+    .scroll-area { flex: 1; overflow-y: auto; padding: 16px 20px; scrollbar-width: none; }
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    .expert-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      box-shadow: var(--shadow-xs);
+      cursor: pointer; transition: all .15s; margin-bottom: 10px;
+    }
+    .expert-card:active { transform: scale(.98); border-color: var(--primary); }
+    .ec-av {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 900; flex-shrink: 0;
+    }
+    .ec-body { flex: 1; min-width: 0; }
+    .ec-name { font-size: 14px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ec-role { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .ec-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+    .ec-rating { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+    .ec-price { font-size: 12px; font-weight: 800; color: var(--primary); }
+    .ec-status { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .ec-chevron {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: var(--primary-pale);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ec-chevron svg { width: 14px; height: 14px; stroke: var(--primary); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body>
+<div class="phone" style="display:flex;flex-direction:column;">
+  <div class="statusbar"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>&#x1F50B;</span></div></div>
+
+  <div class="topbar">
+    <div class="tb-back" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="tb-title">Pilih Expert</div>
+    <div class="tb-step">Langkah 2 dari 4</div>
+  </div>
+
+  <!-- Jenis chips -->
+  <div class="jenis-bar" id="jenisBar">
+    <div class="jenis-chip" data-key="chat" onclick="switchJenis('chat',this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat Online
+    </div>
+    <div class="jenis-chip" data-key="call" onclick="switchJenis('call',this)">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.47 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.29 6.29l1.62-1.62a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Voice Call
+    </div>
+    <div class="jenis-chip" data-key="offline" onclick="switchJenis('offline',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Tatap Muka
+    </div>
+  </div>
+
+  <div class="scroll-area" id="expertList"></div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  const PRICES = { chat:75000, call:120000, offline:200000 };
+  const DURS   = { chat:30, call:45, offline:60 };
+
+  let currentJenis = sessionStorage.getItem('hime_bot_jenis') || 'chat';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set active jenis chip
+    document.querySelectorAll('.jenis-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.key === currentJenis);
+    });
+    renderExperts();
+  });
+
+  function switchJenis(key, el) {
+    currentJenis = key;
+    sessionStorage.setItem('hime_bot_jenis', key);
+    sessionStorage.setItem('hime_bot_price', PRICES[key]);
+    sessionStorage.setItem('hime_bot_dur', DURS[key]);
+    document.querySelectorAll('.jenis-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function renderExperts() {
+    document.getElementById('expertList').innerHTML = DATA.experts.map(e => `
+      <div class="expert-card" onclick="selectExpert(${e.id})">
+        <div class="ec-av" style="background:${e.color};color:${e.textColor};">${e.init}</div>
+        <div class="ec-body">
+          <div class="ec-name">${e.name}</div>
+          <div class="ec-role">${e.role}</div>
+          <div class="ec-meta">
+            <span class="ec-rating">&#9733; ${e.rating} (${e.reviews})</span>
+            <span class="ec-price">Rp ${e.price.toLocaleString('id-ID')}/sesi</span>
+            <span class="ec-status">
+              <span class="status-dot" style="background:${e.online?'#22C55E':'#9CA3AF'};"></span>
+              <span style="color:${e.online?'#22C55E':'#9CA3AF'};">${e.online?'Online':'Offline'}</span>
+            </span>
+          </div>
+        </div>
+        <div class="ec-chevron">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectExpert(id) {
+    const expert = DATA.experts.find(e => e.id === id);
+    if (!expert) return;
+    sessionStorage.setItem('hime_bot_expert_id', id);
+    sessionStorage.setItem('hime_bot_jenis', currentJenis);
+    sessionStorage.setItem('hime_bot_price', PRICES[currentJenis] || expert.price);
+    window.location.href = '../../pages/chat/bot-schedule.html';
+  }
+</script>
+</body>
+</html>

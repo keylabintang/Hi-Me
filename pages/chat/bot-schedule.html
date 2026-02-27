@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Pilih Jadwal — Hi-Me</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <style>
+    .topbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-xs); flex-shrink: 0;
+    }
+    .tb-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .tb-back:active { transform: scale(.92); }
+    .tb-back svg { width: 16px; height: 16px; stroke: var(--text-primary); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .tb-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .tb-step { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 4px 10px; }
+
+    .scroll-area { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    /* Expert summary bar */
+    .expert-summary {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px; border-radius: var(--r-lg);
+      background: var(--primary-xpale); border: 1px solid var(--primary-pale);
+      margin-bottom: 20px;
+    }
+    .es-av {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 900; flex-shrink: 0;
+    }
+    .es-name { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+    .es-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Konsultasi sekarang */
+    .now-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: var(--r-lg);
+      background: linear-gradient(135deg, var(--green-900), var(--green-700));
+      margin-bottom: 20px; cursor: pointer; transition: opacity .15s;
+    }
+    .now-card:active { opacity: .88; }
+    .now-card.disabled {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      cursor: not-allowed; pointer-events: none;
+    }
+    .now-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: rgba(255,255,255,.18); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .now-card.disabled .now-icon { background: var(--border); }
+    .now-icon svg { width: 21px; height: 21px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .now-card.disabled .now-icon svg { stroke: var(--text-muted); }
+    .now-body { flex: 1; }
+    .now-title { font-size: 14px; font-weight: 800; color: white; }
+    .now-card.disabled .now-title { color: var(--text-muted); }
+    .now-sub { font-size: 11px; color: rgba(255,255,255,.75); margin-top: 2px; }
+    .now-card.disabled .now-sub { color: var(--text-placeholder); }
+    .now-arrow { font-size: 20px; color: rgba(255,255,255,.8); line-height: 1; }
+    .now-card.disabled .now-arrow { color: var(--text-placeholder); }
+
+    /* Section divider */
+    .sec-divider {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .sec-divider::before, .sec-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    .sec-divider span { font-size: 12px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+    .sec-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+
+    /* Date chips */
+    .date-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 3px; }
+    .date-row::-webkit-scrollbar { display: none; }
+    .date-chip {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 9px 13px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      cursor: pointer; transition: all .15s; flex-shrink: 0; min-width: 52px;
+    }
+    .date-chip.selected { border-color: var(--primary); background: var(--primary-pale); }
+    .dc-day { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .dc-num { font-size: 16px; font-weight: 900; color: var(--text-primary); }
+    .date-chip.selected .dc-day,
+    .date-chip.selected .dc-num { color: var(--primary); }
+
+    /* Time grid */
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+    .time-chip {
+      padding: 10px; text-align: center; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      font-size: 13px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; transition: all .15s;
+    }
+    .time-chip.selected { border-color: var(--primary); background: var(--primary-xpale); color: var(--primary); }
+    .time-chip.unavail { color: var(--text-placeholder); text-decoration: line-through; cursor: default; }
+    .time-chip:active:not(.unavail) { transform: scale(.95); }
+
+    /* Footer CTA */
+    .footer-cta {
+      padding: 16px 20px;
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .cta-btn {
+      width: 100%; padding: 15px; border-radius: var(--r-lg);
+      background: var(--primary); border: none;
+      font-size: 15px; font-weight: 800; color: white;
+      cursor: pointer; transition: all .15s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .cta-btn:active { transform: scale(.98); }
+    .cta-btn:disabled { opacity: .38; pointer-events: none; }
+  </style>
+</head>
+<body>
+<div class="phone" style="display:flex;flex-direction:column;">
+  <div class="statusbar"><span class="sb-time">09:41</span><div class="sb-icons"><span>5G</span><span>&#x1F50B;</span></div></div>
+
+  <div class="topbar">
+    <div class="tb-back" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="tb-title">Pilih Jadwal</div>
+    <div class="tb-step">Langkah 3 dari 4</div>
+  </div>
+
+  <div class="scroll-area">
+    <!-- Expert summary -->
+    <div class="expert-summary" id="expertSummary"></div>
+
+    <!-- Konsultasi sekarang -->
+    <div class="now-card" id="nowCard" onclick="confirmNow()">
+      <div class="now-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="now-body">
+        <div class="now-title">Konsultasi Sekarang</div>
+        <div class="now-sub" id="nowSub">Expert tersedia &middot; Mulai sesi langsung</div>
+      </div>
+      <div class="now-arrow">&#8250;</div>
+    </div>
+
+    <div class="sec-divider"><span>Atau pilih jadwal</span></div>
+
+    <div class="sec-label">Tanggal</div>
+    <div class="date-row" id="dateRow"></div>
+
+    <div class="sec-label">Waktu</div>
+    <div class="time-grid" id="timeGrid"></div>
+  </div>
+
+  <div class="footer-cta">
+    <button class="cta-btn" id="ctaBtn" disabled onclick="confirmSchedule()">Konfirmasi Jadwal</button>
+  </div>
+</div>
+
+<script src="../../js/app.js"></script>
+<script>
+  const DAY_NAMES = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const MON_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const ALL_TIMES = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','19:00'];
+  const UNAVAIL   = ['10:00','15:00'];
+
+  let selectedDate = '', selectedTime = '';
+  let expert = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const eid = parseInt(sessionStorage.getItem('hime_bot_expert_id'));
+    expert = DATA.experts.find(e => e.id === eid);
+    if (!expert) { history.back(); return; }
+
+    // Expert summary
+    document.getElementById('expertSummary').innerHTML = `
+      <div class="es-av" style="background:${expert.color};color:${expert.textColor};">${expert.init}</div>
+      <div>
+        <div class="es-name">${expert.name}</div>
+        <div class="es-meta">${expert.role} &middot; Rp ${expert.price.toLocaleString('id-ID')}/sesi</div>
+      </div>
+    `;
+
+    // Konsultasi sekarang card
+    const nowCard = document.getElementById('nowCard');
+    if (!expert.online) {
+      nowCard.classList.add('disabled');
+      document.getElementById('nowSub').textContent = 'Expert tidak tersedia saat ini';
+      nowCard.removeAttribute('onclick');
+    }
+
+    // Date chips
+    let dateHTML = '';
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today); d.setDate(d.getDate() + i);
+      const dayLbl = i === 0 ? 'Hari ini' : DAY_NAMES[d.getDay()];
+      const num = d.getDate();
+      const dateStr = (i===0?'Hari ini':DAY_NAMES[d.getDay()]) + ', ' + num + ' ' + MON_NAMES[d.getMonth()];
+      if (i === 0) selectedDate = dateStr;
+      dateHTML += `<div class="date-chip${i===0?' selected':''}" onclick="pickDate(this,'${dateStr}')">
+        <div class="dc-day">${i===0?'Hari ini':DAY_NAMES[d.getDay()]}</div>
+        <div class="dc-num">${num}</div>
+      </div>`;
+    }
+    document.getElementById('dateRow').innerHTML = dateHTML;
+
+    // Time chips
+    document.getElementById('timeGrid').innerHTML = ALL_TIMES.map(t => {
+      const ua = UNAVAIL.includes(t);
+      return `<div class="time-chip${ua?' unavail':''}" ${ua?'':` onclick="pickTime(this,'${t}')"`}>${t}</div>`;
+    }).join('');
+  });
+
+  function pickDate(el, label) {
+    document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedDate = label;
+    selectedTime = '';
+    document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+    updateCta();
+  }
+
+  function pickTime(el, t) {
+    document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTime = t;
+    updateCta();
+  }
+
+  function updateCta() {
+    document.getElementById('ctaBtn').disabled = !selectedTime;
+  }
+
+  function buildPayload(overrides) {
+    const jenis = sessionStorage.getItem('hime_bot_jenis') || 'chat';
+    const price = parseInt(sessionStorage.getItem('hime_bot_price')) || expert.price;
+    const dur   = parseInt(sessionStorage.getItem('hime_bot_dur')) || 60;
+    return Object.assign({
+      type:     jenis,
+      expertId: expert.id,
+      price:    price,
+      duration: dur,
+      source:   'bot_flow',
+    }, overrides);
+  }
+
+  function confirmNow() {
+    if (!expert || !expert.online) return;
+    saveAndProceed(buildPayload({ date: 'Sekarang', time: 'Sekarang' }));
+  }
+
+  function confirmSchedule() {
+    if (!selectedTime) return;
+    saveAndProceed(buildPayload({ date: selectedDate, time: selectedTime }));
+  }
+
+  function saveAndProceed(payload) {
+    sessionStorage.setItem('hime_payment', JSON.stringify(payload));
+    sessionStorage.setItem('hime_params',  JSON.stringify(payload));
+
+    // Selalu ke login/register dulu, baru payment
+    sessionStorage.setItem('hime_post_login_redirect', '../../pages/payment/index.html');
+
+    if (App.isLoggedIn()) {
+      window.location.href = '../../pages/payment/index.html';
+    } else {
+      window.location.href = '../../pages/chat/bot-auth.html';
+    }
+  }
+</script>
+</body>
+</html>

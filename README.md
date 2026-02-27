@@ -228,6 +228,27 @@ Fokus: Halaman daftar artikel dan baca artikel dari section "Baca & Pelajari" di
 
 ---
 
+### ✅ Phase 1.5f — Bot Flow Revamp: Jenis → Expert → Jadwal (SELESAI)
+
+**Perubahan alur chatbot (`pages/chat/bot.html`):**
+
+Flow baru yang lengkap:
+1. **Chat Q&A** — Bot menanyakan 4 hal secara berurutan (1 pertanyaan = 1 bubble): nama → usia → domisili → keluhan
+2. **Pilih Jenis Konsultasi** — Panel muncul setelah semua pertanyaan dijawab, berisi 3 pilihan: Chat Online / Voice Call / Tatap Muka
+3. **Pilih Expert** — Panel daftar expert dengan info nama, role, rating, harga, dan status Online/Offline real-time
+4. **Pilih Jadwal** — Panel jadwal muncul setelah memilih expert, berisi:
+   - Card **"Konsultasi Sekarang"** (hijau, aktif jika expert online — disabled jika offline)
+   - Divider "Atau pilih jadwal"
+   - Date chips 7 hari ke depan (scrollable horizontal)
+   - Time grid 9 slot waktu (beberapa unavailable)
+   - Tombol "Konfirmasi Jadwal" (enabled setelah pilih waktu)
+5. **Login/Register** — Jika belum login, muncul CTA Daftar Gratis + Masuk di chat
+6. **Payment** — Redirect ke halaman pembayaran dengan data lengkap (expertId, type, date, time, price)
+
+Setiap panel memiliki tombol navigasi balik (Ganti jenis / Ganti expert) untuk kemudahan user.
+
+---
+
 ### ✅ Phase 1.5e — Bot Flow & Dashboard Fix (SELESAI)
 
 **Perbaikan:**
@@ -444,3 +465,59 @@ hi-me/
         ├── prescriptions.html   ← Phase 1.5
         └── payment-history.html ← Phase 1.5
 ```
+
+---
+
+### ✅ Phase 1.5g — Bot Flow Halaman Terpisah + Auth Gate (SELESAI)
+
+**Perubahan:**
+
+**`bot.html`** — Panel jenis konsultasi direvamp sesuai referensi:
+- Banner "Lihat Expert Tersedia" (background navy gelap, icon kuning, border kuning)
+- Divider "Atau pilih paket konsultasi"
+- List paket: icon kotak navy-gelap + icon kuning, nama bold, deskripsi, harga berwarna primary
+
+**`bot-expert.html`** *(halaman baru)* — Pilih expert:
+- Topbar + progress "Langkah 2 dari 4"
+- Chips jenis konsultasi di bagian atas (bisa switch tanpa kembali)
+- Kartu expert: avatar, nama, role, rating, harga, badge Online/Offline
+
+**`bot-schedule.html`** *(halaman baru)* — Pilih jadwal:
+- Topbar + progress "Langkah 3 dari 4"
+- Expert summary card
+- "Konsultasi Sekarang" (hijau = online, disabled abu = offline)
+- Date chips 7 hari + time grid 9 slot
+- Footer CTA "Konfirmasi Jadwal"
+
+**`bot-auth.html`** *(halaman baru)* — Auth gate wajib:
+- Topbar + progress "Langkah 4 dari 4"
+- Progress stepper visual (Jenis ✓ → Expert ✓ → Jadwal ✓ → Akun aktif)
+- Ringkasan booking (expert, jenis, tanggal, waktu, total)
+- CTA: "Daftar Gratis" (primary) + "Sudah punya akun? Masuk" (ghost)
+- Jika sudah login → langsung lanjut ke payment
+
+**Flow lengkap:**
+`bot.html` → `bot-expert.html` → `bot-schedule.html` → `bot-auth.html` → login/register → `payment/index.html`
+
+---
+
+### ✅ Phase 1.5h — Payment Success CTA Fix + Offline Booking Card (SELESAI)
+
+**`payment/success.html`** direvamp:
+
+**Flow CTA berdasarkan jenis konsultasi:**
+- `chat` → Tombol "Lanjutkan Konsultasi" (icon chat) → redirect ke `chat/chat-start.html`
+- `call` → Tombol "Lanjutkan Konsultasi" (icon phone) → redirect ke `chat/call-start.html`
+- `offline` → Tombol "Lihat Detail Booking" → scroll ke Offline Booking Card
+
+**Offline Booking Card (baru):** 
+- Header biru dengan icon rumah + label "Bukti Booking Offline" + badge VALID
+- QR Code visual (pseudo pattern) + kode booking `HIME-XXXX-XXXX`
+- Detail: nama pasien, psikolog, tanggal, waktu, lokasi klinik, no. booking
+- Box instruksi kedatangan (hadir 10 menit lebih awal, tunjukkan QR, bawa KTP, dll)
+- Tampil hanya jika type === 'offline'
+
+**Perbaikan visual:**
+- Icon SVG (tidak pakai emoji) di semua elemen
+- Reminder text berbeda untuk offline vs online
+- Next steps berbeda per jenis (offline = petunjuk klinik, call = petunjuk sinyal)
