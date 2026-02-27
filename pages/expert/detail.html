@@ -22,7 +22,7 @@
       border-radius: 50%;
     }
     .hero-top {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px; margin-top: 20px;
       position: relative; z-index: 1;
     }
     .hero-back {
@@ -40,7 +40,7 @@
     }
     .hero-share:active { transform: scale(.9); }
 
-    .hero-profile { display: flex; gap: 16px; align-items: center; position: relative; z-index: 1; }
+    .hero-profile { display: flex; gap: 16px; align-items: center; position: relative; z-index: 1; margin-bottom: 20px;}
     .hero-avatar {
       width: 80px; height: 80px; border-radius: var(--r-xl);
       display: flex; align-items: center; justify-content: center;
@@ -343,7 +343,6 @@
       <div class="cta-price">${formatRupiah(expert.price)}</div>
       <div class="cta-per">per sesi</div>
     </div>
-    <div class="cta-chat-btn" onclick="toast('Membuka chat...')">💬</div>
     <div class="cta-book-btn" onclick="proceedBooking()">Booking Sekarang</div>
   `;
 
