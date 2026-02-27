@@ -33,7 +33,7 @@ Fokus: Semua halaman inti untuk role **User** — autentikasi, beranda, bot chat
 |---|---|---|
 | Landing Page | `index.html` | ✅ Done |
 | Login | `pages/auth/login.html` | ✅ Done |
-| Register (3 step) | `pages/auth/register.html` | ✅ Done |
+| Register (4 step + OTP) | `pages/auth/register.html` | ✅ Done |
 | Dashboard / Beranda | `pages/dashboard/index.html` | ✅ Done |
 | Bot Chat (free, no login) | `pages/chat/bot.html` | ✅ Done |
 | Profil User | `pages/profile/index.html` | ✅ Done |
@@ -218,9 +218,62 @@ Fokus: Halaman daftar artikel dan baca artikel dari section "Baca & Pelajari" di
 
 ---
 
+### ✅ Phase 1.5c — Fixes & Improvement (SELESAI)
+
+**Perbaikan:**
+
+- **`pages/chat/bot.html` — Konsultasi Flow:** Setelah 3 pesan, muncul picker jenis konsultasi (Chat Online / Voice Call / Tatap Muka). Untuk semua jenis, flow berlanjut sama: jika belum login → tampilkan tombol Daftar Gratis + Masuk; jika sudah login → langsung ke Expert List. Tombol dalam bubble chat menggunakan `appendCTARow()`. Emoji diganti SVG icon.
+- **`pages/chat/room.html` — Input Bar Fixed:** Input bar tidak lagi `position: absolute` melainkan `flex-shrink: 0` dalam flex column — selalu terlihat di bawah tanpa scroll. Auto-scroll pesan baru menggunakan `requestAnimationFrame` untuk timing yang lebih andal.
+- **`pages/auth/register.html` — Step OTP:** Alur registrasi diperluas dari 3 menjadi 4 langkah dengan penambahan step verifikasi email (OTP). Fitur: 6 box input digit terpisah dengan auto-focus/auto-navigate, paste otomatis dari clipboard, countdown timer 59 detik, tombol "Kirim ulang" muncul setelah timer habis, animasi shake + pesan error untuk kode salah, ikon mata toggle password diganti SVG profesional.
+
+---
+
+### ✅ Phase 1.5e — Bot Flow & Dashboard Fix (SELESAI)
+
+**Perbaikan:**
+
+- **`pages/chat/bot.html` — Alur chatbot dirombak total:**
+  - Bot mengirim **4 pertanyaan satu per satu** secara berurutan: nama → usia → domisili → keluhan
+  - Setiap pertanyaan ditampilkan dalam **1 bubble chat** tersendiri
+  - User menjawab → bot membalas (ada acknowledge singkat untuk nama) → lanjut pertanyaan berikutnya
+  - Setelah keluhan dijawab, input field dikunci dan **paket konsultasi panel** muncul dari bawah
+  - Panel berisi: banner "Lihat Expert Tersedia" (CTA hijau tua), divider, dan 3 kartu paket (Chat Rp 75.000 / Call Rp 120.000 / Offline Rp 200.000) bergaya seperti referensi desain
+  - Klik kartu → simpan ke sessionStorage → jika belum login: tampil tombol daftar/masuk di chat → jika sudah login: langsung ke payment
+
+- **`pages/dashboard/index.html` — Section "Mulai Sekarang" diubah:**
+  - Layout diubah dari list row menjadi **grid 2×2**
+  - Setiap tile hanya menampilkan ikon berwarna dan nama fitur — tanpa deskripsi
+  - Tampilan lebih ringkas dan visual
+
+---
 
 
-Fokus: Dashboard dan alur kerja untuk role **Expert** (Psikolog, Konsultan, Analyst).
+
+**Perbaikan flow konsultasi dari bot (landing page):**
+
+Flow lengkap yang diperbaiki:
+1. User chat dengan bot → bot suggest konsultasi lebih lanjut
+2. User klik suggest → picker jenis konsultasi muncul (Chat Online / Voice Call / Tatap Muka)
+3. User pilih jenis → disimpan ke `sessionStorage` (`hime_payment` + `hime_post_login_redirect`)
+4. Jika belum login: diarahkan ke register/login, setelah sukses **otomatis redirect ke payment**
+5. Di payment: section expert menampilkan placeholder "dipilih setelah pembayaran"
+6. User selesai bayar → halaman sukses, tombol CTA berubah menjadi **"Pilih Expert"**
+7. User klik → diarahkan ke expert list
+8. User pilih expert → karena ada `hime_post_pay_type`, langsung mulai konsultasi (skip booking)
+
+**File yang diubah:**
+- `pages/chat/bot.html` — `handleConsultType()` simpan ke sessionStorage, arahkan ke auth/payment
+- `pages/auth/register.html` — `handleRegister()` cek `hime_post_login_redirect` setelah sukses
+- `pages/payment/index.html` — tampilkan placeholder expert jika bot_flow, skip save session jika belum ada expertId
+- `pages/payment/success.html` — `continueAfterPayment()` deteksi bot_flow → arahkan ke expert list
+- `pages/expert/list.html` — `bookExpert()` deteksi `hime_post_pay_type` → skip booking, langsung mulai sesi
+
+---
+
+
+
+
+
 
 **Halaman yang direncanakan:**
 

@@ -28,9 +28,6 @@
       background: rgba(255,255,255,.25); transition: all .3s;
     }
     .step-dot.active { background: white; }
-    .step-dot.s1 { flex: 1; }
-    .step-dot.s2 { flex: 1; }
-    .step-dot.s3 { flex: 1; }
     .auth-title { font-family: 'DM Serif Display', serif; font-size: 30px; color: white; line-height: 1.2; }
     .auth-desc { font-size: 13px; color: rgba(255,255,255,.65); margin-top: 6px; }
     .step-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -59,17 +56,73 @@
     .goal-chip.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
     .goal-chip:active { transform: scale(.95); }
 
-    /* Nav footer inside body */
+    /* Step footer */
     .step-footer { display: flex; gap: 10px; margin-top: 24px; }
     .login-prompt { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 20px; }
     .login-prompt span { color: var(--primary); font-weight: 700; cursor: pointer; }
+
+    /* OTP specific */
+    .otp-info-box {
+      background: var(--primary-xpale);
+      border: 1.5px solid var(--primary-pale);
+      border-radius: var(--r-lg); padding: 14px 16px;
+      margin-bottom: 24px;
+    }
+    .otp-info-box .otp-email {
+      font-size: 13px; font-weight: 800; color: var(--primary);
+      margin-bottom: 3px;
+    }
+    .otp-info-box .otp-hint {
+      font-size: 12px; color: var(--text-muted); line-height: 1.55;
+    }
+
+    /* OTP digit boxes */
+    .otp-field-row {
+      display: flex; gap: 10px; justify-content: center;
+      margin: 24px 0;
+    }
+    .otp-box {
+      width: 52px; height: 58px; border-radius: var(--r-lg);
+      border: 2px solid var(--border); background: var(--bg);
+      text-align: center; font-size: 24px; font-weight: 900;
+      color: var(--text-primary); outline: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      caret-color: var(--primary);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .otp-box:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(62,94,220,.12);
+    }
+    .otp-box.filled {
+      border-color: var(--primary);
+      background: var(--primary-pale);
+    }
+
+    .otp-resend-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: 13px; color: var(--text-muted);
+    }
+    .otp-timer { font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    .otp-resend-btn {
+      font-weight: 700; color: var(--primary);
+      cursor: pointer; display: none;
+    }
+    .otp-resend-btn:active { opacity: .7; }
+    .otp-resend-btn.visible { display: inline; }
+
+    .otp-wrong-msg {
+      text-align: center; font-size: 12px; color: #EF4444; font-weight: 700;
+      margin-top: 8px; display: none;
+    }
+    .otp-wrong-msg.show { display: block; }
   </style>
 </head>
 <body>
 <div class="phone">
   <div class="statusbar light" style="position:absolute; top:0; left:0; right:0; z-index:50;">
     <span class="sb-time">09:41</span>
-    <div class="sb-icons"><span>5G</span><span>🔋</span></div>
+    <div class="sb-icons"><span>5G</span><span>&#x1F50B;</span></div>
   </div>
 
   <div class="scroll-area">
@@ -77,14 +130,17 @@
     <div class="auth-hero">
       <div style="height: 56px;"></div>
       <div style="margin-bottom: 22px;">
-        <div class="hero-back" onclick="handleBack()">←</div>
+        <div class="hero-back" onclick="handleBack()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
       </div>
       <div class="step-dots">
-        <div class="step-dot s1 active" id="dot1"></div>
-        <div class="step-dot s2" id="dot2"></div>
-        <div class="step-dot s3" id="dot3"></div>
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-dot" id="dot3"></div>
+        <div class="step-dot" id="dot4"></div>
       </div>
-      <div class="step-label" id="stepLabel">Langkah 1 dari 3</div>
+      <div class="step-label" id="stepLabel">Langkah 1 dari 4</div>
       <h1 class="auth-title" id="heroTitle">Buat Akun<br>Hi-Me</h1>
       <p class="auth-desc" id="heroDesc">Mulai perjalanan kesehatan mentalmu hari ini</p>
       <div style="height: 40px;"></div>
@@ -104,7 +160,7 @@
           <input type="email" class="form-input" id="emailInput" placeholder="nama@email.com" autocomplete="email">
         </div>
         <div class="step-footer">
-          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan →</button>
+          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan</button>
         </div>
         <p class="login-prompt">Sudah punya akun? <span onclick="go('login')">Masuk</span></p>
       </div>
@@ -115,36 +171,74 @@
           <label class="form-label">Kata Sandi</label>
           <div class="input-wrap">
             <input type="password" class="form-input" id="passInput" placeholder="Minimal 8 karakter">
-            <span class="input-trail" onclick="togglePass('passInput', this)">👁</span>
+            <span class="input-trail" onclick="togglePass('passInput', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Ulangi Kata Sandi</label>
           <div class="input-wrap">
             <input type="password" class="form-input" id="pass2Input" placeholder="Sama dengan di atas">
-            <span class="input-trail" onclick="togglePass('pass2Input', this)">👁</span>
+            <span class="input-trail" onclick="togglePass('pass2Input', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
 
         <!-- Password strength -->
         <div style="margin-bottom: 16px;">
           <div style="display:flex; gap:4px; margin-bottom:4px;">
-            <div class="skel" id="str1" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
-            <div class="skel" id="str2" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
-            <div class="skel" id="str3" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
-            <div class="skel" id="str4" style="flex:1; height:4px; border-radius:100px; background:var(--border);"></div>
+            <div id="str1" style="flex:1; height:4px; border-radius:100px; background:var(--border); transition:background .3s;"></div>
+            <div id="str2" style="flex:1; height:4px; border-radius:100px; background:var(--border); transition:background .3s;"></div>
+            <div id="str3" style="flex:1; height:4px; border-radius:100px; background:var(--border); transition:background .3s;"></div>
+            <div id="str4" style="flex:1; height:4px; border-radius:100px; background:var(--border); transition:background .3s;"></div>
           </div>
           <p id="strengthLabel" style="font-size:11px; color:var(--text-muted);">Masukkan kata sandi untuk cek kekuatan</p>
         </div>
 
         <div class="step-footer">
-          <button class="btn btn-ghost" onclick="prevStep()" style="width: auto; padding: 14px 20px;">←</button>
-          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan →</button>
+          <button class="btn btn-ghost" onclick="prevStep()" style="width:auto; padding:14px 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()">Lanjutkan</button>
         </div>
       </div>
 
-      <!-- Step 3: Profile -->
+      <!-- Step 3: OTP Verification -->
       <div id="step3" style="display:none;" class="anim-fade-up">
+        <div class="otp-info-box">
+          <div class="otp-email" id="otpEmailDisplay">nama@email.com</div>
+          <div class="otp-hint">Kode verifikasi 6 digit telah dikirim ke email di atas. Masukkan kode tersebut untuk melanjutkan.</div>
+        </div>
+
+        <div class="otp-field-row">
+          <input class="otp-box" id="otp0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+          <input class="otp-box" id="otp1" type="text" inputmode="numeric" maxlength="1">
+          <input class="otp-box" id="otp2" type="text" inputmode="numeric" maxlength="1">
+          <input class="otp-box" id="otp3" type="text" inputmode="numeric" maxlength="1">
+          <input class="otp-box" id="otp4" type="text" inputmode="numeric" maxlength="1">
+          <input class="otp-box" id="otp5" type="text" inputmode="numeric" maxlength="1">
+        </div>
+
+        <div class="otp-wrong-msg" id="otpWrongMsg">Kode tidak valid. Coba lagi.</div>
+
+        <div class="otp-resend-row">
+          <span>Tidak menerima kode?</span>
+          <span class="otp-timer" id="otpTimer">00:59</span>
+          <span class="otp-resend-btn" id="otpResendBtn" onclick="resendOtp()">Kirim ulang</span>
+        </div>
+
+        <div class="step-footer" style="margin-top:28px;">
+          <button class="btn btn-ghost" onclick="prevStep()" style="width:auto; padding:14px 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="btn btn-primary" id="otpVerifyBtn" onclick="verifyOtp()">Verifikasi</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Profile -->
+      <div id="step4" style="display:none;" class="anim-fade-up">
         <div class="form-group">
           <label class="form-label">Tanggal Lahir</label>
           <input type="date" class="form-input" id="dobInput">
@@ -176,7 +270,9 @@
         </div>
 
         <div class="step-footer">
-          <button class="btn btn-ghost" onclick="prevStep()" style="width: auto; padding: 14px 20px;">←</button>
+          <button class="btn btn-ghost" onclick="prevStep()" style="width:auto; padding:14px 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
           <button class="btn btn-primary" id="regBtn" onclick="handleRegister()">Buat Akun</button>
         </div>
       </div>
@@ -194,28 +290,37 @@
     landing:   '../../index.html',
   });
 
+  const TOTAL_STEPS = 4;
   let currentStep = 1;
   let selectedGender = '';
+  let otpTimerInterval = null;
 
-  const heroTitles = ['Buat Akun\nHi-Me', 'Buat Kata\nSandi', 'Lengkapi\nProfilmu'];
-  const heroDescs  = ['Mulai perjalanan kesehatan mentalmu hari ini', 'Buat kata sandi yang kuat untuk keamananmu', 'Bantu kami mengenalmu lebih baik'];
-  const stepLabels = ['Langkah 1 dari 3', 'Langkah 2 dari 3', 'Langkah 3 dari 3'];
+  const heroTitles = ['Buat Akun\nHi-Me', 'Buat Kata\nSandi', 'Verifikasi\nEmail', 'Lengkapi\nProfilmu'];
+  const heroDescs  = [
+    'Mulai perjalanan kesehatan mentalmu hari ini',
+    'Buat kata sandi yang kuat untuk keamananmu',
+    'Masukkan kode 6 digit yang kami kirimkan',
+    'Bantu kami mengenalmu lebih baik',
+  ];
 
   function updateHero() {
-    ['dot1','dot2','dot3'].forEach((id, i) => {
-      document.getElementById(id).classList.toggle('active', i < currentStep);
-    });
-    document.getElementById('stepLabel').textContent = stepLabels[currentStep - 1];
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot) dot.classList.toggle('active', i <= currentStep);
+    }
+    document.getElementById('stepLabel').textContent = `Langkah ${currentStep} dari ${TOTAL_STEPS}`;
     document.getElementById('heroTitle').innerHTML = heroTitles[currentStep - 1].replace('\n', '<br>');
     document.getElementById('heroDesc').textContent = heroDescs[currentStep - 1];
   }
 
   function showStep(n) {
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
       const el = document.getElementById('step' + i);
       if (el) el.style.display = i === n ? 'block' : 'none';
     }
     updateHero();
+    // Scroll to top of body on step change
+    document.querySelector('.scroll-area').scrollTo(0, 0);
   }
 
   function nextStep() {
@@ -224,20 +329,26 @@
       const email = document.getElementById('emailInput').value.trim();
       if (!name)  { toast('Masukkan nama lengkap kamu'); return; }
       if (!email || !email.includes('@')) { toast('Masukkan email yang valid'); return; }
+      // Set email display in OTP step
+      document.getElementById('otpEmailDisplay').textContent = email;
     }
     if (currentStep === 2) {
       const p1 = document.getElementById('passInput').value;
       const p2 = document.getElementById('pass2Input').value;
       if (p1.length < 8) { toast('Kata sandi minimal 8 karakter'); return; }
       if (p1 !== p2)     { toast('Kata sandi tidak cocok'); return; }
+      // "Send" OTP and start timer when moving to step 3
+      startOtpTimer();
+      setTimeout(() => document.getElementById('otp0').focus(), 300);
     }
-    if (currentStep < 3) {
+    if (currentStep < TOTAL_STEPS) {
       currentStep++;
       showStep(currentStep);
     }
   }
 
   function prevStep() {
+    if (currentStep === 3) stopOtpTimer();
     if (currentStep > 1) { currentStep--; showStep(currentStep); }
     else goBack();
   }
@@ -247,19 +358,102 @@
     else go('landing');
   }
 
-  function selGender(g) {
-    selectedGender = g;
-    ['L','P','O'].forEach(x => document.getElementById('g'+x).classList.toggle('selected', x === g));
+  // ── OTP logic ──
+  function startOtpTimer() {
+    stopOtpTimer();
+    let seconds = 59;
+    const timerEl = document.getElementById('otpTimer');
+    const resendBtn = document.getElementById('otpResendBtn');
+    timerEl.style.display = 'inline';
+    resendBtn.classList.remove('visible');
+    document.getElementById('otpWrongMsg').classList.remove('show');
+
+    timerEl.textContent = '00:59';
+    otpTimerInterval = setInterval(() => {
+      seconds--;
+      timerEl.textContent = '00:' + String(seconds).padStart(2, '0');
+      if (seconds <= 0) {
+        stopOtpTimer();
+        timerEl.style.display = 'none';
+        resendBtn.classList.add('visible');
+      }
+    }, 1000);
   }
 
-  function togglePass(id, el) {
-    const inp = document.getElementById(id);
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-    el.textContent = inp.type === 'password' ? '👁' : '🙈';
+  function stopOtpTimer() {
+    if (otpTimerInterval) { clearInterval(otpTimerInterval); otpTimerInterval = null; }
   }
 
-  // Password strength indicator
+  function resendOtp() {
+    // Reset all boxes
+    for (let i = 0; i < 6; i++) {
+      const box = document.getElementById('otp' + i);
+      box.value = '';
+      box.classList.remove('filled');
+    }
+    document.getElementById('otpWrongMsg').classList.remove('show');
+    startOtpTimer();
+    toast('Kode baru telah dikirim ke email kamu');
+    setTimeout(() => document.getElementById('otp0').focus(), 100);
+  }
+
+  function verifyOtp() {
+    const code = Array.from({length: 6}, (_, i) => document.getElementById('otp' + i).value).join('');
+    if (code.length < 6) { toast('Masukkan 6 digit kode verifikasi'); return; }
+
+    const btn = document.getElementById('otpVerifyBtn');
+    btn.innerHTML = '<div class="spinner"></div>';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.innerHTML = 'Verifikasi';
+      btn.disabled = false;
+      // For demo: any 6-digit code is accepted
+      if (code.length === 6 && /^\d+$/.test(code)) {
+        stopOtpTimer();
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        document.getElementById('otpWrongMsg').classList.add('show');
+        for (let i = 0; i < 6; i++) {
+          const box = document.getElementById('otp' + i);
+          box.style.borderColor = '#EF4444';
+          setTimeout(() => { box.style.borderColor = ''; }, 1500);
+        }
+      }
+    }, 1000);
+  }
+
+  // OTP auto-focus & navigation between boxes
   document.addEventListener('DOMContentLoaded', () => {
+    for (let i = 0; i < 6; i++) {
+      const box = document.getElementById('otp' + i);
+      box.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val.slice(-1);
+        box.classList.toggle('filled', val.length > 0);
+        document.getElementById('otpWrongMsg').classList.remove('show');
+        if (val && i < 5) document.getElementById('otp' + (i + 1)).focus();
+      });
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && i > 0) {
+          document.getElementById('otp' + (i - 1)).focus();
+        }
+        if (e.key === 'Enter') verifyOtp();
+      });
+      box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        pasted.split('').forEach((ch, idx) => {
+          const target = document.getElementById('otp' + idx);
+          if (target) { target.value = ch; target.classList.add('filled'); }
+        });
+        const nextEmpty = document.getElementById('otp' + Math.min(pasted.length, 5));
+        if (nextEmpty) nextEmpty.focus();
+      });
+    }
+
+    // Password strength
     const passInp = document.getElementById('passInput');
     if (passInp) {
       passInp.addEventListener('input', () => {
@@ -272,13 +466,26 @@
         const colors = ['', '#EF4444', '#F97316', '#EAB308', '#22C55E'];
         const labels = ['', 'Lemah', 'Cukup', 'Kuat', 'Sangat Kuat'];
         for (let i = 1; i <= 4; i++) {
-          document.getElementById('str'+i).style.background = i <= score ? colors[score] : 'var(--border)';
+          document.getElementById('str' + i).style.background = i <= score ? colors[score] : 'var(--border)';
         }
         document.getElementById('strengthLabel').textContent = val ? labels[score] : 'Masukkan kata sandi untuk cek kekuatan';
         document.getElementById('strengthLabel').style.color = val ? colors[score] : 'var(--text-muted)';
       });
     }
   });
+
+  function selGender(g) {
+    selectedGender = g;
+    ['L','P','O'].forEach(x => document.getElementById('g' + x).classList.toggle('selected', x === g));
+  }
+
+  function togglePass(id, el) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    el.innerHTML = inp.type === 'password'
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  }
 
   function handleRegister() {
     const name  = document.getElementById('nameInput').value.trim();
@@ -287,9 +494,16 @@
     btn.innerHTML = '<div class="spinner"></div> Membuat akun...';
     btn.disabled = true;
     setTimeout(() => {
-      const initials = name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
       App.login({ name, email, initials, avatar: '', gender: selectedGender });
-      go('dashboard');
+      // Check if there's a post-login redirect (e.g. from bot flow → payment)
+      const redirect = sessionStorage.getItem('hime_post_login_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('hime_post_login_redirect');
+        window.location.href = redirect;
+      } else {
+        go('dashboard');
+      }
     }, 1500);
   }
 </script>

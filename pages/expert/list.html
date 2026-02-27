@@ -23,7 +23,7 @@
       height: 32px; background: var(--bg); border-radius: 32px 32px 0 0;
     }
     .eh-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; position: relative; z-index: 1; }
-    .eh-title { font-size: 20px; font-weight: 800; color: white; }
+    .eh-title { font-size: 20px; font-weight: 800; color: white; margin-top: 20px;}
     .eh-sub { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 2px; }
     .eh-filter-btn {
       width: 38px; height: 38px; border-radius: 50%;
@@ -34,7 +34,7 @@
     }
     .eh-filter-btn:active { transform: scale(.9); }
 
-    .search-wrap { position: relative; z-index: 1; }
+    .search-wrap { position: relative; z-index: 1; margin-bottom: 20px;}
     .search-input-wrap {
       display: flex; align-items: center; gap: 10px;
       background: rgba(255,255,255,.18);
@@ -386,6 +386,28 @@
     window.location.href = 'detail.html';
   }
   function bookExpert(id) {
+    // Bot flow: user already paid, just needs to pick expert and start session
+    const postPayType = sessionStorage.getItem('hime_post_pay_type');
+    if (postPayType) {
+      sessionStorage.removeItem('hime_post_pay_type');
+      // Update payment data with chosen expert
+      const payRaw = sessionStorage.getItem('hime_pay_result');
+      if (payRaw) {
+        try {
+          const payData = JSON.parse(payRaw);
+          payData.expertId = id;
+          sessionStorage.setItem('hime_pay_result', JSON.stringify(payData));
+        } catch(e) {}
+      }
+      if (postPayType === 'chat') {
+        go('chat-start', { expertId: id });
+      } else if (postPayType === 'call') {
+        go('chat-call', { expertId: id });
+      } else {
+        go('chat-start', { expertId: id });
+      }
+      return;
+    }
     sessionStorage.setItem('hime_params', JSON.stringify({ expertId: id }));
     window.location.href = '../consultation/booking.html';
   }

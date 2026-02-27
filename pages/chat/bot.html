@@ -13,19 +13,17 @@
     }
     .chat-header-row {
       display: flex; gap: 12px; align-items: center;
-      position: relative; z-index: 1;
     }
     .ch-back {
       width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: white; font-size: 18px; transition: all .15s;
-      flex-shrink: 0;
+      cursor: pointer; color: white; transition: all .15s; flex-shrink: 0;
     }
     .ch-back:active { transform: scale(.92); }
     .ch-expert-name { font-size: 15px; font-weight: 800; color: white; }
     .ch-expert-sub { font-size: 11px; color: rgba(255,255,255,.7); display: flex; align-items: center; gap: 5px; }
-    .online-indicator { width: 7px; height: 7px; border-radius: 50%; background: var(--green-300); display: inline-block; }
+    .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-300); display: inline-block; }
 
     /* Messages area */
     .msgs {
@@ -38,10 +36,7 @@
       text-align: center; font-size: 11px; color: var(--text-muted);
       font-weight: 600; padding: 4px 0;
     }
-    .sys-msg {
-      text-align: center;
-      display: flex; justify-content: center;
-    }
+    .sys-msg { text-align: center; display: flex; justify-content: center; }
     .sys-msg span {
       display: inline-block; padding: 5px 14px;
       background: var(--primary-pale); color: var(--primary);
@@ -54,12 +49,11 @@
     .msg-av {
       width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 800; flex-shrink: 0;
+      font-size: 13px; font-weight: 800; flex-shrink: 0;
     }
     .bubble {
-      max-width: 75%; padding: 11px 14px;
-      font-size: 13px; line-height: 1.55;
-      border-radius: 18px;
+      max-width: 78%; padding: 11px 14px;
+      font-size: 13px; line-height: 1.55; border-radius: 18px;
     }
     .bubble.bot {
       background: var(--bg-card); color: var(--text-primary);
@@ -73,138 +67,210 @@
     .msg-time { font-size: 10px; color: var(--text-muted); padding: 0 3px; }
 
     /* Typing indicator */
-    .typing-dots {
-      display: flex; gap: 4px; align-items: center;
-      padding: 12px 14px;
-    }
+    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
     .td { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); animation: tdBounce 1.2s infinite; }
     .td:nth-child(2) { animation-delay: .18s; }
     .td:nth-child(3) { animation-delay: .36s; }
     @keyframes tdBounce { 0%,80%,100% { transform:scale(.55); } 40% { transform:scale(1); } }
 
-    /* Quick replies */
-    .qr-area {
-      padding: 8px 16px;
-      display: flex; flex-wrap: wrap; gap: 8px;
-      background: var(--bg); border-top: 1px solid var(--border);
+    /* ── Paket konsultasi panel ── */
+    .paket-panel {
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: none; flex-direction: column;
+      max-height: 56vh; overflow-y: auto;
+    }
+    .paket-panel.visible { display: flex; }
+    .paket-panel::-webkit-scrollbar { display: none; }
+
+    /* CTA banner — Lihat Expert */
+    .paket-expert-cta {
+      margin: 14px 16px 0;
+      background: linear-gradient(135deg, var(--green-900), var(--green-700));
+      border-radius: var(--r-lg);
+      padding: 16px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .paket-expert-cta:active { opacity: .85; }
+    .pec-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .qr-chip {
-      padding: 7px 14px; border-radius: 100px;
-      border: 1.5px solid var(--primary);
-      background: var(--bg-card);
-      font-size: 12px; font-weight: 700; color: var(--primary);
-      cursor: pointer; transition: all .15s; white-space: nowrap;
-    }
-    .qr-chip:active { background: var(--primary); color: white; transform: scale(.95); }
+    .pec-icon svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .pec-body { flex: 1; }
+    .pec-title { font-size: 14px; font-weight: 800; color: white; margin-bottom: 2px; }
+    .pec-sub { font-size: 11px; color: rgba(255,255,255,.7); }
+    .pec-arrow { color: rgba(255,255,255,.8); font-size: 18px; font-weight: 300; }
 
-    /* Upgrade banner */
-    .upgrade-banner {
-      margin: 0 16px 8px;
-      background: linear-gradient(135deg, var(--primary-pale), var(--green-50));
-      border: 1.5px solid var(--primary-pale);
-      border-radius: var(--r-lg);
-      padding: 12px 14px;
-      display: none; gap: 10px; align-items: center;
-      cursor: pointer;
+    /* Divider */
+    .paket-divider {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px 10px;
     }
-    .upgrade-banner:active { opacity: .85; }
-    .upgrade-banner.show { display: flex; }
+    .paket-divider::before, .paket-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .paket-divider span { font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+    /* Paket cards */
+    .paket-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .paket-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--border); background: var(--bg);
+      cursor: pointer; transition: all .15s;
+    }
+    .paket-card:active { transform: scale(.97); border-color: var(--primary); }
+    .paket-card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--primary); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .paket-card-icon svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .paket-card-body { flex: 1; min-width: 0; }
+    .paket-card-title { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+    .paket-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .paket-card-price { font-size: 13px; font-weight: 800; color: var(--primary); margin-top: 6px; }
+    .paket-card-dur { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+    .paket-card-arrow {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary-pale); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .paket-card-arrow svg { width: 14px; height: 14px; stroke: var(--primary); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Input bar */
     .input-bar {
       background: var(--bg-card); border-top: 1px solid var(--border);
       padding: 10px 16px; display: flex; gap: 8px; align-items: flex-end;
       flex-shrink: 0;
-      position: sticky; bottom: 0; z-index: 120;
     }
     .msg-field {
       flex: 1; border: 1.5px solid var(--border); border-radius: 22px;
       padding: 10px 16px; font-size: 14px; outline: none; resize: none;
       max-height: 110px; line-height: 1.45;
       color: var(--text-primary); background: var(--bg);
-      transition: border-color .15s;
+      transition: border-color .15s, background .15s;
     }
     .msg-field:focus { border-color: var(--primary); }
+    .msg-field:disabled { background: var(--bg); opacity: .5; cursor: not-allowed; }
     .msg-field::placeholder { color: var(--text-placeholder); }
     .send-btn {
       width: 44px; height: 44px; border-radius: 50%;
       background: var(--primary); border: none;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 18px; color: white;
-      transition: all .15s; flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(45,106,79,.3);
+      cursor: pointer; color: white; transition: all .15s; flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(62,94,220,.3);
     }
     .send-btn:active { transform: scale(.9); }
-    .send-btn:disabled { opacity: .5; pointer-events: none; }
+    .send-btn:disabled { opacity: .4; pointer-events: none; background: var(--text-placeholder); box-shadow: none; }
+    .send-btn svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
   </style>
 </head>
 <body>
 <div class="phone" style="display:flex; flex-direction:column;">
   <div class="statusbar dark" style="flex-shrink:0; background: var(--green-800);">
     <span class="sb-time" style="color:white;">09:41</span>
-    <div class="sb-icons" style="color:white;"><span>5G</span><span>🔋</span></div>
+    <div class="sb-icons" style="color:white;"><span>5G</span><span>&#x1F50B;</span></div>
   </div>
 
   <!-- Header -->
   <div class="chat-header">
     <div style="height:8px;"></div>
     <div class="chat-header-row">
-      <div class="ch-back" onclick="goBack()">←</div>
-      <div style="width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🤖</div>
+      <div class="ch-back" onclick="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </div>
+      <div style="width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+      </div>
       <div style="flex:1;">
         <div class="ch-expert-name">Hi-Me Assistant</div>
-        <div class="ch-expert-sub"><span class="online-indicator"></span> Selalu online · Gratis</div>
+        <div class="ch-expert-sub"><span class="online-dot"></span> Selalu online · Gratis</div>
       </div>
-      <div style="font-size:20px; color:white; cursor:pointer; padding:6px;" onclick="toast('Info bot')">ℹ️</div>
     </div>
   </div>
 
   <!-- Messages -->
   <div class="msgs" id="msgs">
     <div class="time-sep">Hari ini, <span id="chatTimeLabel"></span></div>
-    <div class="sys-msg"><span>Sesi bot dimulai · Cerita apapun, aman &amp; privat</span></div>
-
-    <!-- Initial bot messages -->
-    <div class="msg-row bot" id="firstMsg">
-      <div class="msg-av" style="background:var(--primary); color:white;">🤖</div>
-      <div>
-        <div class="bubble bot">Halo! Aku <strong>Hi-Me Assistant</strong> 👋<br><br>Aku di sini untuk mendengarkan kamu, kapan pun kamu butuh. Cerita apa saja — perasaan, situasi, atau hal yang sedang kamu pikirkan. Semua yang kamu ceritakan di sini bersifat privat dan aman.</div>
-        <div class="msg-time"></div>
-      </div>
-    </div>
-    <div class="msg-row bot">
-      <div class="msg-av" style="background:transparent;"></div>
-      <div>
-        <div class="bubble bot">Mau mulai dari mana dulu? 😊</div>
-        <div class="msg-time" id="botTime1"></div>
-      </div>
-    </div>
+    <div class="sys-msg"><span>Sesi dimulai · Semua percakapan bersifat privat</span></div>
   </div>
 
-  <!-- Quick replies -->
-  <div class="qr-area" id="qrArea">
-    <div class="qr-chip" onclick="sendQR(this)">Aku lagi stres kerja</div>
-    <div class="qr-chip" onclick="sendQR(this)">Susah tidur belakangan</div>
-    <div class="qr-chip" onclick="sendQR(this)">Cemas terus-terusan</div>
-    <div class="qr-chip" onclick="sendQR(this)">Mau cari psikolog</div>
-  </div>
-
-  <!-- Upgrade banner -->
-  <div class="upgrade-banner" id="upgradeBanner" onclick="startAdvancedHelpFlow()">
-    <span style="font-size:22px;">✨</span>
-    <div style="flex:1;">
-      <div style="font-size:13px; font-weight:800; color:var(--primary);">Butuh bantuan lebih lanjut?</div>
-      <div style="font-size:11px; color:var(--text-secondary);">Booking sesi dengan psikolog kami</div>
+  <!-- Paket konsultasi panel — ditampilkan setelah user menjawab semua pertanyaan -->
+  <div class="paket-panel" id="paketPanel">
+    <!-- Banner lihat expert -->
+    <div class="paket-expert-cta" onclick="goToExpert()">
+      <div class="pec-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="pec-body">
+        <div class="pec-title">Lihat Expert Tersedia</div>
+        <div class="pec-sub">Temukan psikolog yang sesuai kebutuhanmu</div>
+      </div>
+      <div class="pec-arrow">›</div>
     </div>
-    <span style="color:var(--primary); font-weight:800;">→</span>
+
+    <!-- Divider -->
+    <div class="paket-divider"><span>Atau pilih paket konsultasi</span></div>
+
+    <!-- List paket -->
+    <div class="paket-list">
+      <div class="paket-card" onclick="selectPaket('chat')">
+        <div class="paket-card-icon" style="background: var(--primary);">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="paket-card-body">
+          <div class="paket-card-title">Konsultasi Chat</div>
+          <div class="paket-card-sub">Chat dengan psikolog profesional</div>
+          <div class="paket-card-price">Rp 75.000 <span class="paket-card-dur">/ 30 menit</span></div>
+        </div>
+        <div class="paket-card-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <div class="paket-card" onclick="selectPaket('call')">
+        <div class="paket-card-icon" style="background: #7C3AED;">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.47 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.29 6.29l1.62-1.62a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="paket-card-body">
+          <div class="paket-card-title">Konsultasi Voice Call</div>
+          <div class="paket-card-sub">Sesi panggilan suara langsung</div>
+          <div class="paket-card-price">Rp 120.000 <span class="paket-card-dur">/ 45 menit</span></div>
+        </div>
+        <div class="paket-card-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <div class="paket-card" onclick="selectPaket('offline')">
+        <div class="paket-card-icon" style="background: #059669;">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="paket-card-body">
+          <div class="paket-card-title">Sesi Tatap Muka</div>
+          <div class="paket-card-sub">Kunjungi klinik Hi-Me terdekat</div>
+          <div class="paket-card-price">Rp 200.000 <span class="paket-card-dur">/ 60 menit</span></div>
+        </div>
+        <div class="paket-card-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Input -->
   <div class="input-bar">
-    <textarea class="msg-field" id="msgField" placeholder="Cerita apa saja..." rows="1"
+    <textarea class="msg-field" id="msgField" placeholder="Ketik jawaban kamu..." rows="1"
       oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-    <button class="send-btn" id="sendBtn" onclick="sendMsg()">→</button>
+    <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
   </div>
 </div>
 
@@ -212,101 +278,79 @@
 <script>
   Object.assign(ROUTES, {
     'expert-list': '../expert/list.html',
-    booking:       '../consultation/booking.html',
     register:      '../auth/register.html',
     login:         '../auth/login.html',
     dashboard:     '../dashboard/index.html',
     landing:       '../../index.html',
   });
 
-  function startAdvancedHelpFlow() {
-    go('booking', { flow: 'chatbot_prepay' });
-  }
+  // ── Bot question flow ──
+  // 4 pertanyaan berurutan, 1 pertanyaan = 1 bubble, tunggu jawaban user sebelum lanjut
+  const QUESTIONS = [
+    'Halo! Sebelum memulai, aku perlu mengenal kamu sedikit. Siapa <strong>nama</strong> kamu?',
+    'Berapa <strong>usia</strong> kamu sekarang?',
+    'Kamu tinggal di mana? (kota atau <strong>domisili</strong> kamu)',
+    'Apa <strong>keluhan utama</strong> yang ingin kamu konsultasikan?',
+  ];
 
-  // Init time
+  const FOLLOW_UPS = [
+    // setelah jawab nama
+    (ans) => `Senang berkenalan denganmu, <strong>${ans.split(' ')[0]}</strong>!`,
+    // setelah jawab usia
+    null,
+    // setelah jawab domisili
+    null,
+  ];
+
+  let step = 0; // indeks pertanyaan berikutnya yang akan ditanyakan (0–3)
+  let waitingReply = false;
+  let flowDone = false;
+
+  const BOT_AV = `<div class="msg-av" style="background:var(--primary); color:white;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+  </div>`;
+
   document.addEventListener('DOMContentLoaded', () => {
-    const t = timeNow();
-    document.getElementById('chatTimeLabel').textContent = t;
-    document.getElementById('botTime1').textContent = t;
+    document.getElementById('chatTimeLabel').textContent = timeNow();
+    setTimeout(() => askNext(), 600);
   });
 
-  let msgCount = 0;
-  let waitingReply = false;
-
-  const BOT_RESPONSES = {
-    stress: [
-      'Aku dengar kamu lagi stres dengan pekerjaan. Itu memang sangat melelahkan. Boleh ceritakan lebih detail — apa yang paling membebani kamu sekarang?',
-      'Stres kerja bisa terasa seperti beban berat yang terus menumpuk ya. Sudah berapa lama kamu merasakan ini?',
-    ],
-    sleep: [
-      'Masalah tidur sering terhubung erat dengan kondisi mental kita. Biasanya pikiran apa yang terus berputar saat kamu mencoba tidur?',
-      'Kurang tidur bisa membuat segalanya terasa lebih berat. Apakah ada kekhawatiran tertentu yang membuatmu susah istirahat?',
-    ],
-    anxiety: [
-      'Rasa cemas yang terus-menerus memang sangat melelahkan ya. Biasanya kecemasan itu muncul dalam situasi apa?',
-      'Terima kasih sudah mau bercerita. Apakah kecemasan ini sudah mengganggu aktivitas sehari-harimu?',
-    ],
-    psikolog: [
-      'Bagus sekali! Mencari bantuan profesional adalah langkah yang sangat berani. Kamu ingin konsultasi online (chat/call suara) atau tatap muka langsung?',
-      'Hi-Me punya banyak psikolog dan konsultan berpengalaman. Apakah ada spesialisasi tertentu yang kamu cari?',
-    ],
-    default: [
-      'Terima kasih sudah mau berbagi. Bagaimana perasaanmu setelah menceritakan ini?',
-      'Aku dengar kamu. Apa yang paling kamu butuhkan saat ini — seseorang untuk mendengarkan, atau saran konkret?',
-      'Itu pasti tidak mudah. Kamu sudah sangat berani mau membicarakannya. Mau cerita lebih?',
-      'Saya mengerti. Apakah ada hal lain yang ingin kamu ceritakan?',
-      'Perasaan itu sangat valid. Ingat, kamu tidak sendirian menghadapi ini. Boleh aku tanyakan sesuatu?',
-    ],
-  };
-
-  function getBotReply(msg) {
-    const m = msg.toLowerCase();
-    if (m.includes('stres') || m.includes('kerja') || m.includes('capek') || m.includes('lelah')) return pick(BOT_RESPONSES.stress);
-    if (m.includes('tidur') || m.includes('insomnia') || m.includes('susah tidur')) return pick(BOT_RESPONSES.sleep);
-    if (m.includes('cemas') || m.includes('anxiety') || m.includes('panik') || m.includes('takut')) return pick(BOT_RESPONSES.anxiety);
-    if (m.includes('psikolog') || m.includes('konsultasi') || m.includes('dokter') || m.includes('cari')) return pick(BOT_RESPONSES.psikolog);
-    return pick(BOT_RESPONSES.default);
+  function askNext() {
+    if (step >= QUESTIONS.length) return;
+    showTyping();
+    const delay = 700 + Math.random() * 400;
+    setTimeout(() => {
+      removeTyping();
+      addBotMsg(QUESTIONS[step]);
+    }, delay);
   }
 
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-  function addMsg(text, type) {
+  function addBotMsg(html) {
     const msgs = document.getElementById('msgs');
     const row = document.createElement('div');
-    row.className = `msg-row ${type}`;
-    const t = timeNow();
-    if (type === 'user') {
-      row.innerHTML = `
-        <div>
-          <div class="bubble user">${text}</div>
-          <div class="msg-time" style="text-align:right;">${t}</div>
-        </div>`;
-    } else {
-      row.innerHTML = `
-        <div class="msg-av" style="background:var(--primary); color:white;">🤖</div>
-        <div>
-          <div class="bubble bot">${text}</div>
-          <div class="msg-time">${t}</div>
-        </div>`;
-    }
+    row.className = 'msg-row bot';
+    row.innerHTML = `${BOT_AV}<div><div class="bubble bot">${html}</div><div class="msg-time">${timeNow()}</div></div>`;
     msgs.appendChild(row);
-    msgs.scrollTop = msgs.scrollHeight;
-    return row;
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  }
+
+  function addUserMsg(text) {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `<div><div class="bubble user">${text}</div><div class="msg-time" style="text-align:right;">${timeNow()}</div></div>`;
+    msgs.appendChild(row);
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
   }
 
   function showTyping() {
     const msgs = document.getElementById('msgs');
     const row = document.createElement('div');
     row.className = 'msg-row bot'; row.id = 'typingRow';
-    row.innerHTML = `
-      <div class="msg-av" style="background:var(--primary); color:white;">🤖</div>
-      <div class="bubble bot" style="padding:10px 14px;">
-        <div class="typing-dots">
-          <div class="td"></div><div class="td"></div><div class="td"></div>
-        </div>
-      </div>`;
+    row.innerHTML = `${BOT_AV}<div class="bubble bot" style="padding:10px 14px;">
+      <div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
     msgs.appendChild(row);
-    msgs.scrollTop = msgs.scrollHeight;
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
   }
 
   function removeTyping() {
@@ -314,58 +358,77 @@
     if (r) r.remove();
   }
 
+  function lockInput() {
+    const field = document.getElementById('msgField');
+    const btn   = document.getElementById('sendBtn');
+    field.disabled = true;
+    field.placeholder = 'Pilih paket konsultasi di bawah';
+    btn.disabled = true;
+  }
+
+  function showPaket() {
+    document.getElementById('paketPanel').classList.add('visible');
+    // Scroll msgs to bottom so paket panel is visible
+    requestAnimationFrame(() => {
+      const msgs = document.getElementById('msgs');
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+  }
+
   function sendMsg() {
-    if (waitingReply) return;
+    if (waitingReply || flowDone) return;
     const field = document.getElementById('msgField');
     const text = field.value.trim();
     if (!text) return;
 
-    addMsg(text, 'user');
+    addUserMsg(text);
     field.value = ''; field.style.height = 'auto';
-    msgCount++;
-
-    // Hide QR after first msg
-    if (msgCount === 1) document.getElementById('qrArea').style.display = 'none';
-
-    // Show upgrade banner after 3 msgs
-    if (msgCount >= 3) document.getElementById('upgradeBanner').classList.add('show');
-
-    // Check if not logged in after 5 msgs
-    if (msgCount === 5 && !App.isLoggedIn()) {
-      setTimeout(() => {
-        addMsg('Kamu sudah bercerita banyak dan aku senang bisa menemani. Untuk pengalaman konsultasi yang lebih personal dengan psikolog kami, yuk daftar atau masuk dulu 😊', 'bot');
-        setTimeout(() => {
-          const msgs = document.getElementById('msgs');
-          const row = document.createElement('div');
-          row.className = 'msg-row bot';
-          row.innerHTML = `
-            <div class="msg-av" style="background:transparent;"></div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-primary btn-sm" onclick="go('register')">Daftar Gratis</button>
-              <button class="btn btn-ghost btn-sm" onclick="go('login')">Masuk</button>
-            </div>`;
-          msgs.appendChild(row);
-          msgs.scrollTop = msgs.scrollHeight;
-        }, 300);
-      }, 1500);
-      return;
-    }
 
     waitingReply = true;
     document.getElementById('sendBtn').disabled = true;
-    showTyping();
-    const delay = 900 + Math.random() * 900;
-    setTimeout(() => {
-      removeTyping();
-      addMsg(getBotReply(text), 'bot');
-      waitingReply = false;
-      document.getElementById('sendBtn').disabled = false;
-    }, delay);
-  }
 
-  function sendQR(el) {
-    document.getElementById('msgField').value = el.textContent;
-    sendMsg();
+    const currentStep = step;
+    step++; // move to next question index
+
+    showTyping();
+
+    if (step < QUESTIONS.length) {
+      // Ada pertanyaan berikutnya
+      const delay = 700 + Math.random() * 400;
+      setTimeout(() => {
+        removeTyping();
+        // Optional follow-up acknowledgement sebelum pertanyaan berikutnya
+        const followUp = FOLLOW_UPS[currentStep];
+        if (followUp) {
+          addBotMsg(followUp(text));
+          setTimeout(() => {
+            showTyping();
+            setTimeout(() => {
+              removeTyping();
+              addBotMsg(QUESTIONS[step]);
+              waitingReply = false;
+              document.getElementById('sendBtn').disabled = false;
+            }, 600);
+          }, 300);
+        } else {
+          addBotMsg(QUESTIONS[step]);
+          waitingReply = false;
+          document.getElementById('sendBtn').disabled = false;
+        }
+      }, delay);
+    } else {
+      // Semua pertanyaan selesai (step 4 = keluhan sudah dijawab)
+      flowDone = true;
+      const delay = 900 + Math.random() * 400;
+      setTimeout(() => {
+        removeTyping();
+        addBotMsg('Terima kasih sudah berbagi, aku sudah mencatat semua informasimu. Sekarang, silakan pilih paket konsultasi yang paling sesuai.');
+        setTimeout(() => {
+          lockInput();
+          showPaket();
+        }, 400);
+      }, delay);
+    }
   }
 
   function handleKey(e) {
@@ -375,6 +438,73 @@
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+  }
+
+  // ── Paket selection ──
+  // Maps paket type to internal key and price
+  const PAKET_DATA = {
+    chat:    { type: 'chat',    price: 75000,  label: 'Konsultasi Chat',       duration: 30 },
+    call:    { type: 'call',    price: 120000, label: 'Konsultasi Voice Call',  duration: 45 },
+    offline: { type: 'offline', price: 200000, label: 'Sesi Tatap Muka',        duration: 60 },
+  };
+
+  function selectPaket(key) {
+    const paket = PAKET_DATA[key];
+    const paymentData = {
+      type: paket.type,
+      price: paket.price,
+      duration: paket.duration,
+      source: 'bot_flow',
+    };
+    sessionStorage.setItem('hime_payment', JSON.stringify(paymentData));
+    sessionStorage.setItem('hime_post_login_redirect', '../../pages/payment/index.html');
+
+    const isLoggedIn = App.isLoggedIn();
+    if (isLoggedIn) {
+      window.location.href = '../../pages/payment/index.html';
+    } else {
+      // Show auth choice inside msgs area
+      addBotMsg('Untuk melanjutkan ke paket <strong>' + paket.label + '</strong>, masuk atau daftar dulu — gratis dan hanya butuh 1 menit.');
+      setTimeout(() => {
+        appendCTARow([
+          { label: 'Daftar Gratis', primary: true,  action: "window.location.href='../../pages/auth/register.html'" },
+          { label: 'Masuk',         primary: false, action: "window.location.href='../../pages/auth/login.html'" },
+        ]);
+      }, 200);
+      // Hide paket panel
+      document.getElementById('paketPanel').classList.remove('visible');
+    }
+  }
+
+  function goToExpert() {
+    // Expert list — from bot flow, will pick paket after
+    const paymentData = { type: 'chat', price: 75000, source: 'bot_flow' };
+    sessionStorage.setItem('hime_payment', JSON.stringify(paymentData));
+    sessionStorage.setItem('hime_post_login_redirect', '../../pages/payment/index.html');
+
+    const isLoggedIn = App.isLoggedIn();
+    if (isLoggedIn) {
+      window.location.href = '../../pages/expert/list.html';
+    } else {
+      addBotMsg('Untuk melihat expert, masuk atau daftar dulu — gratis dan hanya butuh 1 menit.');
+      setTimeout(() => appendCTARow([
+        { label: 'Daftar Gratis', primary: true,  action: "window.location.href='../../pages/auth/register.html'" },
+        { label: 'Masuk',         primary: false, action: "window.location.href='../../pages/auth/login.html'" },
+      ]), 200);
+      document.getElementById('paketPanel').classList.remove('visible');
+    }
+  }
+
+  function appendCTARow(buttons) {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    const btns = buttons.map(b =>
+      `<button class="btn ${b.primary ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="${b.action}" style="flex:1;">${b.label}</button>`
+    ).join('');
+    row.innerHTML = `<div class="msg-av" style="background:transparent;"></div><div style="display:flex;gap:8px;flex-wrap:wrap;max-width:82%;">${btns}</div>`;
+    msgs.appendChild(row);
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
   }
 </script>
 </body>

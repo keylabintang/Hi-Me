@@ -385,9 +385,15 @@
 
     const primaryCta = document.getElementById('primaryCta');
     if (primaryCta) {
-      if (data.type === 'chat') primaryCta.textContent = 'Lanjut ke Konfirmasi Chat';
-      else if (data.type === 'call') primaryCta.textContent = 'Lanjut ke Konfirmasi Call';
-      else primaryCta.textContent = 'Lihat Sesi Saya';
+      if (data.source === 'bot_flow' || !data.expertId) {
+        primaryCta.textContent = 'Pilih Expert';
+      } else if (data.type === 'chat') {
+        primaryCta.textContent = 'Lanjut ke Konfirmasi Chat';
+      } else if (data.type === 'call') {
+        primaryCta.textContent = 'Lanjut ke Konfirmasi Call';
+      } else {
+        primaryCta.textContent = 'Lihat Sesi Saya';
+      }
     }
   });
 
@@ -406,6 +412,13 @@
     const data = paymentResult || {};
     const expertId = data.expertId || params.expertId;
     const sessionId = params.sessionId;
+
+    // Bot flow: user paid but hasn't picked an expert yet → go to expert list first
+    if (data.source === 'bot_flow' || !expertId) {
+      sessionStorage.setItem('hime_post_pay_type', data.type || 'chat');
+      go('expert-list');
+      return;
+    }
 
     if (data.type === 'chat') {
       go('chat-confirmation', { expertId, sessionId });

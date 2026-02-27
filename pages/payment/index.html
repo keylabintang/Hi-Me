@@ -599,6 +599,12 @@
       };
       sessionStorage.setItem('hime_pay_result', JSON.stringify(saveData));
 
+      // Bot flow: expert not yet chosen — go straight to success page, pick expert there
+      if (saveData.source === 'bot_flow' || !saveData.expertId) {
+        window.location.href = 'success.html';
+        return;
+      }
+
       // Online flow: show payment success page first, then continue to session confirmation.
       if (saveData.type === 'chat' || saveData.type === 'call') {
         const saved = saveOnlineSession(saveData);
@@ -656,9 +662,16 @@
       document.getElementById('ocAv').textContent = expert.init;
       document.getElementById('ocName').textContent = expert.name;
       document.getElementById('ocSub').textContent = expert.role;
+    } else if (data.source === 'bot_flow') {
+      // Bot flow: expert will be chosen after payment
+      document.getElementById('ocAv').textContent = '?';
+      document.getElementById('ocAv').style.background = 'var(--border)';
+      document.getElementById('ocAv').style.color = 'var(--text-muted)';
+      document.getElementById('ocName').textContent = 'Expert dipilih setelah pembayaran';
+      document.getElementById('ocSub').textContent = 'Kamu akan pilih expert di langkah berikutnya';
     }
 
-    const typeMap = { chat:'Chat', call:'Call', offline:'Offline' };
+    const typeMap = { chat:'Chat Online', call:'Voice Call', offline:'Tatap Muka' };
     const pills = [];
     if (data.type) pills.push(typeMap[data.type] || data.type);
     if (data.duration) pills.push(data.duration + ' menit');
