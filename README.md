@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hi-Me adalah platform konsultasi kesehatan mental berbasis web app dengan pendekatan mobile-first. Platform ini memungkinkan pengguna untuk mendapatkan dukungan profesional dari psikolog, analyst, dan consultant melalui konsultasi online (chat dan call) maupun sesi offline (tatap muka).
+Hi-Me adalah platform konsultasi kesehatan mental berbasis Mobile App. Platform ini memungkinkan pengguna untuk mendapatkan dukungan profesional dari psikolog, analyst, dan consultant melalui konsultasi online (chat dan call) maupun sesi offline (tatap muka).
 
 Hi-Me juga menyediakan fitur Self Talk, yaitu diary privat untuk membantu pengguna memahami, mengekspresikan, dan mengelola kondisi emosional mereka secara mandiri.
 
